@@ -5,7 +5,7 @@
 # load the required packages
 packages <- c(
   "here","pdftools", # for the project's organization
-  "tidyverse", "lubridate", # for wrangling
+  "tidyverse", "lubridate","corpus", # for wrangling
   "ggrepel", "gghighlight", "patchwork", "maps", "scales", # for plotting
   "knitr", "kableExtra", "bookdown","haven", "rmarkdown" # for the report
 )

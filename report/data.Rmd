@@ -11,7 +11,62 @@ source(here::here("scripts/setup.R"))
 text<-pdf_text(here::here("data/Invisible Women.pdf"))
 ```
 
+to create corpus with chapter : https://cran.r-project.org/web/packages/corpus/vignettes/corpus.html
 
+
+```{r}
+# the text starts after the Project Gutenberg header...
+start <- grep("CHAPTER 1", text)
+#print(text[36])
+
+start<-start[1]
+
+# ...end ends at the Project Gutenberg footer.
+stop <- grep("Afterword", text) - 1
+#print(text[259])
+stop<-stop[2]
+
+lines <- text[start:stop]
+```
+
+
+
+
+```{r}
+
+
+# chapters start with "1.", "2.", etc...
+chapter <- grep("CHAPTER", lines)
+
+
+# get the section texts (including the front matter)
+start <- c(1, chapter) # + 1 to skip title
+end <- c(chapter - 1, length(lines))
+text <- mapply(function(s, e) paste(lines[s:e], collapse = "\n"), start, end)
+
+# trim leading and trailing white space
+text <- trimws(text)
+
+# discard the front matter
+text <- text[-1]
+
+# get the section titles, removing the prefix ("1.", "2.", etc.)
+title <- sub("^[[:space:]]*[[:digit:]]+[.][[:space:]]*", "", lines[chapter])
+title <- trimws(title)
+
+
+```
+
+
+
+```{r}
+data <- corpus_frame(title, text)
+
+# set the row names; not necessary but makes results easier to read
+#rownames(data) <- sprintf("ch%02d", seq_along(chapter))
+
+print(data)
+```
 
 * Sources
 * Description
