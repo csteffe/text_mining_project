@@ -4,6 +4,15 @@
 source(here::here("scripts/setup.R"))
 ```
 
+
+
+
+```{r}
+text<-pdf_text(here::here("data/Invisible Women.pdf"))
+```
+
+
+
 * Sources
 * Description
 * Wrangling/cleaning
