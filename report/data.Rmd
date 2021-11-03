@@ -65,8 +65,22 @@ data <- corpus_frame(title, text)
 # set the row names; not necessary but makes results easier to read
 #rownames(data) <- sprintf("ch%02d", seq_along(chapter))
 
-print(data)
+
 ```
+
+
+```{r}
+# cleaning title to keep only CHAPTER x
+for (i in 1:9){
+  data[i,1]<-substr(data[i,1],1,9)
+}
+for (i in 10:16){
+  data[i,1]<-substr(data[i,1],1,10)
+}
+
+
+```
+
 
 * Sources
 * Description
