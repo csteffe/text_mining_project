@@ -5,13 +5,13 @@ source(here::here("scripts/setup.R"))
 ```
 
 
-
+Reading the data.  
 
 ```{r}
 text<-pdf_text(here::here("data/Invisible Women.pdf"))
 ```
 
-to create corpus with chapter : https://cran.r-project.org/web/packages/corpus/vignettes/corpus.html
+to create corpus with chapter : https://cran.r-project.org/web/packages/corpus/vignettes/corpus.html, and cleaning.  
 
 
 ```{r}
@@ -70,23 +70,39 @@ data <- corpus_frame(title, text)
 
 
 ```{r}
-# cleaning title to keep only CHAPTER x
+# cleaning title to keep only CHAPTER x, and clean text to remove Chapter X
 for (i in 1:9){
   data[i,1]<-substr(data[i,1],1,9)
+  data$text[[i]]<-substring(data$text[[i]],10)
 }
 for (i in 10:16){
   data[i,1]<-substr(data[i,1],1,10)
+  data$text[[i]]<-substring(data$text[[i]],11)
 }
 
 
 ```
 
 
-* Sources
-* Description
-* Wrangling/cleaning
-* Spotting mistakes and missing data (could be part of EDA too)
-* Listing anomalies and outliers (could be part of EDA too)
+
+
+
+Tokenization
+
+```{r}
+library(quanteda)
+library(quanteda.textstats)
+
+data.cp<-data$text
+
+summary(data.cp)
+
+data.tk<-tokens(data.cp,removeNumbers=TRUE,
+                 remove_punct=TRUE,
+                 remove_symbols=TRUE,
+                 remove_separators=TRUE)
+data.tk <- data.tk %>% tokens_tolower() %>% tokens_remove(stop_words$word)
+```
 
 
 
