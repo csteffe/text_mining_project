@@ -8,7 +8,7 @@ source(here::here("scripts/setup.R"))
 Reading the data.  
 
 ```{r}
-text<-pdf_text(here::here("data/Invisible Women.pdf"))
+text <- pdf_text(here::here("data/Invisible Women.pdf"))
 ```
 
 to create corpus with chapter : https://cran.r-project.org/web/packages/corpus/vignettes/corpus.html, and cleaning.  
@@ -28,8 +28,6 @@ stop<-stop[2]
 
 lines <- text[start:stop]
 ```
-
-
 
 
 ```{r}
@@ -52,7 +50,6 @@ text <- text[-1]
 
 ```
 
-
 ## Tokenization
 
 ```{r}
@@ -66,28 +63,29 @@ library(dplyr)
 library(ggplot2)
 library(broom)
 
-data.cp <- corpus(text)
+invisible.cp <- corpus(text)
 
 
-summary(data.cp)
+summary(invisible.cp)
 
-data.tk <- tokens(data.cp,
-                 removeNumbers=TRUE,
+invisible.tk <- tokens(invisible.cp,
+                 remove_numbers=TRUE,
                  remove_punct=TRUE,
                  remove_symbols=TRUE,
                  remove_separators=TRUE)
 
-data.tk <- data.tk %>% tokens_tolower() %>% tokens_remove(stop_words$word)
+invisible.tk <- invisible.tk %>% tokens_tolower() %>% tokens_remove(c(stop_words$word,"chapter"))
 
 ## Compute the DTM, TF-IDF and global frequencies
-data.dfm <- dfm(data.tk)
-data.tfidf <- dfm_tfidf(data.dfm)  
-data.freq <- textstat_frequency(data.dfm)
+invisible.dfm <- dfm(invisible.tk)
+invisible.tfidf <- dfm_tfidf(invisible.dfm)  
+invisible.freq <- textstat_frequency(invisible.dfm)
+
 ```
 
 ```{r}
 ### Plot the 20 most frequent terms
-data.freq %>% top_n(20, frequency) %>%
+invisible.freq %>% top_n(20, frequency) %>%
   ggplot(aes(x=reorder(feature, frequency), y=frequency)) + geom_bar(stat = "identity") + coord_flip() +
   xlab("Frequency") + ylab("term")
 ```
