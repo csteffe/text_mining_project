@@ -5,6 +5,18 @@ source(here::here("scripts/setup.R"))
 ```
 
 * Answers to the research questions
+
+1) What does the text mining analysis of this book brings to light ?
+a) general vocabulary analysis + chapter vocabulary analysis + part vocabulary analysis
+b) overall token analysis + chapter token analysis + part token analysis
+...
+
 * Different methods considered
+
+So far only **quanteda** package used, let's see if we can try with another one and explains differences and why we chose them.
+
 * Competing approaches
+
+Explain why we use the **quanteda** method (which is very similar to **tm**, explain how) rather than **tidytext** method 
+
 * Justifications

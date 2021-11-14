@@ -5,10 +5,11 @@
 # load the required packages
 packages <- c(
   "here","pdftools", # for the project's organization
-  "tidyverse", "lubridate","corpus", # for wrangling
+  "tidyverse", "lubridate","tm", # for wrangling
   "ggrepel", "gghighlight", "patchwork", "maps", "scales", # for plotting
-  "knitr", "kableExtra", "bookdown","haven", "rmarkdown","readr","quanteda",
-  "quanteda.textplots","quanteda.textstats","tidytext","dplyr","ggplot2","broom",
+  "knitr", "kableExtra", "bookdown","haven", "rmarkdown","readr","quanteda", "quanteda.textplots",
+  "quanteda.textplots", "tidytext", "corpus",
+  "dplyr","ggplot2","broom", "stats",
   "lexicon"# for the report
 )
 purrr::walk(packages, library, character.only = TRUE)
