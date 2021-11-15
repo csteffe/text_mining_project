@@ -16,7 +16,7 @@ The preface of the book starts on page 11 and the introduction on page 15.
 
 (To create corpus with chapter : https://cran.r-project.org/web/packages/corpus/vignettes/corpus.html, and cleaning.)  
 
-```{r start and stop, echo = FALSE, message = FALSE}
+```{r start and stop, echo = FALSE, message = FALSE, warning = FALSE}
 
 # The text starts after the Project Gutenberg header...
 start <- grep("CHAPTER 1", text)
@@ -170,7 +170,7 @@ data.tk %>% tokens_wordstem()
 
 ```
 
-### Term-Frequency
+### Dcoument-Term Matrix (DTM)
 
 ```{r term frequency, echo = FALSE, message = FALSE}
 
@@ -179,6 +179,8 @@ data.dfm <- dfm(data.tk)  # EST-CE QUE LE OUTPUT EST NORMAL ? CA ME SEMBLE CHELO
 View(data.dfm)
 
 ```
+
+# Global Frequencies
 
 The below table displays the term frequencies. The *feature* column indicates a lemmatized and stemmatized token, *frequency* returns the number of time the lemma? is found in the corpus?, the *rank* indicates ?, the *docfreq* indicates the document frequency which is the number of documents in which the token is found and *group* indicates ?.
 
@@ -195,7 +197,6 @@ kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'),
 ```
 
 ### Term Frequency and Inverse Document Matrix (TF-IDF)
-
 
 The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to detect which words are specific to one document. The below output shows, for the document-feature matrix of 16 documents (i.e. chapters), 8,640 features (i.e. tokens) and 0 docvars (i.e. ??), the weighted frequency? for each token in each document (i.e. chapter).
 
@@ -217,10 +218,6 @@ sort(apply(data.tfidf,
      decreasing = TRUE)[1:20]
 
 ```
-
-### Document-Term ?
-
-The DTM represents the corpus by a matrix. Each row indicates a document ..
 
 ### Zipf's Law
 
@@ -247,7 +244,7 @@ For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$
 ```{r fit, echo = FALSE, message = FALSE}
 
 library(stats)
-fit_women <- lm() # [FINISH!!]
+#fit_women <- lm() # [FINISH!!]
 
 ```
 

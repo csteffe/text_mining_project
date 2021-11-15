@@ -8,7 +8,7 @@ packages <- c(
   "tidyverse", "lubridate","tm", # for wrangling
   "ggrepel", "gghighlight", "patchwork", "maps", "scales", # for plotting
   "knitr", "kableExtra", "bookdown","haven", "rmarkdown","readr","quanteda", "quanteda.textplots",
-  "quanteda.textplots", "tidytext", "corpus",
+  "quanteda.textplots", "tidytext", "corpus", "quanteda.textstats",
   "dplyr","ggplot2","broom", "stats",
   "lexicon"# for the report
 )
