@@ -274,7 +274,9 @@ data.coocc
 
 ```
 
-Using the above feature co-occurrences matrix, we generate a network (object). 
+Using the above feature co-occurrences matrix, we generate a network (object). To generate a readable network of co-occurrences, we add a second condition on feature co-occurrences that is to keep only the strongest co-occurrences, greater than 10000. 
+
+Describe what we see on the plot ? The generated network is very interesting. Indeed, it has a circular shape with no term at the center that would indicate that it, for example *women*, is associated with the others. In fact, it seems that even by keeping only feature co-occurrences above 1,000, the network's shape remains circular. 
 
 [Improve plot layout]
 
@@ -282,15 +284,57 @@ Using the above feature co-occurrences matrix, we generate a network (object).
 
 library(igraph)
 
+# Keep strongest co-occurrences
+data.coocc[data.coocc <= 1000] <- 0
+data.coocc[data.coocc > 1000] <- 1
+
 # Creates a network from the co-occurrences matrix
-network <- graph_from_adjacency_matrix(data.coocc,  
+network <- graph_from_adjacency_matrix(data.coocc, 
                                        mode = "undirected", 
                                        diag = FALSE)
 
-# Plot the network 
 plot(network, 
      layout = layout_with_kk)
 
 ```
+
+## Dispersion Plot
+
+Dispersion or X-Ray plots inspect where a specific token is used in each text by locating a pattern in each text. 
+
+The below table shows how in chapter 1 (i.e. text1) the word *women* are used. 
+
+```{r pattern location, echo=F, message=F, warning=F}
+
+# Checks the result
+head(kwic(data.cp, pattern = "women")) 
+
+kbl(head(kwic(data.cp, 
+              pattern = "women")), 
+    caption = "Pattern Location") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+```{r xray plot, echo=F, message=F, warning=F}
+
+# Plot
+textplot_xray(kwic(data.cp, 
+                   pattern = c("women"))
+
+```
+
+We can extend to two patterns. The below lexical dispersion plot shows that the term *sex* is more specific to chapter 10 and that *women* and *sex* are not necessarily associated. 
+
+```{r xray plot 2 patterns, echo=F, message=F, warning=F}
+
+# Plot
+textplot_xray(kwic(data.cp, pattern = c("women")),
+              kwic(data.cp, pattern = c("sex")),
+              scale = "absolute")
+
+```
+
 
 
