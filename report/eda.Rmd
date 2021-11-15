@@ -1,11 +1,296 @@
-# Exploratory data analysis
+# Exploratory Data Analysis (EDA)
 
-```{r, echo = FALSE, message = FALSE}
+To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package**.
+
+```{r, echo=F, message=F}
 source(here::here("scripts/setup.R"))
 ```
 
-* Mapping out the underlying structure
-* Identifying the most important variables
-* Univariate visualizations
-* Multivariate visualizations
-* Summary tables
+## TF-IDF plot
+
+The following visualization plots the 10 most frequent terms in the whole corpus. The plot indicates that the term *women* is the most frequent term overall, appearing almost 1,250 times in the corpus, which also means that it is the least document specific term. 
+
+[Improve plot: layout/color/add title/add subtitle/caption with source]
+
+NOTICE "WOMEN'S" SHOULD NOT APPEAR IT SHOULD BE SPLIT IN WOMEN AND 'S !!! 
+
+```{r TF-IDF plot, echo=F, message=F, warning=F}
+
+tfidf_plot <- data.freq  %>% 
+              top_n(10, frequency) %>%                    # selects the top 10 rows by frequency values
+              ggplot(aes(x = reorder(feature, frequency), # orders terms by frequency values
+                         y = frequency)) + 
+              geom_bar(stat = "identity") +               # generates a barplot
+              coord_flip() +                              # flips the coordinates
+              xlab("Frequency") + 
+              ylab("Term")
+
+tfidf_plot
+
+```
+
+## Cloud of Words plot
+
+The Cloud of Words plot is another possible representation used to visualize term frequencies.
+
+The first Cloud of Words shows the most frequent terms for the corpus.
+
+[Improve plot: use different colors]
+
+```{r cloud of words for corpus plot, echo=F, message=F, warning=F}
+
+CoW_cp <- textplot_wordcloud(data.dfm)
+
+CoW_cp 
+
+```
+
+## Term-Frequency by Chapter 
+
+The second plot shows the same information, ten most frequent terms, but by chapters of the book. Here, we show the ten most frequent terms associated with their chapter (i.e. document). We see that the term *women* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
+
+Regarding the term *female*, eventhough it is the second most frequent term in the book, it seems to be more specific to chapter 14 *Women's Rights are Human Rights* since we only find it in this particular chapter [is this right?]. 
+
+[Improve plot: color, layout, title, caption with source, can we change text1 by the name of the chapter ?]
+
+```{r cloud of words by document plot, echo=F, message=F, warning=F}
+
+library(broom)
+
+CoW_doc <- data.dfm %>% 
+           tidy() %>%                 # creates a tibble 
+           top_n(10, count) %>%       # selects the top 10 rows by count      
+           ggplot(aes(x = term, 
+                      y = count)) +   
+           geom_col() + 
+           coord_flip() + 
+           xlab("Term") +
+           ylab("Frequency") +
+           facet_wrap(~ document, 
+                      ncol = 2)
+
+CoW_doc 
+
+```
+
+## TF-IDF
+
+The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable] 
+
+```{r tfidf by document plot, echo=F, message=F, warning=F}
+
+tfidf_plot <- data.tfidf %>% 
+              tidy() %>%  
+              top_n(20, count) %>% 
+              ggplot(aes(x = term, 
+                         y = count)) +
+              geom_col() + 
+              coord_flip() + 
+              facet_wrap(~ document, 
+                         ncol = 2)
+
+tfidf_plot
+
+```                
+
+## Largest TF-IDF (over all documents)
+
+The below plot displays the terms that have at least one large TF-IDF. To do so, we compute for each term the maximum TF-IDF over all chapters of the book. The output shows that the term *tax* has a large TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book.
+
+[Improve plot]
+
+```{r max tf-idf, echo=F, message=F, warning=F}
+
+tfidf_max <- data.tfidf %>% 
+             tidy() %>%
+             group_by(term) %>%
+             summarize(count = max(count)) %>% 
+             arrange(desc(count)) %>%
+             top_n(10, count) %>%
+             ggplot(aes(x = reorder(term, count), 
+                        y = count)) + 
+             geom_bar(stat = "identity") + 
+             coord_flip() +
+             labs(title = "Largest TF-IDF in the book",
+                  subtitle = "",
+                  x = "Max TF-IDF",
+                  y = "Term",
+                  caption = "source: Invisible Women.pdf")
+             
+tfidf_max
+
+```   
+
+## Term Frequencies against Document Frequencies 
+
+The below plot shows the frequency of a term relative to its document frequency (i.e. number of documents in which a term is found), indicating whether a word is specific to a document or not. For example, we see that *women* is not document-specific since it is the most frequent term over all chapters (i.e. documents) of the book and that it is found in most chapters. On the contrary, the words *trial* and *tax* are less frequent and also less frequent in documents making them more document-specific. 
+
+[Improve plot]
+
+```{r TF vs DF, echo=F, message=F, warning=F}
+
+tf_df <- data.freq %>% 
+         ggplot(aes(x = log(docfreq), 
+                    y = log(frequency))) +
+         geom_text(aes(label = feature), 
+                   position = position_jitter(), 
+                   size=3) + 
+         labs(title = "TF versus DF (log-log)",
+                  subtitle = "",
+                  x = "Document log-frequency",
+                  y = "log-frequency",
+                  caption = "source: Invisible Women.pdf")
+
+tf_df
+
+```
+
+## Lexical Diversity
+
+Lexical diversity is a diversity index that measures the richness of the vocabulary in one document. 
+
+### Token-Type Ratio (TTR)
+
+The TTR is a diversity measure indicating a document's richness in the number of token types (i.e. vocabulary). The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 is the TTR the richest is the vocabulary of a document. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
+
+The below table sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.622 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.457. Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.622. 
+
+```{r TTR, echo=F, message=F, warning=F}
+
+ttr <- data.dfm %>% 
+       textstat_lexdiv()  # computes the lexical diversity
+
+ttr <- ttr %>%
+       arrange(desc(ttr$TTR))
+
+library(kableExtra)
+kbl(ttr, 
+    align = c('c', 'c'), 
+    caption = "Token-Type Ratio (TTR)") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+The below graph plots the above information.
+
+[Improve plot]
+
+```{r TTR plot, echo=F, message=F, warning=F}
+
+ttr_plot <- ttr %>% 
+            ggplot(aes(reorder(document, -TTR), TTR)) + 
+            geom_bar(stat = "identity") +
+            labs(title = "Token-Type Ration (TTR)",
+                 subtitle = "Chapter 15 has the richest vocabulary",
+                 x = "Chapter",
+                 y = "TTR")
+
+ttr_plot
+
+```
+
+### Moving-Average Token-Type Ration (MATTR)
+
+Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an algorithm using windows of the text to compute the TTR and repeating several times over different windows of the same size the TTR computation. The advantage of the MATTR is that it is less dependent on the length of the document than TTR. A too large window can produce an error since no local TTR can be computed and a too small window results in pointless values (always 1). MATTR is computed using ordered tokens.
+
+The Moving-Average Token-Type Ration ranges from 0.914 to 0.936 over all chapters of the book and according to the MATTR, chapter 6 *Being Worth Less Than a Show* has the richest vocabulary with a MATTR of 0.936. 
+
+```{r MATTR plot, echo=F, message=F, warning=F}
+
+mattr <- data.tk %>% 
+         textstat_lexdiv(measure = "MATTR", 
+                         MATTR_window = 20)    # determines the size of the window to use 
+
+mattr <- mattr %>%
+         arrange(desc(mattr$MATTR))
+
+kbl(mattr, 
+    align = c('c', 'c'), 
+    caption = "Moving-Average Token-Type Ratio (MATTR)") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+The below graph plots the above information and shows that the MATTR among chapters are very similar. 
+
+[Improve plot]
+
+```{r TTR plot, echo=F, message=F, warning=F}
+
+mattr_plot <- mattr %>% 
+              ggplot(aes(reorder(document, -MATTR), MATTR)) + 
+              geom_bar(stat = "identity") +
+              labs(title = "Moving-Average Token-Type Ration (MATTR)",
+                   subtitle = "",
+                   x = "Chapter",
+                   y = "MATTR")
+
+mattr_plot
+
+```
+
+## Keyness
+
+The keyness measure is a chi-square test of independence indicating whether a term is characteristic of a target compared to a reference. 
+
+We compute for each chapter of the book (i.e. text1 to text16) the keyness of terms. Each chapter (i.e. text[i]) is then at some point the target and the reference. 
+
+Add interpretation
+
+```{r keyness, echo=F, message=F, warning=F}
+
+#for (i in data.dfm){ # I don't know what variable to use because dfm is not a data frame ??
+  
+   #data.keyness[i] <- textstat_keyness(data.dfm, target = i)
+   #textplot_keyness(data.keyness)
+  
+#}
+
+```
+
+## Link between words
+
+Here, we look at how words are connected and how inter-connected they are (i.e. co-occurrences). We first compute the co-occurrences between terms. 
+
+The feature co-occurrence matrix is a 8,640 by 8,640 matrix with 74,649,600 elements. Because of the size of the matrix, we reduce the matrix' size following a condition. Thus, the condition is to keep co-occurrences that occur more than eight times between two words. After filtering for co-occurrences greater than eight, we get a smaller feature co-occurrence matrix of dimensions 929 by 929 features. 
+
+```{r co-occurrences, echo=F, message=F, warning=F}
+
+# Creates a feature co-occurrence matrix
+data.coocc <- fcm(data.tk,     
+                  context = "document", 
+                  tri = FALSE)                 # returns upper and lower triangles of the matrix
+
+index <- data.freq %>% 
+         filter(frequency > 8) %>%  # filter for co-occurrences greater than 8
+         data.frame() %>% 
+         select(feature)
+
+data.coocc <- data.coocc[index$feature, index$feature]
+
+data.coocc
+
+```
+
+Using the above feature co-occurrences matrix, we generate a network (object). 
+
+[Improve plot layout]
+
+```{r network, echo=F, message=F, warning=F}
+
+library(igraph)
+
+# Creates a network from the co-occurrences matrix
+network <- graph_from_adjacency_matrix(data.coocc,  
+                                       mode = "undirected", 
+                                       diag = FALSE)
+
+# Plot the network 
+plot(network, 
+     layout = layout_with_kk)
+
+```
+
+
