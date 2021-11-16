@@ -30,7 +30,7 @@ When analyzing the sentiment, we should not use the data in which stop words wer
 ```{r data.tk1, echo=F, message=F, warning=F}
 
 # Not removing the stop words
-data.tk1 <- data.tk1 %>%
+data.tk3 <- data.tk1 %>%
             tokens_tolower() %>%
             tokens_replace(pattern = hash_lemmas$token, 
                               replacement = hash_lemmas$lemma)
@@ -43,12 +43,40 @@ The dictionary-based sentiment analysis matches tokens from each document to a r
 
 The disadvantage of the dictionary-based sentiment analysis is that the negative forms are not taken into consideration. For example, in the sentence *I don't enjoy the show*, the sentence will be considered positive because it will not consider the contraction *don't* but only the word *enjoy*.
 
-```{r, echo=F, message=F, warning=F}
+The following table shows the average sentiment over the token values of each chapter of the book. The possible sentiment can be **positive**, **negative**, **neg_positive** or **neg_negative**.
+
+```{r dictionary-based analysis, echo=F, message=F, warning=F}
 
 # Dictionary used
 # data_dictionary_LSD2015 # un-comment to see the object
 
 # Matches tokens with dictionary values
+data.sent <- tokens_lookup(data.tk3, 
+                           dictionary = data_dictionary_LSD2015) %>% 
+             dfm() %>%                                                # creates a dtm matrix
+             tidy()
+
+kbl(data.sent, 
+    caption = "Sentiment Analysis (Dictionary-Based)") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+The graph is a graphical representation of the above table. For each chapter of the book, we see the proportion of each type of sentiments. 
+
+```{r dictionary-based analysis plot, echo=F, message=F, warning=F}
+
+# Plots the above tibble
+ggplot(data.sent,
+       aes(x = reorder(document, count), 
+           y = count, 
+           fill = term)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  labs(title = "Dictionary-Based Sentiment Analysis",
+       x = "Count",
+       y = "Chapter (i.e. document)")
 
 ```
 
