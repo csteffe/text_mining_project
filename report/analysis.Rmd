@@ -37,7 +37,7 @@ data.tk3 <- data.tk1 %>%
 
 ```
 
-### Dictionary-Based Sentiment Analysis
+### Dictionary-Based 
 
 The dictionary-based sentiment analysis matches tokens from each document to a reference dictionary with token values and then look for word polarity. The sentiment is the average over token values of the document. 
 
@@ -82,7 +82,94 @@ ggplot(data.sent,
 
 ### Valence Shifters 
 
-The valence shifters approach uses positive/negative sentiment scores (i.e. value-based) to extract the sentiment of a document. 
+The valence shifters approach uses positive/negative sentiment scores (i.e. value-based) to extract the sentiment of a document. Here, we use two dictionaries, a polarized words dicitonary and a valence-shifters one. 
+
+The next table shows the first ten words of the polarized words dictionary, displaying the words and their numerical value.
+
+```{r polarized words dictionary, echo=F, message=F, warning=F}
+
+library(sentimentr)
+
+# Polarized words dictionary
+kbl(head(hash_sentiment_jockers_rinker, 10), 
+    caption = "Polarized Words Dictionary") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+The next table shows the first ten words of the valence-shifters dictionary, displaying the words and their numerical value.
+
+```{r valence-shifters dictionary, echo=F, message=F, warning=F}
+
+# Valence-shifters dictionary
+kbl(head(hash_valence_shifters, 10), 
+    caption = "Valence-Shifters Dictionary") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+To proceed to the value-shifters sentiment analysis, we first extract the sentences from the text and then we compute the sentiment value for each sentence. Because the column *word_count* had NAs we remove rows that show NAs since no sentiment information can be provided (i.e. sentiment = 0).
+
+One possibility is to assign weights to certain types of sentences to 0 which unpolarizes them. For example, we could have decided to unpolarize the questions but here we decided to keep them as we believe they could be insightful. 
+
+```{r sentiment analysis, echo=F, message=F, warning=F}
+
+# Extracts sentences from the text
+text_sentences <- get_sentences(text)
+
+# Computes sentiment by sentence
+sent_bysent <- sentiment(text_sentences) %>%   # assigns a polarity scores
+               filter(word_count != "NA")
+
+kbl(head(sent_bysent, 10), 
+    caption = "Sentiment Values by Sentence") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+After taking a look at the sentiment score for each sentence, we zoom out to look into the sentiment score by chapter of the book. The *ave_sentiment* column gives the average sentiment (i.e) score by chapter. 
+
+[Remove text form the document column and keep only the chapter number] The below table displays the sentiment scores from largest to smallest for the chapters of the book. According to the table, chapter 6 *Being Worth Less Than A Shoe* has the greatest average sentiment score with 0.275 which is consider positive and chapter 7 *The Plough Hypothesis* has the smallest score with -0.3953 which is consider negative. 
+
+In total, five chapters have a positive sentiment (i.e. scores above 0.05), four have a negative sentiment (i.e. scores below -0.05) and seven chapters have a neutral sentiment (i.e. scores between -0.05 and 0.05). 
+
+```{r sentiment analysis by document, echo=F, message=F, warning=F}
+
+# Computes the sentiment score for each chapter
+sent_bychap <- sentiment_by(text,
+                            by = document) %>%
+               arrange(desc(ave_sentiment)) %>%
+               filter(document != "NA")
+
+kbl(sent_bychap, 
+    caption = "Sentiment Values by Chapter") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) 
+
+```
+
+Sentiment changes as sentences changes. Thus, in order to better track the evolution of sentiment we plot the sentiment scores' evolution by chapter of the book (i.e. document). 
+
+[Improve plot: remove text from document column so x is readible/layout]
+
+```{r sentiment analysis by document plot, echo=F, message=F, warning=F}
+
+# Plots the sentiment curve by document
+sent_bychap %>% 
+  ggplot(aes(x = document, y = ave_sentiment)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  labs(title = "Sentiment Score By Chapter",
+       x = "Sentiment Score",
+       y = "Chapter")
+
+```
+
+
+
 
 
 

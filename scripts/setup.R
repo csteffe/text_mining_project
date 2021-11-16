@@ -9,7 +9,7 @@ packages <- c(
   "ggrepel", "gghighlight", "patchwork", "maps", "scales", # for plotting
   "knitr", "kableExtra", "bookdown","haven", "rmarkdown","readr","quanteda", "quanteda.textplots",
   "quanteda.textplots", "tidytext", "corpus", "quanteda.textstats",
-  "dplyr","ggplot2","broom", "stats", "broom",
+  "dplyr","ggplot2","broom", "stats", "broom", "sentimentr",
   "lexicon"# for the report
 )
 purrr::walk(packages, library, character.only = TRUE)
