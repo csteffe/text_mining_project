@@ -1,6 +1,6 @@
 # Analysis
 
-```{r, echo=F, message=F}
+```{r, echo=F, message=F, warning=F}
 source(here::here("scripts/setup.R"))
 ```
 
@@ -169,6 +169,112 @@ sent_bychap %>%
 ```
 
 ## Similarities and Clustering
+
+Similarity is a proximity measure. Once can measure similarity between terms to see if they are used in the same context or similarity between documents and see whether a document uses the same tokens. 
+
+### Similarities between Documents
+
+#### Jaccard Index
+
+To study similarities between chapters (i.e. documents) of the book, we first compute the Jaccard index matrix displaying the relative number of common words using the TF-IDF matrix. 
+
+```{r Jaccard, echo=F, message=F, warning=F}
+
+# Computes similarities and distances between documents
+data.jac <- textstat_simil(data.tfidf,                  # uses the frequencies
+                           method = "jaccard", 
+                           margin = "documents")        # between documents
+
+library(reshape2)
+library(ggplot2)
+
+# Converts the object to matrix then to data frame
+data.jac.mat <- melt(as.matrix(data.jac)) 
+
+# Plots
+ggplot(data = data.jac.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name="Jaccard") +
+  geom_tile() +
+  labs(title = "Heatmap Representation Of Similarities Between Documents",
+       x = "Chapter",
+       y = "Chapter")
+
+```
+
+Then, we compute the cosine similarity matrix. 
+
+```{r Cosine, echo=F, message=F, warning=F}
+
+# Cosine
+data.cos <- textstat_simil(data.tfidf,                  # uses frequencies
+                           method = "cosine",           # cosine
+                           margin = "documents")   
+
+# Converts the object to matrix then to data frame
+data.cos.mat <- melt(as.matrix(data.cos))
+
+# Plot
+ggplot(data = data.cos.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name="Cosine") +
+  geom_tile() +
+  labs(title = "Heatmap Representation Of Similarities Between Documents",
+       x = "Chapter",
+       y = "Chapter")
+
+```
+
+Finally, we compute the Euclidean distance matrix.
+
+```{r Euclidean, echo=F, message=F, warning=F}
+
+# Euclidean
+data.euc <- textstat_dist(data.tfidf,                   # uses the frequencies
+                          method = "euclidean",         # Euclidean distances
+                          margin = "documents")
+
+# Converts the object to matrix then to data frame
+data.euc.mat <- melt(as.matrix(data.euc))
+
+# Maximum distance
+M <- max(data.euc.mat$value) 
+
+# Converts from distance to similarity in [0,1]
+data.euc.mat$value.std <- (M - data.euc.mat$value)/M 
+
+# Plots
+ggplot(data = data.euc.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value.std)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name = "Euclidean") +
+  geom_tile()
+
+```
+
+
+
+
 
 
 
