@@ -239,7 +239,7 @@ ggplot(data = data.cos.mat,
 
 ```
 
-Finally, we compute the Euclidean distance matrix.
+Finally, we compute the Euclidean-based similarity matrix. Is there a clearer separation between documents ? compare with above heatmaps ! Which documents are similar ? Are their groups ? 
 
 ```{r Euclidean, echo=F, message=F, warning=F}
 
@@ -268,18 +268,309 @@ ggplot(data = data.euc.mat,
                        midpoint = 0.5, 
                        limit = c(0,1), 
                        name = "Euclidean") +
-  geom_tile()
+  geom_tile() +
+  labs(title = "Heatmap Representation Of Similarities Between Documents",
+       x = "Chapter",
+       y = "Chapter")
 
 ```
 
+### Clustering of Documents
+
+To procede to clustering documents, we need to build the dissimilarities and/or vector space model (VSM) on which we can apply the clustering methods. There are two approaches to clustering. One is based on distances (i.e. hierarchical clustering) and the other one is based on features co-occurrences? (i.e. partitioning). 
+
+Clusters are difficult to interpret. This is why we can look at the most frequent terms in each cluster to understand better what they are grouping.
+
+#### Hierarchical Clustering
+
+Hierarchical clustering is based on distances and applied on the dissimilarities.
+
+##### Euclidean-based Dissimilarity Matrix
+
+The Euclidean dissimilarity matrix seems to show that there are three clusters. One grouping chapter 10 *The Drugs Don't Work*, one chapter 9 *A Sea Of Dudes* and the other one the rest og the book. 
+
+```{r Euclidean-based, echo=F, message=F, warning=F}
+
+# Hierarchical clustering
+data.hc_eu <- hclust(as.dist(data.euc))
+
+plot(data.hc_eu)
+
+```
+
+From the clustering, we extract the ten words that are the most used. 
+
+```{r Euclidean-based cutree, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.clust_eu <- cutree(data.hc_eu, 
+                        k = 3)
+data.clust_eu 
+
+# Extract most frequent terms from clusters
+clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.2 = names(sort(apply(data.tfidf[data.clust_eu == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.3 = names(sort(apply(data.tfidf[data.clust_eu == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+
+kbl(clust_eu, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+##### Inverted Jaccard Dissimilarity Matrix
+
+The inverted Jaccard dissimilarity matrix seems to show that there are two clusters. One grouping chapter 15 *Who Will Rebuild* and the other one grouping the rest of the book. 
+
+```{r Jaccard inverted, echo=F, message=F, warning=F}
+
+# Hierarchical clustering
+data.hc_jac <- hclust(as.dist(1 - data.jac)) # inverted similarity matrix
+
+plot(data.hc_jac)
+
+```
+
+From the clustering, we extract the ten words that are the most used. 
+
+```{r Jaccard cutree, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.clust_jac <- cutree(data.hc_jac, 
+                         k = 3)
+data.clust_jac
+
+# Extract most frequent terms from clusters
+clust_jac <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_jac == 1,], 2, sum), 
+                                             decreasing = TRUE)[1:10]),
+                       Clust.2 = names(sort(apply(data.tfidf[data.clust_jac == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.3 = names(sort(apply(data.tfidf[data.clust_jac == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+
+kbl(clust_jac, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+##### Inverted Cosine Dissimilarity Matrix
+
+The inverted cosine dissimilarity matrix seems to show that there are two clusters. One grouping chapters 4, 14, 5, 6, 10, 11 and 8, 9 and the other one grouping chapters 1, 2, 15, 16, 7, 13, 3 and 12.
+
+```{r cosine inverted, echo=F, message=F, warning=F}
+
+# Hierarchical clustering
+data.hc_cos <- hclust(as.dist(1 - data.cos)) # inverted similarity matrix
+
+plot(data.hc_cos)
+
+```
+
+From the clustering, we extract the ten words that are the most used. 
+
+```{r cosine cutree, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.clust_cos <- cutree(data.hc_cos, 
+                         k = 3)
+data.clust_cos
+
+# Extract most frequent terms from clusters
+clust_cos <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_cos == 1,], 2, sum), 
+                                             decreasing = TRUE)[1:10]),
+                       Clust.2 = names(sort(apply(data.tfidf[data.clust_cos == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.3 = names(sort(apply(data.tfidf[data.clust_cos == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+
+kbl(clust_cos, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+#### K-Means
+
+K-means is applied on the features (i.e. terms?) using TF-IDF. 
+
+##### Euclidean
+
+```{r Euclidean-based km, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.km_eu <- kmeans(data.tfidf,
+                     centers = 3)
+data.km_eu$cluster
+
+# Extract most frequent terms from clusters
+clust_eu_km <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.km_eu$cluster == 1,], 2, sum), 
+                                               decreasing = TRUE)[1:10]),
+                          Clust.2 = names(sort(apply(data.tfidf[data.km_eu$cluster == 2,], 2, sum),                                                    decreasing = TRUE)[1:10]),
+                          Clust.3 = names(sort(apply(data.tfidf[data.km_eu$cluster == 3,], 2, sum),  
+                                               decreasing = TRUE)[1:10]))
+
+kbl(clust_eu_km, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+##### Jaccard
+
+```{r Jaccard km, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.km_jac <- kmeans(data.tfidf,
+                      centers = 3)
+data.km_jac$cluster
+
+# Extract most frequent terms from clusters
+clust_jac_km <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.km_jac$cluster == 1,], 2, sum), 
+                                                decreasing = TRUE)[1:10]),
+                           Clust.2 = names(sort(apply(data.tfidf[data.km_jac$cluster == 2,], 2, sum),                                                   decreasing = TRUE)[1:10]),
+                           Clust.3 = names(sort(apply(data.tfidf[data.km_jac$cluster == 3,], 2, sum),  
+                                                decreasing = TRUE)[1:10]))
+
+kbl(clust_jac_km, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+##### Cosine
+
+```{r cosine km, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.km_cos <- kmeans(data.tfidf,
+                      centers = 3)
+data.km_cos$cluster
+
+# Extract most frequent terms from clusters
+clust_cos_km <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.km_cos$cluster == 1,], 2, sum), 
+                                                decreasing = TRUE)[1:10]),
+                           Clust.2 = names(sort(apply(data.tfidf[data.km_cos$cluster == 2,], 2, sum),                                                   decreasing = TRUE)[1:10]),
+                           Clust.3 = names(sort(apply(data.tfidf[data.km_cos$cluster == 3,], 2, sum),  
+                                                decreasing = TRUE)[1:10]))
+
+kbl(clust_cos_km, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+### Similarities Between Words
+
+Now we analyze similarities between words through chapters (i.e. documents). Because of the large number of words, we focus on word frequency ranks smaller or equal to 40 (i.e. 40 most frequent words).
+
+#### Cosine
+
+What words are similar ? It means they are used in similar proportion through documents.
+
+```{r euclidean similarities btwn words, echo=F, message=F, warning=F}
+
+# Extracts the features
+data.feat <- textstat_frequency(data.tf) %>% 
+  filter(rank <= 40)
+
+data.feat$feature
+
+data.cos <- textstat_simil(data.tf[, data.feat$feature], 
+                           method = "cosine", 
+                           margin = "feature")
+
+# Converts the object to matrix then to data frame
+data.cos.mat <- melt(as.matrix(data.cos)) 
+
+# Plots
+ggplot(data = data.cos.mat, 
+       aes(x = Var1, 
+           y = Var2,  
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name = "Cosine") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1))
 
 
+```
 
+### Clustering Words
 
+To cluster the words, we first have to transform the similarity matrix into a dissimilarity matrix. The following plot is the dendogram of the cosine dissimilarities.
 
+```{r clustering words, echo=F, message=F, warning=F}
 
+data.cos2 <- textstat_simil(data.tfidf, 
+                            method = "cosine", 
+                            margin = "features")
 
+data.hc <- hclust(as.dist(1 - data.cos2))
+plot(data.hc)
 
+#PROBLEM C!!!!
 
+```
 
+### Clustering With Co-occurrences
 
+Using co-occurrences to cluster features requires transforming co-occurrences into dissimilarities. Object needs to be the tokens because co-occurrences needs the token order and thus cannot be computed on a BOW object. 
+
+Are terms co-occurring ? if yes, a lot ? 
+
+```{r clustering with co-occurrences, echo=F, message=F, warning=F}
+
+# Makes a co-occurrence on a (half-)window of 3
+data.fcm <- fcm(data.tk, 
+                window = 3, 
+                tri = FALSE)
+
+# Makes the co-occurrence matrix symmetrical
+data.fcm <- (data.fcm + t(data.fcm))/2
+
+# Makes a matrix
+data.fcm.mat <- melt(as.matrix(data.fcm[data.feat$feature, 
+                                        data.feat$feature]), 
+                     varnames = c("Var1","Var2"))
+
+# Makes a heatmap with most frequent features
+ggplot(data = data.fcm.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 140, 
+                       limit = c(0,280), 
+                       name = "Co-occurrence") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r clustering analysis, echo=F, message=F, warning=F}
+
+data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature, 
+                                         data.feat$feature]) # 280 is the max co-occurrence here
+
+data.hc <- hclust(as.dist(data.inv_occ))
+
+plot(cdata.hc)
+
+```
