@@ -1,6 +1,6 @@
 # Analysis
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo=F, message=F}
 source(here::here("scripts/setup.R"))
 ```
 
@@ -20,3 +20,43 @@ So far only **quanteda** package used, let's see if we can try with another one 
 Explain why we use the **quanteda** method (which is very similar to **tm**, explain how) rather than **tidytext** method 
 
 * Justifications
+
+## Sentiment Analysis
+
+The sentiment analysis qualifies or quantifies the sentiment emerging from one text. To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based). 
+
+When analyzing the sentiment, we should not use the data in which stop words were removed since they might be in the sentiment dictionary used or created. 
+
+```{r data.tk1, echo=F, message=F, warning=F}
+
+# Not removing the stop words
+data.tk1 <- data.tk1 %>%
+            tokens_tolower() %>%
+            tokens_replace(pattern = hash_lemmas$token, 
+                              replacement = hash_lemmas$lemma)
+
+```
+
+### Dictionary-Based Sentiment Analysis
+
+The dictionary-based sentiment analysis matches tokens from each document to a reference dictionary with token values and then look for word polarity. The sentiment is the average over token values of the document. 
+
+The disadvantage of the dictionary-based sentiment analysis is that the negative forms are not taken into consideration. For example, in the sentence *I don't enjoy the show*, the sentence will be considered positive because it will not consider the contraction *don't* but only the word *enjoy*.
+
+```{r, echo=F, message=F, warning=F}
+
+# Dictionary used
+# data_dictionary_LSD2015 # un-comment to see the object
+
+# Matches tokens with dictionary values
+
+```
+
+### Valence Shifters 
+
+The valence shifters approach uses positive/negative sentiment scores (i.e. value-based) to extract the sentiment of a document. 
+
+
+
+
+

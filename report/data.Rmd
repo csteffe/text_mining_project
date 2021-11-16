@@ -123,11 +123,11 @@ Tokenization is the method used to split a text into tokens (i.e. unit of analys
 ```{r tokenization, echo = FALSE, message = FALSE}
 
 # Tokenize = create a tokens object
-data.tk <- tokens(data.cp,
-                  remove_numbers = FALSE,
-                  remove_punct = TRUE,
-                  remove_symbols = TRUE,
-                  remove_separators = TRUE) 
+data.tk1 <- tokens(data.cp,
+                   remove_numbers = FALSE,
+                   remove_punct = TRUE,
+                   remove_symbols = TRUE,
+                   remove_separators = TRUE) 
 
 ```
 
@@ -138,9 +138,9 @@ To continue the cleaning process, we remove useless words that bring very to no 
 ```{r cleaning, echo = FALSE, message = FALSE}
 
 # Removes stop words and converts into lower cases 
-data.tk <- data.tk %>%
-           tokens_remove(stop_words$word) %>%
-           tokens_tolower()
+data.tk2 <- data.tk1 %>%
+            tokens_remove(stop_words$word) %>%
+            tokens_tolower()
 
 ```
 
@@ -152,8 +152,8 @@ Lemmatization also simplifies tokens by generating a token dictionary for each t
 
 # Lemmatization: replaces tokens in a tokens object (i.e. text)
 library(lexicon)
-data.tk  %>%  tokens_replace(pattern = hash_lemmas$token, 
-                             replacement = hash_lemmas$lemma)
+data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
+                              replacement = hash_lemmas$lemma)
 
 ```
 
@@ -166,7 +166,7 @@ The below output displays the first twelve tokens reduced to their steam for eac
 ```{r stemming, echo = FALSE, message = FALSE}
 
 # Stemming
-data.tk %>% tokens_wordstem()
+data.tk2 %>% tokens_wordstem()
 
 ```
 
@@ -175,7 +175,7 @@ data.tk %>% tokens_wordstem()
 ```{r term frequency, echo = FALSE, message = FALSE}
 
 # Creates a document-feature matrix
-data.dfm <- dfm(data.tk)  # EST-CE QUE LE OUTPUT EST NORMAL ? CA ME SEMBLE CHELOU ??
+data.dfm <- dfm(data.tk2)  # EST-CE QUE LE OUTPUT EST NORMAL ? CA ME SEMBLE CHELOU ??
 View(data.dfm)
 
 ```
@@ -230,14 +230,19 @@ The below plot displays the term frequencies against their ranks on a non log-lo
 ```{r Zipf law plot, echo = FALSE, message = FALSE}
 
 # Illustration of the Zipf's law 
-plot(frequency~rank, data = data.freq, pch = 20)
+plot(frequency~rank, 
+     data = data.freq, 
+     pch = 20)
 
 # Adds text on plot
-text(frequency~rank, data = data.freq[1:4,], label = feature, pos=4)
+text(frequency~rank, 
+     data = data.freq[1:4,], 
+     label = feature, 
+     pos=4)
 
 ```
 
-The below plot displays the same plot but on a log-log-scale because of the large size of the corpus. On a log-log scale, the frequency versus rank gives a linear relation [EXPLAIN WHY]. 
+And the second plot is on a log-log scale, the frequency versus rank gives a linear relation [EXPLAIN WHY]. 
 
 For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ 
 
@@ -248,16 +253,20 @@ library(stats)
 
 ```
 
-
 [IMPROVE PLOT MAYBE ?]
 
 ```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
 
 # Illustration of the Zipf's law 
-plot(log(frequency)~log(rank), data = data.freq, pch = 20)
+plot(log(frequency)~log(rank), 
+     data = data.freq, 
+     pch = 20)
 
 # Adds text on plot
-text(log(frequency)~log(rank), data = data.freq[1:4,], label = feature, pos = 4)
+text(log(frequency)~log(rank), 
+     data = data.freq[1:4,], 
+     label = feature, 
+     pos = 4)
 
 ```
 
