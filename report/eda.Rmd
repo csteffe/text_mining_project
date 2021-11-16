@@ -321,7 +321,7 @@ kbl(head(kwic(data.cp,
 
 # Plot
 textplot_xray(kwic(data.cp, 
-                   pattern = c("women"))
+                   pattern = c("women")))
 
 ```
 
