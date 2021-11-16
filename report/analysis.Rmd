@@ -168,6 +168,8 @@ sent_bychap %>%
 
 ```
 
+## Similarities and Clustering
+
 
 
 
