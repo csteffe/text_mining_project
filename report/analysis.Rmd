@@ -948,6 +948,154 @@ excl
 
 ```
 
+## Embedding
 
+Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM). 
+### Word Embedding Based on Co-occurences and GloVe
+
+The idea behind word embedding based on co-occurrences is to reflect co-occurrences and not only Bag of Words (BoW). 
+
+To start with, we compute a feature co-occurrence symmetric matrix with a window of five. The matrix is very large (8,640x8,640) and displays the number of times terms (i.e. features) appear together in a window of five words. 
+
+```{r fcm, echo=F, message=F, warning=F}
+
+# Makes a co-occurrence on a (half-)window of 5
+data.tok <- tokens(data.cp,
+                   remove_punct = TRUE,
+                   remove_symbols = TRUE,
+                   remove_numbers = FALSE,
+                   split_hyphens = TRUE)
+
+data.tok <- data.tok %>% 
+  tokens_tolower() %>%
+  tokens_remove(stop_words$word) %>%
+  tokens_remove(min_nchar = 5) %>%
+  tokens_replace(pattern=hash_lemmas$token, 
+                 replacement = hash_lemmas$lemma)
+
+data.coo <- fcm(data.tok, 
+                context = "window", 
+                window = 5, 
+                tri=FALSE)
+
+head(data.coo)
+
+```
+
+From the feature co-occurrences matrix we compute two vector representations for a given word (i.e. feature). One representation for a word being the central term and the other one  for a word being in the context. To then have a unique representaion for a given word, we compute the average of the two representations.
+
+```{r two representations, echo=F, message=F, warning=F}
+
+library(text2vec)
+
+# Sets a seed for reproducibility 
+set.seed(123)
+
+# Word embedding dimension
+p <- 2 
+
+# x_max is a needed technical option
+data.glove <- GlobalVectors$new(rank = p,    # dimension of the vector space model
+                                x_max = 10) 
+
+# central vectors; speech.glove$components contains the context vectors
+data.weC <- data.glove$fit_transform(data.coocc) 
+
+```
+
+The following output displays the unique representations of the vectors?.
+
+```{r unique reprensentaion, echo=F, message=F, warning=F}
+
+# unique representation
+data.we <- t(data.glove$components) + data.weC 
+
+head(data.we, 10)
+
+```
+
+We now plot the vectors of the 50 most used words (50 largest frequencies).
+
+```{r unique reprensentaion, echo=F, message=F, warning=F}
+
+# Words with the 50 largest frequencies
+index2 <- textstat_frequency(dfm(data.tok))[1:50,]$feature
+
+index2 
+
+
+```
+
+```{r plot, echo=F, message=F, warning=F}
+
+# Plots
+plot(data.we[index2, ], 
+     type = 'n',  
+     xlab = "Dim 1", 
+     ylab = "Dim 2")
+
+text(x = data.we[index2, ], 
+     labels = rownames(data.we[index2, ]))
+
+```
+
+### Document Embedding 
+
+To build the document embedding we compute the centroids of the documents. First, we need to extract the words in each document. 
+
+```{r words extraction, echo=F, message=F, warning=F}
+
+# Words in Document 1
+head(data.tok[[1]])
+
+```
+
+Then, for these words we extract the word vectors and make a matrix.
+
+```{r word vectors, echo=F, message=F, warning=F}
+
+# Word vectors
+head(data.we[data.tok[[1]],])
+
+data.we
+
+```
+
+Finally, we average all these vectors.
+
+```{r average, echo=F, message=F, warning=F}
+
+# Averages all these vectors => Document 1 vector
+apply(data.we[data.tok[[1]],], 2, mean) 
+
+```
+
+Now we make the loop to apply the previous steps on all documents.
+
+```{r loop over documents, echo=F, message=F, warning=F}
+
+# Number of documents
+nd <- length(data.tok) 
+
+# Document embedding matrix (1 document per row)
+data.de <- matrix(nr = nd, 
+                  nc = p) 
+
+# Loop over documents
+for (i in 1:nd){
+  
+  # drop=FALSE is needed in case there is only one token
+  words_in_i <- data.we[data.tok[[i]], , drop = FALSE] 
+  
+  data.de[i,] <- apply(words_in_i, 2, mean)
+  
+}
+
+row.names(data.de) <- names(data.tok)
+
+head(data.de) ## document vectors
+
+
+```
 
 
