@@ -118,7 +118,7 @@ summary(data.cp)
 
 ```
 
-Tokenization is the method used to split a text into tokens (i.e. unit of analysis, here: words?). Here, we tokenize (i.e. split) the chapters (i.e. document) by space. To tokenize, we proceed to remove punctuation, symbols and separators because we believe that removing them will not affect our analysis and keeping them will not bring more insight to our analysis. We keep numbers since the book focuses on statistics. Therefore, numbers will be a key element of the analysis. 
+Tokenization is the method used to split a text into tokens (i.e. unit of analysis, here: words?). Here, we tokenize (i.e. split) the chapters (i.e. document) by space. To tokenize, we proceed to remove punctuation, symbols and separators because we believe that removing them will not affect our analysis and keeping them will not bring more insight to our analysis. We keep numbers since the book focuses on statistics. Therefore, numbers will be a key element of the analysis?. 
 
 ```{r tokenization, echo = FALSE, message = FALSE}
 
@@ -131,7 +131,7 @@ data.tk1 <- tokens(data.cp,
 
 ```
 
-### Cleaning
+### Stop Words
 
 To continue the cleaning process, we remove useless words that bring very to no information using the *stop_words* dictionary from the **quanteda** package and we proceed to map letters to lower cases since names (such as first or last names) are not of a specific importance in this book. 
 
@@ -146,7 +146,7 @@ data.tk2 <- data.tk1 %>%
 
 ### Lemmatization
 
-Lemmatization also simplifies tokens by generating a token dictionary for each token to reduce a vocabulary (i.e. set of types in a corpus) to its useful essence. [ADD AN EXAMPLE LIKE ABOVE]For example, "?" was reduced to "" and has thus "?" as a lemma. 
+Lemmatization also simplifies tokens by generating a token dictionary for each token to reduce a vocabulary (i.e. set of types in a corpus) to its useful essence. [ADD AN EXAMPLE LIKE ABOVE] For example, "?" was reduced to "" and has thus "?" as a lemma. 
 
 ```{r lemmatization, echo = FALSE, message = FALSE}
 
@@ -198,16 +198,16 @@ kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'),
 
 ### Term Frequency and Inverse Document Matrix (TF-IDF)
 
-The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to detect which words are specific to one document. The below output shows, for the document-feature matrix of 16 documents (i.e. chapters), 8,640 features (i.e. tokens) and 0 docvars (i.e. ??), the weighted frequency? for each token in each document (i.e. chapter).
+The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to detect which words are specific to one document. The below output shows, for the document-feature matrix of 16 documents (i.e. chapters), 8,640 features (i.e. tokens) and 0 docvars (i.e. ??), the weighted frequency for each token in each document (i.e. chapter).
 
 ```{r term frequency and inverse document matrix, echo = FALSE, message = FALSE}
 
 # Weighted document-feature matrix by tf-idf
 data.tfidf <- dfm_tfidf(data.dfm)
-
+data.tfidf
 ```
 
-The following output shows the twenty terms that have the largest TF-IDF. [Interpret the first term]
+The following output shows the twenty terms that have the largest TF-IDF. 
 
 ```{r largest tf-idf per word, echo = FALSE, message = FALSE}
 
@@ -221,7 +221,7 @@ sort(apply(data.tfidf,
 
 ### Zipf's Law
 
-The Zipf law shows the distribution of words used in a corpus. It says that most frequent terms are not specific one document since they are frequent in all documents. 
+The Zipf law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. 
 
 The below plot displays the term frequencies against their ranks on a non log-log scale. 
 
