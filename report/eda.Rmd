@@ -49,7 +49,7 @@ CoW_cp
 
 The second plot shows the same information, ten most frequent terms, but by chapters of the book. Here, we show the ten most frequent terms associated with their chapter (i.e. document). We see that the term *women* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
 
-Regarding the term *female*, eventhough it is the second most frequent term in the book, it seems to be more specific to chapter 14 *Women's Rights are Human Rights* since we only find it in this particular chapter [is this right?]. 
+Regarding the term *female*, even though it is the second most frequent term in the book, it seems to be more specific to chapter 14 *Women's Rights are Human Rights* since we only find it in this particular chapter [is this right?]. 
 
 [Improve plot: color, layout, title, caption with source, can we change text1 by the name of the chapter ?]
 
