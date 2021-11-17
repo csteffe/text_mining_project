@@ -480,12 +480,12 @@ What words are similar ? It means they are used in similar proportion through do
 ```{r euclidean similarities btwn words, echo=F, message=F, warning=F}
 
 # Extracts the features
-data.feat <- textstat_frequency(data.tf) %>% 
+data.feat <- textstat_frequency(data.dfm) %>% 
   filter(rank <= 40)
 
 data.feat$feature
 
-data.cos <- textstat_simil(data.tf[, data.feat$feature], 
+data.cos <- textstat_simil(data.dfm[, data.feat$feature], 
                            method = "cosine", 
                            margin = "feature")
 
@@ -571,6 +571,383 @@ data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature,
 
 data.hc <- hclust(as.dist(data.inv_occ))
 
-plot(cdata.hc)
+plot(data.hc)
 
 ```
+
+## Topic Modeling
+
+Topic modeling is a type of statistical modeling for discovering the abstract “topics” that occur in a collection of documents. There are two approaches: Latent Semantic Analysis model and Latent Dirichlet Allocation model. 
+
+Both models can be applied on DTM or TF-IDF matrices. 
+
+### Latent Semantic Analysis (LSA)
+
+#### LSA on DTM
+
+The Latent Semantic Analysis (LSA) is a dimension reduction method that decomposes the DTM or TF-IDF matrices in three sub-matrices around a pre-determined number of topics. Here, we proceed to LSA on the document-term (i.e. document-feature) matrix and then extract the matrices of the LSA decomposition. 
+
+The first dimension of LSA is associated with the document lengths (i.e. sum of lines of DTM) this is why it is often ignored. 
+
+```{r LSA on, echo=F, message=F, warning=F}
+
+library(quanteda.textmodels)
+
+# Latent Semantic Analysis on DTM matrix
+data.lsa <- textmodel_lsa(data.dfm, 
+                          nd = 10)          # number of dimensions/topics included in the output
+
+```
+
+##### Topics and Documents
+
+The below output shows the association between the first six chapters and the ten topics. For example, text1 is associated the most with dimension (i.e. topic) 4 and the least associated with dimension (i.e. topic) 6. 
+
+```{r LSA topics with documents, echo=F, message=F, warning=F}
+
+# Extract matrices from LSA decomposition for documents
+head(data.lsa$docs)
+
+```
+
+To verify if the first dimension is associated with the document length we look at the below scatter-plot. We see that dimension 1 is negatively correlated with the number ok tokens, which confirms that the first dimension is associated with the document lenght.
+
+[Improve plot: add a straight line showing the correlation]
+
+```{r first dimension, echo=F, message=F, warning=F}
+
+# Number of tokens per text = row-sum of the DTM 
+doc.freq <- ntoken(data.tk2) 
+
+# Scatter plot
+data.frame(doc.freq, 
+           dim1 = data.lsa$docs[,1]) %>% 
+  ggplot(aes(doc.freq, dim1)) +
+  geom_point() + 
+  xlab("Number of tokens") + 
+  ylab("LSA dim. 1")
+
+```
+
+##### Topics and Features
+
+The below output shoes the association between the first six most frequent words and the ten topics. For example, the term *sexist* is associated the most with topic 10. 
+
+```{r LSA topics with terms, echo=F, message=F, warning=F}
+
+# Extract matrices from LSA decomposition for features
+head(data.lsa$features)
+
+```
+
+To actually be able to interpret the topics (i.e. dimensions) of the LSA, we look at the ten terms with the largest values and the ten terms with the lowest values. We take a look at dimension 4 and 5.
+
+According to the below output, topic 4 is positively associated to *public*, *transport*, *sexual*, *girls*, *bus*, *spaces*, *data*, *toilets*, *harassment*, *toilet* and negatively associated to *maternity*, *drug*, *heart*, *pay*, *trials*, *paid*, *hours*, *sex*, *unpaid*, *leave*. Therefore, documents that have a large dimension 4 use more these first terms and less these last terms. 
+
+```{r interpretaion topics-features dim 4, echo=F, message=F, warning=F}
+
+# Number of terms to look at
+n.terms <- 10
+
+# For Dimension 2
+w.order <- sort(data.lsa$features[,4], #
+                decreasing = TRUE)
+
+w.top4 <- c(w.order[1:n.terms], 
+            rev(rev(w.order)[1:n.terms]))
+
+w.top4
+
+```
+
+According to the below output, topic 5 is positively associated to *female*, *public*, *trials*, *politicians*, *found*, *representation*, *party*, *government*, *political*, *study* and negatively associated to *boler*, *male*, *motion*, *seat*, *vr*, *dummy*, *car*, *body*, *tech*, *data*.Therefore, documents that have a large dimension 5 use more these first terms and less these last terms. 
+
+```{r interpretaion topics-features dim 5, echo=F, message=F, warning=F}
+
+## For Dimension 3
+w.order <- sort(data.lsa$features[,5], 
+                decreasing = TRUE)
+
+w.top5 <- c(w.order[1:n.terms], 
+            rev(rev(w.order)[1:n.terms]))
+
+w.top5 
+
+```
+
+##### Topics and Documents and Features
+
+The following biplot associates the positions of the terms (points) and the positions of the document (arrows) in the LSA space for topics 4 and 5 computed above.
+
+The biplot looks very messy due to the large number of tokens in the book. 
+
+```{r biplot, echo=F, message=F, warning=F}
+
+ biplot(y = data.lsa$docs[,4:5],      # topics-documents for topics 4 and 5
+        x = data.lsa$features[,4:5],  # topics-features for topics 4 and 5
+        col = c("black","purple"),    # add colors
+       xlab = "Dim 4", 
+       ylab="Dim 5")
+
+```
+This is why we plot it again using only the terms from dimensions 4 and 5. Here, we see that topic (i.e. dimension) 4 is positively associated with *tech*, *body*, *data*, *politicians*, *female*, and anti-associated with *transport*, *leave*, *sexy*. 
+
+```{r biplot2, echo=F, message=F, warning=F}
+
+w.subset <- data.lsa$features[c(unique(c(names(w.top4), 
+                                         names(w.top5)))),
+                              4:5]
+
+biplot(y = data.lsa$docs[,4:5],
+       x = w.subset, 
+       col = c("black","purple"),
+       xlab = "Dim 4", 
+       ylab="Dim 5")
+
+```
+#### LSA on TF-IDF
+
+Repeat lines 586 to 704 replace dtm by tf-idf 
+
+#### LSA Conclusion
+
+compare LSA on TF-IDF and LSA on DTM results
+
+### Latent Dirichlet Allocation (LDA)
+
+The Latent Dirichlet Allocation is a generative model (i.e. Bayesian model) for topic modeling. LAD generates a Bag of Words model where the number of topics are pre-defined. 
+
+```{r LDA model, echo=F, message=F, warning=F}
+
+library(seededlda) 
+
+# Sets a seed for reproducibility
+set.seed(1234)
+
+# Semi-supervised LDA 
+data.lda <- textmodel_lda(data.dfm, 
+                          k = 10)    # sets the number of topics at 10
+
+```
+
+The following output displays the ten most frequent terms per topic and the ten most frequent topics per document.
+
+```{r top terms, echo=F, message=F, warning=F}
+
+# Top terms per topic
+terms(data.lda, 10)
+
+```
+
+```{r top topics, echo=F, message=F, warning=F}
+
+# Top topics per document
+topics(data.lda)
+
+```
+
+#### Term-Topic Analysis
+
+The term-topic analysis computes the conditional probability for a term to be found given that it is assigned to a given topic. Then, for a given topic, the largest conditional probabilities give the terms that are the most associated with this topic.The advantage of LDA is that we obtain the probabilities in addition to the term-topic assignment. 
+
+The below output shows for each ten topics, the terms with the highest conditional probabilities. For example, this conditional probability for the term *women* is almost 1, indicating that *women* is very strongly associated with topic 5 and so that any document associated with topic 5 will have the term *women* in it. We also see that some topics are better defined than others. For example, topic 5 is the most well defined and topics 6, 7, 8 and 9 are not well defined. 
+
+To sum up, the tables below give the probabilities to select a term w given that the term comes form topic k.
+
+```{r term-topic, echo=F, message=F, warning=F}
+
+# Creates the topic-term probabilities => to describe a topic we look at the largest phis
+phi.long <- melt(data.lda$phi,             
+                 varnames = c("Topic","Term"), 
+                 value.name = "Phi")
+
+# Transforms into a long data set and then we plot it
+phi.long %>%                  
+  group_by(Topic) %>% 
+  top_n(10, Phi) %>%
+  ggplot(aes(reorder_within(Term, Phi, 
+                            Topic), Phi)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip()+
+  facet_wrap(~ Topic, 
+             scales = "free_y") +
+  scale_x_reordered() + 
+  xlab("Term")
+
+```
+#### Topic-Document Analysis
+
+The topic-document analysis provided the probabilities for a topic to be found in a document. 
+
+The below output shows that more than 60% of topics 2 is about text 13 and more than 60% of topic 3 is about text 14. 
+
+[Improve plot layout: colors]
+
+```{r document-topic, echo=F, message=F, warning=F}
+
+# Converts to a molten data frame
+theta.long <- melt(data.lda$theta, 
+                   varnames = c("Doc", "Topic"), 
+                   value.name = "Theta")
+
+# Long format
+theta.long %>% 
+  group_by(Topic) %>% 
+  top_n(10, Theta) %>%
+  ggplot(aes(reorder_within(Doc, Theta, Topic), Theta)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip()+
+  facet_wrap(~ Topic, scales = "free_y") +
+  scale_x_reordered() + 
+  xlab("Document")
+
+```
+
+To dive a little bit deeper, we then look at the ten six longest chapters (i.e. documents).
+
+```{r longest document, echo=F, message=F, warning=F}
+
+# Longest six documents
+doc.list <- names(sort(ntoken(data.tk2), 
+                       decreasing = TRUE)[1:6])
+doc.list
+
+```
+
+[Improve layout: can we add chapter name instead of text ?]
+
+Below we see that chapter 14 *Women's Rights Are Human Rights* mainly talks about topic 3. 
+
+```{r longest document plot, echo=F, message=F, warning=F}
+
+theta.long %>% 
+  filter(Doc %in% doc.list) %>%                # selects the selected documents above
+  ggplot(aes(reorder_within(Topic, 
+                            Theta, 
+                            Doc), 
+             Theta)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip()+
+  facet_wrap(~ Doc, 
+             scales = "free_y") +
+  scale_x_reordered() + 
+  xlab("Document")
+
+```
+
+#### LDA Diagnosis
+
+The topic distribution (i.e. proportion) in a corpus is called the topic prevalence. 
+
+The following output displays the prevalence scores for each topic using the thetas (i.e. topic-document probabilities). Here, there are 16 documents. We see that the most prevalent topic is topic 5 with 0.3722. 
+
+```{r prevalence, echo=F, message=F, warning=F}
+
+# Topic Prevalence
+colSums(data.lda$theta)/sum(data.lda$theta)
+
+# here, the document length is not taken into account (each document has the same length)
+# sum(data.lda$theta) = number of documents
+
+```
+
+### Topic Modeling Measures
+
+Topic modeling allows to organize, understand and summarize large corpora (plural of corpus). Yet, topic modeling has limitations especially regarding its interpretation of its outcomes. Therefore, some measures provide a way to extract more insight from it. 
+
+#### Coherence
+
+The measure of coherence allows to assess the quality of a topic (i.e. good versus bad). 
+
+The below output gives the coherence for each ten topic. The most coherent topic is topic 5 with a coherence of 0.428 and the least coherent topic is topic 9 with a coherence of -8.934. 
+
+```{r coherence LSA, echo=F, message=F, warning=F}
+
+# Creates a feature co-occurrence matrix
+data.codo <- fcm(data.dfm, 
+                   context = "document", 
+                   count = "boolean", 
+                   tri = FALSE) # co-document frequencies
+
+# Extracts terms object 
+term.mat <- terms(data.lda, 5)
+
+# Creates a loop computing the coherence measure 
+Coh <- numeric(10) # creates a numeric vector of 10 zeros
+
+# Loops over 1 to K = 10 topics
+for (k in 1:10){
+  
+  D.mat <- as.matrix(data.codo[term.mat[,k], 
+                               term.mat[,k]])
+  
+  D.vec <- data.dfm %>% 
+    textstat_frequency %>% 
+    filter(feature %in% term.mat[,k]) %>% 
+    data.frame() %>%
+    select(feature, docfreq)
+  
+  for (m in 2:5){
+    
+    for (l in 1:(m-1)){
+      
+      vm <- term.mat[m,k]
+      
+      vl <- term.mat[l,k]
+      
+      Coh[k] <- Coh[k] + log((D.mat[vm, vl] + 1) / filter(D.vec, feature == vl)$docfreq)
+} }
+}
+
+Coh
+
+```
+
+To verify we take a look at the co-document frequencies. Comparing the two below term-frequency matrices for topic 9 and 4, it is obvious that the top five terms in topic 5 are co-occurring more often in the same document than the top five terms in topic 9.
+
+```{r feature matrix for topic 5, echo=F, message=F, warning=F}
+
+# Feature matrix for topic 9
+as.matrix(data.codo[term.mat[,5], 
+                    term.mat[,5]])
+
+```
+
+```{r feature matrix for topic 9, echo=F, message=F, warning=F}
+
+# Feature matrix for topic 4
+as.matrix(data.codo[term.mat[,9], 
+                    term.mat[,9]])
+
+```
+
+#### Exclusivity 
+
+A topic is exclusive if it is associated with terms that are not associated to another topic. 
+
+The output below shows that the most exclusive topic (i.e. topic which as the more terms not associated with another topic) is topic 1 with an exclusivity measure of 0.65252, meaning that its five top terms are more specific to it, and the least exclusive one is topic 4 with 0.00280. 
+
+```{r exclusivity LSA, echo=F, message=F, warning=F}
+
+# Creates a numeric vector of 10 zeros
+excl <- numeric(10)
+
+# Loops over the 10 topics
+for (k in 1:10){
+  for (i in 1:length(term.mat[,k])){
+    
+    term.phi <- filter(phi.long, 
+                       Term == term.mat[i,k])
+    
+    excl[k] <- excl[k] + filter(term.phi, Topic == "topic1")$Phi / sum(term.phi$Phi)
+}
+  excl[k] <- excl[k] / length(term.mat[,k])
+}
+
+excl
+
+```
+
+
+
+
