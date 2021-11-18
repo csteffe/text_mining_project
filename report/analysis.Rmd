@@ -152,7 +152,6 @@ kbl(sent_bychap,
 ```
 
 Sentiment changes as sentences changes. Thus, in order to better track the evolution of sentiment we plot the sentiment scores' evolution by chapter of the book (i.e. document). 
-
 [Improve plot: remove text from document column so x is readible/layout]
 
 ```{r sentiment analysis by document plot, echo=F, message=F, warning=F}
