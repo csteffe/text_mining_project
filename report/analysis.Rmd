@@ -110,7 +110,7 @@ kbl(head(hash_valence_shifters, 10),
 
 ```
 
-To proceed to the value-shifters sentiment analysis, we first extract the sentences from the text and then we compute the sentiment value for each sentence. Because the column *word_count* had NAs we remove rows that show NAs since no sentiment information can be provided (i.e. sentiment = 0).
+To proceed to the value-shifters sentiment analysis, we first extract the sentences from the text and then we compute the sentiment value for each sentence. Because the column *word_count* had NAs we remove rows that show NAs since no sentiment information can be provided (i.e. sentiment = 0)?.
 
 One possibility is to assign weights to certain types of sentences to 0 which unpolarizes them. For example, we could have decided to unpolarize the questions but here we decided to keep them as we believe they could be insightful. 
 
@@ -132,7 +132,7 @@ kbl(head(sent_bysent, 10),
 
 After taking a look at the sentiment score for each sentence, we zoom out to look into the sentiment score by chapter of the book. The *ave_sentiment* column gives the average sentiment (i.e) score by chapter. 
 
-[Remove text form the document column and keep only the chapter number] The below table displays the sentiment scores from largest to smallest for the chapters of the book. According to the table, chapter 6 *Being Worth Less Than A Shoe* has the greatest average sentiment score with 0.275 which is consider positive and chapter 7 *The Plough Hypothesis* has the smallest score with -0.3953 which is consider negative. 
+[Remove text form the document column and keep only the chapter number] The below table displays the sentiment scores from largest to smallest for the chapters of the book. According to the table, chapter 6 *Being Worth Less Than A Shoe* has the greatest average sentiment score with 0.275 which is considered positive and chapter 7 *The Plough Hypothesis* has the smallest score with -0.3953 which is considered negative. 
 
 In total, five chapters have a positive sentiment (i.e. scores above 0.05), four have a negative sentiment (i.e. scores below -0.05) and seven chapters have a neutral sentiment (i.e. scores between -0.05 and 0.05). 
 
@@ -277,7 +277,7 @@ ggplot(data = data.euc.mat,
 
 ### Clustering of Documents
 
-To procede to clustering documents, we need to build the dissimilarities and/or vector space model (VSM) on which we can apply the clustering methods. There are two approaches to clustering. One is based on distances (i.e. hierarchical clustering) and the other one is based on features co-occurrences? (i.e. partitioning). 
+To proceed to clustering documents, we need to build the dissimilarities and/or vector space model (VSM) on which we can apply the clustering methods. There are two approaches to clustering. One is based on distances (i.e. hierarchical clustering) and the other one is based on features co-occurrences? (i.e. partitioning). 
 
 Clusters are difficult to interpret. This is why we can look at the most frequent terms in each cluster to understand better what they are grouping.
 
@@ -287,7 +287,7 @@ Hierarchical clustering is based on distances and applied on the dissimilarities
 
 ##### Euclidean-based Dissimilarity Matrix
 
-The Euclidean dissimilarity matrix seems to show that there are three clusters. One grouping chapter 10 *The Drugs Don't Work*, one chapter 9 *A Sea Of Dudes* and the other one the rest og the book. 
+The Euclidean dissimilarity matrix seems to show that there are three clusters. One grouping chapter 10 *The Drugs Don't Work*, one chapter 9 *A Sea Of Dudes* and the other one the rest of the book. 
 
 ```{r Euclidean-based, echo=F, message=F, warning=F}
 
@@ -400,7 +400,7 @@ kbl(clust_cos,
 
 K-means is applied on the features (i.e. terms?) using TF-IDF. 
 
-##### Euclidean
+##### Euclidean-Based
 
 ```{r Euclidean-based km, echo=F, message=F, warning=F}
 
@@ -649,7 +649,7 @@ According to the below output, topic 4 is positively associated to *public*, *tr
 # Number of terms to look at
 n.terms <- 10
 
-# For Dimension 2
+# For Dimension 4
 w.order <- sort(data.lsa$features[,4], #
                 decreasing = TRUE)
 
@@ -664,7 +664,7 @@ According to the below output, topic 5 is positively associated to *female*, *pu
 
 ```{r interpretaion topics-features dim 5, echo=F, message=F, warning=F}
 
-## For Dimension 3
+## For Dimension 5
 w.order <- sort(data.lsa$features[,5], 
                 decreasing = TRUE)
 
