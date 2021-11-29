@@ -1,11 +1,11 @@
 ---
 title:  |
- <center> Invisible Women </center>
- <center> Book by Caroline Criado Perez </center>
+ <center> Invisible Women </center> 
+ <center> Book by Caroline Criado Perez </center> 
 author: "Jasmine Mawjee, Aëllya Monney, Colin Steffe & Rémy Tombola"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
-```{r child = c('intro.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd' 'data.Rmd')}
+```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd')}
 ```
