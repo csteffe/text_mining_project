@@ -16,7 +16,7 @@ The preface of the book starts on page 11 and the introduction on page 15.
 
 (To create corpus with chapter : https://cran.r-project.org/web/packages/corpus/vignettes/corpus.html, and cleaning.)  
 
-```{r start and stop, echo = FALSE, message = FALSE, warning = FALSE}
+```{r start and stop, echo=FALSE, message=FALSE, warning=FALSE}
 
 # The text starts after the Project Gutenberg header...
 start <- grep("CHAPTER 1", text)
@@ -146,12 +146,13 @@ data.tk2 <- data.tk1 %>%
 
 ### Lemmatization
 
-Lemmatization also simplifies tokens by generating a token dictionary for each token to reduce a vocabulary (i.e. set of types in a corpus) to its useful essence. [ADD AN EXAMPLE LIKE ABOVE] For example, "?" was reduced to "" and has thus "?" as a lemma. 
+Lemmatization also simplifies tokens by generating a token dictionary for each token to reduce a vocabulary (i.e. set of types in a corpus) to its useful essence. For example, "started" was reduced to "start" and has thus "start" as a lemma. 
 
 ```{r lemmatization, echo = FALSE, message = FALSE}
 
 # Lemmatization: replaces tokens in a tokens object (i.e. text)
 library(lexicon)
+data.tk2
 data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
                               replacement = hash_lemmas$lemma)
 
@@ -159,7 +160,7 @@ data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token,
 
 ### Stemming 
 
-Steaming simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Stemming reduces the size of a corpus'? vocabulary. 
+Steaming simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Stemming reduces the size of a vocabulary. 
 
 The below output displays the first twelve tokens reduced to their steam for each document (i.e. chapter). For example, "snow-clearing" was reduced to "snow-clear". 
 
@@ -172,7 +173,7 @@ data.tk2 %>% tokens_wordstem()
 
 ### Dcoument-Term Matrix (DTM)
 
-```{r term frequency, echo = FALSE, message = FALSE}
+```{r frequency, echo=FALSE, message=FALSE}
 
 # Creates a document-feature matrix
 data.dfm <- dfm(data.tk2)  # EST-CE QUE LE OUTPUT EST NORMAL ? CA ME SEMBLE CHELOU ??
@@ -182,14 +183,13 @@ View(data.dfm)
 
 # Global Frequencies
 
-The below table displays the term frequencies. The *feature* column indicates a lemmatized and stemmatized token, *frequency* returns the number of time the lemma? is found in the corpus?, the *rank* indicates ?, the *docfreq* indicates the document frequency which is the number of documents in which the token is found and *group* indicates ?.
+The below table displays the term frequencies. The *feature* column indicates a lemmatized and stemmatized token, *frequency* returns the number of time the lemma? is found in the corpus?, the *rank* indicates the most frequent terms, the *docfreq* indicates the document frequency which is the number of documents in which the token is found and *group* indicates ?.
 
 ```{r term frequency, echo = FALSE, message = FALSE}
 
 # Generates counts and document frequencies summaries of the feature of the document-feature matrix "data.dfm"
 data.freq <- textstat_frequency(data.dfm) 
 
-library(kableExtra)
 kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'), 
     caption = "Feature/term frequencies") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
@@ -221,28 +221,25 @@ sort(apply(data.tfidf,
 
 ### Zipf's Law
 
-The Zipf law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. 
+The Zipf's law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. [NON PAS DE IDF DANS Zip's Low seulement rank et frequency]
 
-The below plot displays the term frequencies against their ranks on a non log-log scale. 
+The below plot displays the term frequencies against their ranks on a non log-log scale. [PAS CE PLOT EN LOG-LOG]
 
 [IMPROVE PLOT ? MAYBE GGPLOT ?]
 
 ```{r Zipf law plot, echo = FALSE, message = FALSE}
 
 # Illustration of the Zipf's law 
-plot(frequency~rank, 
-     data = data.freq, 
-     pch = 20)
-
-# Adds text on plot
-text(frequency~rank, 
-     data = data.freq[1:4,], 
-     label = feature, 
-     pos=4)
+ggplot(data.freq, aes(x=rank, y=frequency))+ 
+  geom_point()+
+  geom_label(data = data.freq %>%
+              filter(rank <= 10), aes(label=feature))+
+  ggtitle("The Zipf's law")
 
 ```
 
 And the second plot is on a log-log scale, the frequency versus rank gives a linear relation [EXPLAIN WHY]. 
+[La distribution au-dessus est exponentielle du coup en applicant le log elle devient linéaire.]
 
 For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ 
 
@@ -258,19 +255,15 @@ library(stats)
 ```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
 
 # Illustration of the Zipf's law 
-plot(log(frequency)~log(rank), 
-     data = data.freq, 
-     pch = 20)
-
-# Adds text on plot
-text(log(frequency)~log(rank), 
-     data = data.freq[1:4,], 
-     label = feature, 
-     pos = 4)
+ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+ 
+  geom_point()+
+  geom_label(data = data.freq %>%
+             filter(rank <= 10), aes(label=feature))+
+  ggtitle("The Zipf's law on a log-log scale")
 
 ```
 
-Both plots show that *women*, *female*, *data* and *found* are the most frequent terms of the corpus indicating that they are not specific to one chapter (i.e. document) but are frequent in all chapters. 
+Both plots show that *women*, *female*, *data* and *found* are the most frequent terms of the corpus indicating that they are not specific to one chapter (i.e. document) but are frequent in all chapters. [NON PAS LA BONNE CONCLUSION]
 
 
 
