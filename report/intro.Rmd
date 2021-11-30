@@ -5,7 +5,28 @@ source(here::here("scripts/setup.R"))
 ```
 
 * Overview and Motivation
+- The project consists of an analysis of an original corpus of text: talk about the book 
+1) author, who she is ? her motivation for writing it?
+2) when was it published ? 
+3) where was it published in how many languages to how many exemplaires ?
+4) what were the critics ? 
+5) why analyze this book ? 
+
 * Related Work
+Look for any text mining analysis of books of same categories
+
 * Research questions
+
+* identify your own source of text data and perform any necessary scraping or
+parsing tasks to construct the dataset
+
+* your analysis must be
+comprehensive and not leave major aspects of your dataset unaddressed. The project must include
+(all points):
+- Original data gathering (like scraping, etc.)
+- Cleaning and exploratory data analysis (like stemming, lemmatization, etc.)
+- Unsupervised analysis (like topic analysis, etc.)
+- Supervised learning (like text classification)
+
 
 

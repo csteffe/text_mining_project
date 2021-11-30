@@ -1,5 +1,10 @@
 # Analysis
 
+-> Each part of your analysis should be supported by well-designed
+and relevant charts and graphs +  These should be adequately labelled with captions and legends
+
+Your analysis should match the complexity and uniqueness of your dataset; 
+
 ```{r, echo=F, message=F, warning=F}
 source(here::here("scripts/setup.R"))
 ```
