@@ -12,7 +12,7 @@ The following visualization plots the 10 most frequent terms in the whole corpus
 
 [Improve plot: layout/color/add title/add subtitle/caption with source]
 
-NOTICE "WOMEN'S" SHOULD NOT APPEAR IT SHOULD BE SPLIT IN WOMEN AND 'S !!! 
+NOTICE "WOMEN'S" SHOULD NOT APPEAR IT SHOULD BE SPLIT IN WOMEN AND 'S !!! [DONE!]
 
 ```{r TF-IDF plot, echo=F, message=F, warning=F}
 
@@ -47,7 +47,7 @@ CoW_cp
 
 ## Term-Frequency by Chapter 
 
-The second plot shows the same information, ten most frequent terms, but by chapters of the book. Here, we show the ten most frequent terms associated with their chapter (i.e. document). We see that the term *women* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
+The second plot shows the same information, ten most frequent [frequencies] terms, but by chapters of the book. Here, we show the ten most frequent [frequencies] terms associated with their chapter (i.e. document). We see that the term *women* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
 
 Regarding the term *female*, even though it is the second most frequent term in the book, it seems to be more specific to chapter 14 *Women's Rights are Human Rights* since we only find it in this particular chapter [is this right?]. 
 
@@ -93,9 +93,9 @@ tfidf_plot
 
 ```                
 
-## Largest TF-IDF (over all documents)
+## Largest TF-IDF (over all documents) [PAS COMPRIS]
 
-The below plot displays the terms that have at least one large TF-IDF. To do so, we compute for each term the maximum TF-IDF over all chapters of the book. The output shows that the term *tax* has a large TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book.
+The below plot displays the terms that have at least one large TF-IDF . To do so, we compute for each term the maximum TF-IDF over all chapters of the book. The output shows that the term *tax* has a large TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book.
 
 [Improve plot]
 
@@ -129,19 +129,20 @@ The below plot shows the frequency of a term relative to its document frequency 
 
 ```{r TF vs DF, echo=F, message=F, warning=F}
 
-tf_df <- data.freq %>% 
-         ggplot(aes(x = log(docfreq), 
-                    y = log(frequency))) +
-         geom_text(aes(label = feature), 
-                   position = position_jitter(), 
-                   size=3) + 
-         labs(title = "TF versus DF (log-log)",
-                  subtitle = "",
-                  x = "Document log-frequency",
-                  y = "log-frequency",
-                  caption = "source: Invisible Women.pdf")
+data.freq %>% 
+ ggplot(aes(x = log(docfreq), 
+  y = log(frequency))) +
+ geom_text(aes(label = feature), 
+      position = position_jitter(), 
+      size=3) + 
+ labs(title = "TF versus DF (log-log)",
+   subtitle = "",
+   x = "Document log-frequency",
+   y = "log-frequency",
+  caption = "source: Invisible Women.pdf")
 
-tf_df
+
+
 
 ```
 
@@ -149,7 +150,7 @@ tf_df
 
 Lexical diversity is a diversity index that measures the richness of the vocabulary in one document. 
 
-### Token-Type Ratio (TTR)
+### Token-Type Ratio (TTR) [Les chiffres ont changé]
 
 The TTR is a diversity measure indicating a document's richness in the number of token types (i.e. vocabulary). The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 is the TTR the richest is the vocabulary of a document. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
 
