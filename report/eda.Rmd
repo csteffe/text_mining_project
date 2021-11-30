@@ -176,7 +176,7 @@ The below graph plots the above information.
 
 [Improve plot]
 
-```{r TTR plot, echo=F, message=F, warning=F}
+```{r TTR-plot, echo=F, message=F, warning=F}
 
 ttr_plot <- ttr %>% 
             ggplot(aes(reorder(document, -TTR), TTR)) + 
@@ -198,7 +198,7 @@ The Moving-Average Token-Type Ration ranges from 0.914 to 0.936 over all chapter
 
 ```{r MATTR plot, echo=F, message=F, warning=F}
 
-mattr <- data.tk %>% 
+mattr <- data.tk2 %>% 
          textstat_lexdiv(measure = "MATTR", 
                          MATTR_window = 20)    # determines the size of the window to use 
 
@@ -259,7 +259,7 @@ The feature co-occurrence matrix is a 8,640 by 8,640 matrix with 74,649,600 elem
 ```{r co-occurrences, echo=F, message=F, warning=F}
 
 # Creates a feature co-occurrence matrix
-data.coocc <- fcm(data.tk,     
+data.coocc <- fcm(data.tk2,     
                   context = "document", 
                   tri = FALSE)                 # returns upper and lower triangles of the matrix
 

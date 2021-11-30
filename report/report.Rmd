@@ -1,6 +1,8 @@
 ---
-title: "Meat consumption and cancer"
-author: "Ismail Sarah and Steffe Colin"
+title:  |
+ <center> Invisible Women </center> 
+ <center> Book by Caroline Criado Perez </center> 
+author: "Jasmine Mawjee, Aëllya Monney, Colin Steffe & Rémy Tombola"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
