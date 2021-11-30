@@ -1,16 +1,16 @@
 # Introduction
 
-```{r, echo = FALSE, message = FALSE}
-source(here::here("scripts/setup.R"))
-```
+## The Author
 
-* Overview and Motivation
-- The project consists of an analysis of an original corpus of text: talk about the book 
-1) author, who she is ? her motivation for writing it?
-2) when was it published ? 
-3) where was it published in how many languages to how many exemplaires ?
-4) what were the critics ? 
-5) why analyze this book ? 
+*Invisible Women* published in March 2019 by Caroline Criado Perez is a non-fiction book on gender, data and public policy. Caroline Criado Perez is a Brisith feminist author, journalist and activist, campaigning for the recognition and consideration of women in decision-making processes at every level in the society. In 2015, she published her first book *Do it like a women ...and change the world*, also a non-fiction book, in which she tells stories about female pioneers all around the world. She brings to light their fights for their rights to be and to achieve their dreams by braving some of the most intolerant regimes towards women. She studied English Language and Literature which led her to the turning point of the beginning of her feminist activist journey. In 2013, she said in one of her profiles written by the journalist Cathy Newman: *The culture we live in is made up of little tiny sexist acts which you can just ignore but when you think of them collectively you start to see a pattern.* And this is what *Invisible Women* is about.
+
+## The Book
+*Invisible Women* is an award-winning best seller published in 26 languages and sold 122,255 copies before the 2019 lockdown due to the current pandemic. 
+[what were the critics ?] best-seller -> Invisible Women was released in March 2019 and won the Royal Society Insight Investment Science Book Prize, the FT & McKinsey Business Book of the Year, the Reader’s Choice Books Are My Bag Awards and the Times Current Affairs Book of the Year.
+
+## Our Motivation
+
+why analyze this book ? We chose to analyze the content of this book 
 
 * Related Work
 Look for any text mining analysis of books of same categories
@@ -21,6 +21,7 @@ Look for any text mining analysis of books of same categories
 parsing tasks to construct the dataset
 
 * your analysis must be
+The upcoming text mining analysis of *Invisible Women* 
 comprehensive and not leave major aspects of your dataset unaddressed. The project must include
 (all points):
 - Original data gathering (like scraping, etc.)
