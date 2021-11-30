@@ -123,11 +123,13 @@ Tokenization is the method used to split a text into tokens (i.e. unit of analys
 ```{r tokenization, echo = FALSE, message = FALSE}
 
 # Tokenize = create a tokens object
-data.tk1 <- tokens(data.cp,
-                   remove_numbers = FALSE,
-                   remove_punct = TRUE,
-                   remove_symbols = TRUE,
-                   remove_separators = TRUE) 
+data.tk1 <- data.cp %>% 
+  tokens(remove_numbers = FALSE,
+         remove_punct = TRUE,
+         remove_symbols = TRUE,
+         remove_separators = TRUE,
+         split_hyphens = TRUE) %>%
+  tokens_split(separator = "'")
 
 ```
 
@@ -139,7 +141,7 @@ To continue the cleaning process, we remove useless words that bring very to no 
 
 # Removes stop words and converts into lower cases 
 data.tk2 <- data.tk1 %>%
-            tokens_remove(stop_words$word) %>%
+            tokens_remove(c(stop_words$word,"chapter")) %>%
             tokens_tolower()
 
 ```
@@ -152,10 +154,10 @@ Lemmatization also simplifies tokens by generating a token dictionary for each t
 
 # Lemmatization: replaces tokens in a tokens object (i.e. text)
 library(lexicon)
-data.tk2
-data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
-                              replacement = hash_lemmas$lemma)
 
+data.tk2 <- data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
+                            replacement = hash_lemmas$lemma)
+ data.tk2 
 ```
 
 ### Stemming 
@@ -177,7 +179,7 @@ data.tk2 %>% tokens_wordstem()
 
 # Creates a document-feature matrix
 data.dfm <- dfm(data.tk2)  # EST-CE QUE LE OUTPUT EST NORMAL ? CA ME SEMBLE CHELOU ??
-View(data.dfm)
+
 
 ```
 
@@ -236,6 +238,7 @@ ggplot(data.freq, aes(x=rank, y=frequency))+
               filter(rank <= 10), aes(label=feature))+
   ggtitle("The Zipf's law")
 
+      
 ```
 
 And the second plot is on a log-log scale, the frequency versus rank gives a linear relation [EXPLAIN WHY]. 
