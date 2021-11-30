@@ -1,33 +1,65 @@
+# Executive Summary
+
+This report outlines the results of a text mining analysis of the best-seller non-fiction book *Invisible Women*. Its exploration is meant to better understand some textual characteristics of feminist texts. Our text mining analysis shows that [ADD RESULTS HERE]. 
+
 # Introduction
 
-## The Author
+The goal of the analysis is to study textual data and extract some specific characteristics of feminist texts on gender bias in data. 
 
-*Invisible Women* published in March 2019 by Caroline Criado Perez is a non-fiction book on gender, data and public policy. Caroline Criado Perez is a Brisith feminist author, journalist and activist, campaigning for the recognition and consideration of women in decision-making processes at every level in the society. In 2015, she published her first book *Do it like a women ...and change the world*, also a non-fiction book, in which she tells stories about female pioneers all around the world. She brings to light their fights for their rights to be and to achieve their dreams by braving some of the most intolerant regimes towards women. She studied English Language and Literature which led her to the turning point of the beginning of her feminist activist journey. In 2013, she said in one of her profiles written by the journalist Cathy Newman: *The culture we live in is made up of little tiny sexist acts which you can just ignore but when you think of them collectively you start to see a pattern.* And this is what *Invisible Women* is about.
+2) The upcoming analysis is a comprehensive text mining exploration of *Invisible Women* following a four-part structure:
 
-## The Book
-*Invisible Women* is an award-winning best seller published in 26 languages and sold 122,255 copies before the 2019 lockdown due to the current pandemic. 
-[what were the critics ?] best-seller -> Invisible Women was released in March 2019 and won the Royal Society Insight Investment Science Book Prize, the FT & McKinsey Business Book of the Year, the Reader’s Choice Books Are My Bag Awards and the Times Current Affairs Book of the Year.
+- Data gathering 
+- Cleaning and exploratory data analysis 
+  - Tokenization
+  - Stop Words
+  - Lemmatization 
+  - Stemming
+  - Document-Term Matrix (DTM)
+  - Term Frequency and Inverse Document Matrix (TF-IDF)
+  - Zipf's Law
+- Unsupervised analysis [ADD SUBSECTIONS]
+- Supervised learning [ADD SUBSECTIONS]
 
-## Our Motivation
+3) Research Questions 
 
-why analyze this book ? We chose to analyze the content of this book 
+- 
+-
+-
 
-* Related Work
-Look for any text mining analysis of books of same categories
+# Related Work
 
-* Research questions
+To our knowledge, there is no already existing text mining analysis of *Invisible Women* available to the online or offline public. However, text analyses of feminist texts such as speeches, books, articles are part of Gender Studies.
 
-* identify your own source of text data and perform any necessary scraping or
-parsing tasks to construct the dataset
+[I'll read these sources and complete this part]
+https://dhdebates.gc.cuny.edu/read/untitled/section/508c8664-15c8-4262-a72a-e49299873d11
+https://www.hastac.org/blogs/pirzadaahmad/2017/02/08/feminist-text-mining-and-big-data
+https://www.tandfonline.com/doi/full/10.1080/03906701.2020.1724365
+https://www.researchgate.net/publication/342870976_Exploration_of_the_Waves_of_Feminism_Using_Sentiment_Based_Text_Mining_Techniques
+https://iris.uniroma1.it/retrieve/handle/11573/1451192/1585420/Deriu_introduction-analytics_2020.pdf
+https://nsuworks.nova.edu/cgi/viewcontent.cgi?article=1952&context=tqr
 
-* your analysis must be
-The upcoming text mining analysis of *Invisible Women* 
-comprehensive and not leave major aspects of your dataset unaddressed. The project must include
-(all points):
-- Original data gathering (like scraping, etc.)
-- Cleaning and exploratory data analysis (like stemming, lemmatization, etc.)
-- Unsupervised analysis (like topic analysis, etc.)
-- Supervised learning (like text classification)
+# The Author
+
+Caroline Criado Perez released in March 2019 her newest work *Invisible Women*, a non-fiction book on gender, data and public policy. Caroline Criado Perez is a Brisith feminist author, journalist and activist, campaigning for the recognition and consideration of women in decision-making processes at every level in the society. In 2015, she published her first book *Do it like a women ...and change the world*, also a non-fiction book, in which she tells stories about female pioneers all around the world. She brings to light their fights for their rights to be and their achievements as professionals by braving some of the most intolerant regimes towards women. She studied English Language and Literature which led her to the turning point of the beginning of her feminist activist journey. In 2013, she said in one of her profiles written by the journalist Cathy Newman: *The culture we live in is made up of little tiny sexist acts which you can just ignore but when you think of them collectively you start to see a pattern.* And this is what *Invisible Women* is about.
+
+# The Book
+
+*Invisible Women* is an award-winning best seller published in 26 languages and sold in 122,255 copies less than a month after its released in March 2019 and before the 2019-lockdown. The book attracted immediate attention from the public and the media, all overwhelmed by the disclosure of the inherent *data bias in a world designed for men* [REFER THIS AS A QUOTE USING HW1 OF PROGRAMMING TOOLS]. In fact, the book exposes us all to the tremendous amount of situations in which decision-makers use a *generic male default* to implement public policies without considering or recognizing the seemingly not-so-obvious fact that: what works best for men does not necessarily works best for women. 
+
+The instantaneous response of the public to the release of the best-seller was a myriad of prize winning. From the *Royal Society Insight Investment Science Book Prize*, the *FT & McKinsey Business Book of the Year*, *the Reader’s Choice Books Are My Bag Awards* to the *Times Current Affairs Book of the Year*, *Invisible Women* achieved unanimity among its audience. 
+
+# Our Motivation
+
+We chose to proceed to the text mining analysis of the content of this book because one of the team members had recently read it for a book club and suggested to dive deeper into the hot-topic of gender bias in data. Considering the orientation we chose to specialize in - Business Analytics - and the amount of time invested in learning about data and perfecting our skills in data science, we realized that we were missing one perspective: data analysis from a gender perspective. Therefore, the analysis of this book allows us to kill two birds with one stone: improving new data science skills (i.e. text mining) on the edge to Artificial Intelligence (AI) and study (text) data from a gender perspective lens.
+
+
+[MAYBE DO A TEXT MINING ANALYTICS OF HER FIRST BOOK AND COMPARE VOCABULRAY ? I THINK WE HAVE TIME AND IT COULD BE INTERESTING]
+
+
+
+
+
+
 
 
 

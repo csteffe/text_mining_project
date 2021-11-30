@@ -1,6 +1,6 @@
 ---
 title: "Meat consumption and cancer"
-author: "Ismail Sarah and Steffe Colin"
+author: "Aëllya Monney, Colin Steffe, Rémy Tombola and Jasmine Mawjee"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---

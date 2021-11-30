@@ -1,4 +1,12 @@
-# Data Structuring and Cleaning
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# 1. Data Gathering
+
+[we will explain the method: identify your own source of text data and perform any necessary scraping or
+parsing tasks to construct the dataset -> read from pdf, why it's easy -> just load the data and when it can be more difficult -> encoding issues ]
 
 ```{r setup, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
@@ -9,6 +17,8 @@ The book *Invisible Women* under study was downloaded from [ADD WEBSITE SOURCE] 
 ```{r load data, echo = FALSE, message = FALSE}
 text <- pdf_text(here::here("data/Invisible Women.pdf"))
 ```
+
+# 2. Data Structuring and Cleaning
 
 ## Corpus
 

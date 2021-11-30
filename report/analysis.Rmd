@@ -1,5 +1,9 @@
 # Analysis
 
+## Unsupervised Analysis
+
+## Supervised Analysis
+
 -> Each part of your analysis should be supported by well-designed
 and relevant charts and graphs +  These should be adequately labelled with captions and legends
 
