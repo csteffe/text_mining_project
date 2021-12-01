@@ -1,5 +1,5 @@
 ---
-title: "Meat consumption and cancer"
+title: "Text Mining Analysis of the best-seller non-fiction book: Invisible Women, by Caroline Perez Criado"
 author: "Aëllya Monney, Colin Steffe, Rémy Tombola and Jasmine Mawjee"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
