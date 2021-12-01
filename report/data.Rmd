@@ -1,12 +1,15 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # 1. Data Gathering
 
 [we will explain the method: identify your own source of text data and perform any necessary scraping or
 parsing tasks to construct the dataset -> read from pdf, why it's easy -> just load the data and when it can be more difficult -> encoding issues ]
+
+-> advantage: easy to upload : *read_pdf()* function
+-> disadvantage: cleaning can be more difficult
 
 ```{r setup, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
@@ -134,7 +137,7 @@ summary(data.cp)
 
 # Tokenize = create a tokens object
 data.tk1 <- tokens(data.cp,
-                   remove_numbers = FALSE,
+                   remove_numbers = TRUE,
                    remove_punct = TRUE,
                    remove_symbols = TRUE,
                    remove_separators = TRUE) 
@@ -176,8 +179,8 @@ Lemmatization also simplifies tokens by generating a token dictionary for each t
 
 # Lemmatization: replaces tokens in a tokens object (i.e. text)
 library(lexicon)
-data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
-                              replacement = hash_lemmas$lemma)
+data.tk2 <- data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
+                                          replacement = hash_lemmas$lemma)
 
 ```
 
@@ -189,6 +192,8 @@ data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token,
 
 Stemming simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Stemming reduces the size of a corpus'? vocabulary. 
 
+-> for interpretation matter: since the interpretation of the terms are important here, we decide not to use the stemming in the rest of the analysis.
+
 ### Quanteda
 
 The below output displays the first twelve tokens reduced to their steam for each document (i.e. chapter). For example, "snow-clearing" was reduced to "snow-clear". 
@@ -196,7 +201,7 @@ The below output displays the first twelve tokens reduced to their steam for eac
 ```{r stemming, echo = FALSE, message = FALSE}
 
 # Stemming
-data.tk2 %>% tokens_wordstem()
+data_stem <- data.tk2 %>% tokens_wordstem()
 
 ```
 
@@ -211,7 +216,7 @@ data.tk2 %>% tokens_wordstem()
 ```{r DTM, echo = FALSE, message = FALSE}
 
 # Creates a document-feature matrix
-data.dfm <- dfm(data.tk2)  # EST-CE QUE LE OUTPUT EST NORMAL ? CA ME SEMBLE CHELOU ??
+data.dfm <- dfm(data.tk2)  
 View(data.dfm)
 
 ```
@@ -275,30 +280,11 @@ sort(apply(data.tfidf,
 
 ## Zipf's Law
 
-The Zipf'S law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. 
+The Zipf's law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. 
 
 ### Quanteda
 
-The below plot displays the term frequencies against their ranks on a non log-log scale. 
-
-[IMPROVE PLOT ? MAYBE GGPLOT ?]
-
-```{r Zipf law plot, echo = FALSE, message = FALSE}
-
-# Illustration of the Zipf's law 
-plot(frequency~rank, 
-     data = data.freq, 
-     pch = 20)
-
-# Adds text on plot
-text(frequency~rank, 
-     data = data.freq[1:4,], 
-     label = feature, 
-     pos=4)
-
-```
-
-And the second plot is on a log-log scale, the frequency versus rank gives a linear relation [EXPLAIN WHY]. 
+The below plot is on a log-log scale, the frequency versus rank gives a linear relation [EXPLAIN WHY]. 
 
 For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ 
 
@@ -320,7 +306,7 @@ plot(log(frequency)~log(rank),
 
 # Adds text on plot
 text(log(frequency)~log(rank), 
-     data = data.freq[1:4,], 
+     data = data.freq[1:4,],     # ADD LAST 4 WORDS ON THE DOTS OF THE PLOT
      label = feature, 
      pos = 4)
 

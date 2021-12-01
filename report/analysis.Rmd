@@ -29,11 +29,11 @@ When analyzing the sentiment, we should not use the data in which stop words wer
 ```{r data.tk1, echo=F, message=F, warning=F}
 
 # Tokenize = create a tokens object
-data.tk1 <- tokens(data.cp,
-                   remove_numbers = FALSE,
-                   remove_punct = TRUE,
-                   remove_symbols = TRUE,
-                   remove_separators = TRUE)
+#data.tk1 <- tokens(data.cp,
+                   #remove_numbers = FALSE,
+                   #remove_punct = TRUE,
+                   #remove_symbols = TRUE,
+                   #remove_separators = TRUE)
 
 # Not removing the stop words
 data.tk3 <- data.tk1 %>%
@@ -70,6 +70,8 @@ kbl(data.sent,
 ```
 
 The graph is a graphical representation of the above table. For each chapter of the book, we see the proportion of each type of sentiments. 
+
+-> remove neg_neg and neg_pos !!
 
 ```{r dictionary-based analysis plot, echo=F, message=F, warning=F}
 
@@ -955,7 +957,8 @@ excl
 
 ## Embedding
 
-Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM). 
+Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM).
+
 ### Word Embedding Based on Co-occurences and GloVe
 
 The idea behind word embedding based on co-occurrences is to reflect co-occurrences and not only Bag of Words (BoW). 

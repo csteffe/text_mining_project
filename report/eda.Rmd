@@ -3,6 +3,7 @@ output:
   pdf_document: default
   html_document: default
 ---
+
 # Exploratory Data Analysis (EDA)
 
 To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package**.
@@ -50,13 +51,15 @@ CoW_cp
 
 ```
 
-## Term-Frequency by Chapter 
+## Term-Frequency by Document 
 
 The second plot shows the same information, ten most frequent [frequencies] terms, but by chapters of the book. Here, we show the ten most frequent [frequencies] terms associated with their chapter (i.e. document). We see that the term *women* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
 
 Regarding the term *female*, even though it is the second most frequent term in the book, it seems to be more specific to chapter 14 *Women's Rights are Human Rights* since we only find it in this particular chapter [is this right?]. 
 
 [Improve plot: color, layout, title, caption with source, can we change text1 by the name of the chapter ?]
+
+-> MAYBE REMOVE WOMEN like in the Harry Potter example and explain why we remove it
 
 ```{r cloud of words by document plot, echo=F, message=F, warning=F}
 
@@ -78,7 +81,7 @@ CoW_doc
 
 ```
 
-## TF-IDF
+## TF-IDF by Document
 
 The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable] 
 
@@ -86,7 +89,7 @@ The following plots show how some chapters are associated with certain words **u
 
 tfidf_plot <- data.tfidf %>% 
               tidy() %>%  
-              top_n(20, count) %>% 
+              top_n(10, count) %>% 
               ggplot(aes(x = term, 
                          y = count)) +
               geom_col() + 
@@ -103,6 +106,8 @@ tfidf_plot
 The below plot displays the terms that have at least one large TF-IDF . To do so, we compute for each term the maximum TF-IDF over all chapters of the book. The output shows that the term *tax* has a large TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book.
 
 [Improve plot]
+
+-> words that occurr often but not in a lot of documents (i.e. specific to few or one chapter)
 
 ```{r max tf-idf, echo=F, message=F, warning=F}
 
@@ -126,7 +131,7 @@ tfidf_max
 
 ```   
 
-## Term Frequencies against Document Frequencies 
+## Term Frequency against Document Frequency 
 
 The below plot shows the frequency of a term relative to its document frequency (i.e. number of documents in which a term is found), indicating whether a word is specific to a document or not. For example, we see that *women* is not document-specific since it is the most frequent term over all chapters (i.e. documents) of the book and that it is found in most chapters. On the contrary, the words *trial* and *tax* are less frequent and also less frequent in documents making them more document-specific. 
 
@@ -143,7 +148,7 @@ data.freq %>%
  labs(title = "TF versus DF (log-log)",
    subtitle = "",
    x = "Document log-frequency",
-   y = "log-frequency",
+   y = "Term log-frequency",
   caption = "source: Invisible Women.pdf")
 
 
@@ -192,15 +197,17 @@ ttr_plot <- ttr %>%
                  x = "Chapter",
                  y = "TTR")
 
-ttr_plot
+ttr_plot  # [ADD TTR ESTIMATES ON THE TIP OF THE BARS AND REMOVE PREVIOUS PLOT]
 
 ```
 
-### Moving-Average Token-Type Ration (MATTR)
+### Moving-Average Token-Type Ratio (MATTR)
 
 Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an algorithm using windows of the text to compute the TTR and repeating several times over different windows of the same size the TTR computation. The advantage of the MATTR is that it is less dependent on the length of the document than TTR. A too large window can produce an error since no local TTR can be computed and a too small window results in pointless values (always 1). MATTR is computed using ordered tokens.
 
 The Moving-Average Token-Type Ration ranges from 0.914 to 0.936 over all chapters of the book and according to the MATTR, chapter 6 *Being Worth Less Than a Show* has the richest vocabulary with a MATTR of 0.936. 
+
+-> EXPLAIN WHY ALMOSTALL EQUAL TO 1 
 
 ```{r MATTR, echo=F, message=F, warning=F}
 
@@ -228,7 +235,7 @@ The below graph plots the above information and shows that the MATTR among chapt
 mattr_plot <- mattr %>% 
               ggplot(aes(reorder(document, -MATTR), MATTR)) + 
               geom_bar(stat = "identity") +
-              labs(title = "Moving-Average Token-Type Ration (MATTR)",
+              labs(title = "Moving-Average Token-Type Ratio (MATTR)",
                    subtitle = "",
                    x = "Chapter",
                    y = "MATTR")
@@ -332,6 +339,9 @@ textplot_xray(kwic(data.cp,
 ```
 
 We can extend to two patterns. The below lexical dispersion plot shows that the term *sex* is more specific to chapter 10 and that *women* and *sex* are not necessarily associated. 
+
+-> ADD TITLE OF TEXT 10 AND EXPLAIN WH THESE TWO TOKENS WOULD APPEAR MORE OFTEN TOGETHER
+-> comparison female and male terms 
 
 ```{r xray plot 2 patterns, echo=F, message=F, warning=F}
 
