@@ -136,11 +136,12 @@ summary(data.cp)
 ```{r tokenization, echo = FALSE, message = FALSE}
 
 # Tokenize = create a tokens object
-data.tk1 <- tokens(data.cp,
-                   remove_numbers = TRUE,
-                   remove_punct = TRUE,
-                   remove_symbols = TRUE,
-                   remove_separators = TRUE) 
+data.tk1 <- data.cp %>% 
+                   tokens(remove_numbers = FALSE,
+                          remove_punct = TRUE,
+                          remove_symbols = TRUE,
+                          remove_separators = TRUE) %>%
+                   tokens_split(separator = "'")
 
 ```
 
@@ -300,16 +301,10 @@ library(stats)
 ```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
 
 # Illustration of the Zipf's law 
-plot(log(frequency)~log(rank), 
-     data = data.freq, 
-     pch = 20)
-
-# Adds text on plot
-text(log(frequency)~log(rank), 
-     data = data.freq[1:4,],     # ADD LAST 4 WORDS ON THE DOTS OF THE PLOT
-     label = feature, 
-     pos = 4)
-
+ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+ 
+   geom_point()+
+   geom_label(data = data.freq[c(1:5,6627:6631)], aes(label=feature))+
+   ggtitle("The Zipf's law on a log-log scale")
 ```
 
 Both plots show that *women*, *female*, *data* and *found* are the most frequent terms of the corpus indicating that they are not specific to one chapter (i.e. document) but are frequent in all chapters. 
