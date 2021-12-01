@@ -3,6 +3,7 @@ output:
   html_document: default
   pdf_document: default
 ---
+
 # Executive Summary
 
 This report outlines the results of a text mining analysis of the best-seller non-fiction book *Invisible Women*. Its exploration is meant to better understand some textual characteristics of feminist texts. Our text mining analysis shows that [ADD RESULTS HERE]. 
