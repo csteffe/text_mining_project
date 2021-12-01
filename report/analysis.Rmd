@@ -5,10 +5,6 @@ output:
 ---
 # Analysis
 
-## Unsupervised Analysis
-
-## Supervised Analysis
-
 -> Each part of your analysis should be supported by well-designed
 and relevant charts and graphs +  These should be adequately labelled with captions and legends
 
@@ -1117,5 +1113,17 @@ head(data.de) ## document vectors
 
 
 ```
+
+## Supervised Analysis
+
+The goal of the supervised analysis is to re-classify its documents (i.e. chapters) using the features (i.e. terms) analysed previously [add where maybe] [is that a good reformulation of the aim?]. To do so, we proceed to a machine learning approach consisting of splitting the corpus (*data* object) into a training and a test sets. Then, we train the classifiers on the training set and finally the best classifiers are selected on the test set. 
+
+To be able to proceed to the classification method described above, the corpus must be cleaned in order for the features (i.e. terms) to be usable. The cleaning process is achieved in the *Data Structuring and Cleaning* of the **Data** section and consists in sequential steps from the tokenization, removing useless words (i.e. stop words), lemmatization (i.e. tokens simplification) to stemming (i.e. reduce words to their stems). 
+
+
+
+
+
+
 
 

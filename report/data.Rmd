@@ -110,9 +110,11 @@ print(data)
 
 ```
 
-## Quanteda
+## Tokenization
 
-### Tokenization
+Tokenization is the method used to split a text into tokens (i.e. unit of analysis, here: words?). Here, we tokenize (i.e. split) the chapters (i.e. document) by space. To tokenize, we proceed to remove punctuation, symbols and separators because we believe that removing them will not affect our analysis and keeping them will not bring more insight to our analysis. We keep numbers since the book focuses on statistics. Therefore, numbers will be a key element of the analysis?. 
+
+### Quanteda
 
 The **Quanteda** package uses a corpus object (unlike **tidytext** package that uses a data frame?).
 
@@ -128,8 +130,6 @@ summary(data.cp)
 
 ```
 
-Tokenization is the method used to split a text into tokens (i.e. unit of analysis, here: words?). Here, we tokenize (i.e. split) the chapters (i.e. document) by space. To tokenize, we proceed to remove punctuation, symbols and separators because we believe that removing them will not affect our analysis and keeping them will not bring more insight to our analysis. We keep numbers since the book focuses on statistics. Therefore, numbers will be a key element of the analysis?. 
-
 ```{r tokenization, echo = FALSE, message = FALSE}
 
 # Tokenize = create a tokens object
@@ -141,9 +141,17 @@ data.tk1 <- tokens(data.cp,
 
 ```
 
-### Stop Words
+### Tidytext 
 
-To continue the cleaning process, we remove useless words that bring very to no information using the *stop_words* dictionary from the **quanteda** package and we proceed to map letters to lower cases since names (such as first or last names) are not of a specific importance in this book. 
+[ADD SAMES CODES BUT USING TIDYTEXT]
+
+## Stop Words
+
+To continue the cleaning process, we remove useless words that bring very to no information using the *stop_words* dictionary from the **quanteda** package and, we proceed to map letters to lower cases since names (such as first or last names) are not of a specific importance in this book. 
+
+The advantage of removing stop words is that it reduces the dimension of the number of features/terms to analyze so that the focus of the analysis is on terms that bring relevant informatio (i.e. dimension reduction method). 
+
+### Quanteda
 
 ```{r cleaning, echo = FALSE, message = FALSE}
 
@@ -154,9 +162,15 @@ data.tk2 <- data.tk1 %>%
 
 ```
 
-### Lemmatization
+### Tidytext
+
+[ADD CODE FOR THIS PACKAGE]
+
+## Lemmatization
 
 Lemmatization also simplifies tokens by generating a token dictionary for each token to reduce a vocabulary (i.e. set of types in a corpus) to its useful essence. [ADD AN EXAMPLE LIKE ABOVE] For example, "?" was reduced to "" and has thus "?" as a lemma. 
+
+### Quanteda
 
 ```{r lemmatization, echo = FALSE, message = FALSE}
 
@@ -167,9 +181,15 @@ data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token,
 
 ```
 
-### Stemming 
+### Tidytext
 
-Steaming simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Stemming reduces the size of a corpus'? vocabulary. 
+[ADD CODES]
+
+## Stemming 
+
+Stemming simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Stemming reduces the size of a corpus'? vocabulary. 
+
+### Quanteda
 
 The below output displays the first twelve tokens reduced to their steam for each document (i.e. chapter). For example, "snow-clearing" was reduced to "snow-clear". 
 
@@ -180,7 +200,13 @@ data.tk2 %>% tokens_wordstem()
 
 ```
 
-### Docoument-Term Matrix (DTM)
+### Tidytext
+
+[ADD SAME CODE FOR THIS PACKAGE]
+
+## Document-Term Matrix (DTM)
+
+### Quanteda
 
 ```{r DTM, echo = FALSE, message = FALSE}
 
@@ -190,7 +216,13 @@ View(data.dfm)
 
 ```
 
-# Global Frequencies
+### Tidytext
+
+[Add code for this package]
+
+## Global Frequencies
+
+### Quanteda
 
 The below table displays the term frequencies. The *feature* column indicates a lemmatized and stemmatized token, *frequency* returns the number of time the lemma? is found in the corpus?, the *rank* indicates ?, the *docfreq* indicates the document frequency which is the number of documents in which the token is found and *group* indicates ?.
 
@@ -206,9 +238,17 @@ kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'),
                 full_width = NULL)  
 ```
 
-### Term Frequency and Inverse Document Matrix (TF-IDF)
+### Tidytext
 
-The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to detect which words are specific to one document. The below output shows, for the document-feature matrix of 16 documents (i.e. chapters), 8,640 features (i.e. tokens) and 0 docvars (i.e. ??), the weighted frequency for each token in each document (i.e. chapter).
+[ADD CODES]
+
+## Term Frequency and Inverse Document Matrix (TF-IDF)
+
+The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to detect which words are specific to one document. 
+
+### Quanteda
+
+The below output shows, for the document-feature matrix of 16 documents (i.e. chapters), 8,640 features (i.e. tokens) and 0 docvars (i.e. ??), the weighted frequency for each token in each document (i.e. chapter).
 
 ```{r term frequency and inverse document matrix, echo = FALSE, message = FALSE}
 
@@ -229,9 +269,15 @@ sort(apply(data.tfidf,
 
 ```
 
-### Zipf's Law
+### Tidytext
 
-The Zipf law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. 
+[ADD CODES]
+
+## Zipf's Law
+
+The Zipf'S law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. 
+
+### Quanteda
 
 The below plot displays the term frequencies against their ranks on a non log-log scale. 
 
@@ -282,7 +328,9 @@ text(log(frequency)~log(rank),
 
 Both plots show that *women*, *female*, *data* and *found* are the most frequent terms of the corpus indicating that they are not specific to one chapter (i.e. document) but are frequent in all chapters. 
 
+### Tidytext
 
+[ADD codes]
 
 
 
