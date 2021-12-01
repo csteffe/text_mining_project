@@ -2,8 +2,10 @@
 title: "Meat consumption and cancer"
 author: "Aëllya Monney, Colin Steffe, Rémy Tombola and Jasmine Mawjee"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd')}
+```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd', 'Appendix.Rmd')}
 ```

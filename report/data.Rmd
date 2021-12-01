@@ -180,9 +180,9 @@ data.tk2 %>% tokens_wordstem()
 
 ```
 
-### Dcoument-Term Matrix (DTM)
+### Docoument-Term Matrix (DTM)
 
-```{r term frequency, echo = FALSE, message = FALSE}
+```{r DTM, echo = FALSE, message = FALSE}
 
 # Creates a document-feature matrix
 data.dfm <- dfm(data.tk2)  # EST-CE QUE LE OUTPUT EST NORMAL ? CA ME SEMBLE CHELOU ??

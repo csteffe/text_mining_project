@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Analysis
 
 ## Unsupervised Analysis
@@ -37,6 +42,13 @@ The sentiment analysis qualifies or quantifies the sentiment emerging from one t
 When analyzing the sentiment, we should not use the data in which stop words were removed since they might be in the sentiment dictionary used or created. 
 
 ```{r data.tk1, echo=F, message=F, warning=F}
+
+# Tokenize = create a tokens object
+data.tk1 <- tokens(data.cp,
+                   remove_numbers = FALSE,
+                   remove_punct = TRUE,
+                   remove_symbols = TRUE,
+                   remove_separators = TRUE)
 
 # Not removing the stop words
 data.tk3 <- data.tk1 %>%
@@ -1013,7 +1025,7 @@ data.weC <- data.glove$fit_transform(data.coocc)
 
 The following output displays the unique representations of the vectors?.
 
-```{r unique reprensentaion, echo=F, message=F, warning=F}
+```{r vectors, echo=F, message=F, warning=F}
 
 # unique representation
 data.we <- t(data.glove$components) + data.weC 

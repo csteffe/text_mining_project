@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Exploratory Data Analysis (EDA)
 
 To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package**.
@@ -197,9 +202,9 @@ Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an 
 
 The Moving-Average Token-Type Ration ranges from 0.914 to 0.936 over all chapters of the book and according to the MATTR, chapter 6 *Being Worth Less Than a Show* has the richest vocabulary with a MATTR of 0.936. 
 
-```{r MATTR plot, echo=F, message=F, warning=F}
+```{r MATTR, echo=F, message=F, warning=F}
 
-mattr <- data.tk %>% 
+mattr <- data.tk2 %>% 
          textstat_lexdiv(measure = "MATTR", 
                          MATTR_window = 20)    # determines the size of the window to use 
 
@@ -218,7 +223,7 @@ The below graph plots the above information and shows that the MATTR among chapt
 
 [Improve plot]
 
-```{r TTR plot, echo=F, message=F, warning=F}
+```{r MATTR plot, echo=F, message=F, warning=F}
 
 mattr_plot <- mattr %>% 
               ggplot(aes(reorder(document, -MATTR), MATTR)) + 
@@ -260,7 +265,7 @@ The feature co-occurrence matrix is a 8,640 by 8,640 matrix with 74,649,600 elem
 ```{r co-occurrences, echo=F, message=F, warning=F}
 
 # Creates a feature co-occurrence matrix
-data.coocc <- fcm(data.tk,     
+data.coocc <- fcm(data.tk2,     
                   context = "document", 
                   tri = FALSE)                 # returns upper and lower triangles of the matrix
 
