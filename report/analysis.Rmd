@@ -3,33 +3,22 @@ output:
   pdf_document: default
   html_document: default
 ---
+
 # Analysis
 
--> Each part of your analysis should be supported by well-designed
-and relevant charts and graphs +  These should be adequately labelled with captions and legends
+This section dives deeper into the analysis of the features (i.e. terms) now cleaned and structured. Each part of our analysis is supported by well-designed and relevant charts and graphs using the **ggplot2**, **sentimentr**, **reshape2**, **quanteda.textmodels**, **seededlda** and **text2vec** packages [VERIFY IF ALL THESE PACKAGES PROVIDE OR HELP PROVIDE A GRAPHICAL REPRESENTATION].
 
-Your analysis should match the complexity and uniqueness of your dataset; 
+-> talk about the complexity of the book: specify the length of the text before and after the cleaning ? assess the difference (big or small)  and interpret (if big, most words are bringing no information, if small, most terms are insightful) ? [DO YOU HAVE ANY OTHER IDEAS THAT COULD ASSESS THE COMPLEXITY OF THE TEXT ?]
+
+-> talk about the uniqueness of the data : [NOT SURE WHAT TO MENTION HERE BUT MUST BE MENTIONNED]
+
+-> Mention the different methods considered: So far, the analysis is performed on the text cleaned and structured using the **quanteda package**. let's see if we can try with **tidytext** as well and compare methods (explain differences in the results).
+
+-> Competing approaches: if we decide to only use **quanteda** (which is very similar to **tm**, explain how) explain the difference with the **tidytext** method.
 
 ```{r, echo=F, message=F, warning=F}
 source(here::here("scripts/setup.R"))
 ```
-
-* Answers to the research questions
-
-1) What does the text mining analysis of this book brings to light ?
-a) general vocabulary analysis + chapter vocabulary analysis + part vocabulary analysis
-b) overall token analysis + chapter token analysis + part token analysis
-...
-
-* Different methods considered
-
-So far only **quanteda** package used, let's see if we can try with another one and explains differences and why we chose them.
-
-* Competing approaches
-
-Explain why we use the **quanteda** method (which is very similar to **tm**, explain how) rather than **tidytext** method 
-
-* Justifications
 
 ## Sentiment Analysis
 
