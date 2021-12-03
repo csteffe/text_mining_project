@@ -137,7 +137,7 @@ summary(data.cp)
 
 # Tokenize = create a tokens object
 data.tk1 <- data.cp %>% 
-                   tokens(remove_numbers = FALSE,
+                   tokens(remove_numbers = TRUE,
                           remove_punct = TRUE,
                           remove_symbols = TRUE,
                           remove_separators = TRUE) %>%
@@ -181,7 +181,7 @@ Lemmatization also simplifies tokens by generating a token dictionary for each t
 # Lemmatization: replaces tokens in a tokens object (i.e. text)
 library(lexicon)
 data.tk2 <- data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
-                                          replacement = hash_lemmas$lemma)
+                                          replacement = hash_lemmas$lemma)%>% tokens_remove("chapter")
 
 ```
 
@@ -218,7 +218,7 @@ data_stem <- data.tk2 %>% tokens_wordstem()
 
 # Creates a document-feature matrix
 data.dfm <- dfm(data.tk2)  
-View(data.dfm)
+data.dfm
 
 ```
 
