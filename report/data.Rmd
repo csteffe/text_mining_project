@@ -132,8 +132,8 @@ data.tk1 <- data.cp %>%
                           remove_punct = TRUE,
                           remove_symbols = TRUE,
                           remove_separators = TRUE) %>%
-                   tokens_split(separator = "'")
-
+                   tokens_split(separator = "'") %>%
+                   tokens_split(separator = "-") 
 ```
 
 ## Stop Words
@@ -158,84 +158,63 @@ data.tk2 <- data.tk1 %>%
                                                     
 Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Therefore the set of types in a corpus is shorten. For example, "started" and "starts" were reduced to "start" and have thus "start" as a lemma. 
 
-### Quanteda
-
 ```{r lemmatization, echo = FALSE, message = FALSE}
 
 # Lemmatization
 data.tk2 <- data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
                                           replacement = hash_lemmas$lemma)
+head(data.tk2)
 ```
 
 ## Stemming 
 
 Stemming also simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Just as lemmatization, stemming reduces the size of a vocabulary but in an inconsistent way. 
 
-For interpretation matter, since the interpretation of the terms are important here, we decide not to use the stemming in the rest of the analysis.
+For interpretation matter, since it is important here, we decide not to use the stemming in the rest of our analysis. But we do it for demonstration purpose.
 
-### Quanteda
-
-The below output displays the first twelve tokens reduced to their steam for each document (i.e. chapter). For example, "snow-clearing" was reduced to "snow-clear". 
+The below output displays the first twelve tokens reduced to their steam for each document. For example, "snow-clearing" was reduced to "snow-clear". 
 
 ```{r stemming, echo = FALSE, message = FALSE}
-
 # Stemming
 data_stem <- data.tk2 %>% tokens_wordstem()
-
+head(data_stem)
 ```
-
-### Tidytext "remove"
-
-[ADD SAME CODE FOR THIS PACKAGE]
 
 ## Document-Term Matrix (DTM)
 
-### Quanteda
+Now, without considering the stemming, we compute the **Document-Term-Matrix** that will be useful all along our work.
 
 ```{r DTM, echo = FALSE, message = FALSE}
-
 # Creates a document-feature matrix
 data.dfm <- dfm(data.tk2)  
 data.dfm
 
 ```
-
-### Tidytext "remove"
-
-[Add code for this package]
+The above table displays the documents/texts and the terms/features. Thus, after cleaning and lemmatization, the token types size is 5'742. It also indicates that the DTM is mostly sparse, at 83.76%.
 
 ## Global Frequencies
 
-### Quanteda
-
-The below table displays the term frequencies. The *feature* column indicates a lemmatized "and stemmatized" token, *frequency* returns the number of time the term is found in the corpus, the *rank* sorts the terms by frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found and *group* indicates ?.
+The below table displays the term frequencies. The *feature* column indicates lemmatized tokens, *frequency* returns the number of time the term is found in the corpus, the *rank* sorts the terms by decreasing frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found.
 
 ```{r term frequency, echo = FALSE, message = FALSE}
 
 # Generates counts and document frequencies summaries of the feature of the document-feature matrix "data.dfm"
 data.freq <- textstat_frequency(data.dfm) 
 
-library(kableExtra)
 kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'), 
     caption = "Feature/term frequencies") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
 ```
 
-### Tidytext
-
-[ADD CODES]
 
 ## Term Frequency and Inverse Document Matrix (TF-IDF)
 
-The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to detect which words are specific to one document. 
+The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to rebalance a word frequency with respect to its document specificity.
 
-### Quanteda
-
-The below output shows, for the document-feature matrix of 16 documents (i.e. chapters), 8,640 features (i.e. tokens) and 0 docvars (i.e. ??), the weighted frequency for each token in each document (i.e. chapter).
+The below output shows, for the document-feature matrix of 16 documents and 8,640 features, the weighted frequency for each token by document. Obviously, the sparsity stays the same.
 
 ```{r term frequency and inverse document matrix, echo = FALSE, message = FALSE}
-
 # Weighted document-feature matrix by tf-idf
 data.tfidf <- dfm_tfidf(data.dfm)
 data.tfidf
@@ -244,8 +223,7 @@ data.tfidf
 The following output shows the twenty terms that have the largest TF-IDF. 
 
 ```{r largest tf-idf per word, echo = FALSE, message = FALSE}
-
-# S20 largest TF-IDFs
+# 20 largest TF-IDFs
 sort(apply(data.tfidf,
            2,
            max),
@@ -253,19 +231,13 @@ sort(apply(data.tfidf,
 
 ```
 
-### Tidytext
-
-[ADD CODES]
-
 ## Zipf's Law
 
-The Zipf's law shows the distribution of words used in a corpus. It says that most frequent terms are not specific to one document since they are frequent in all documents. 
+The Zipf's law shows the distribution of words used in a corpus compared to his rank in the frequency table . It says that the frequency of a token is inversely proportional to its rank.
 
-### Quanteda
+The below plot is on a log-log scale, the frequency versus rank gives a negative linear relation as the original distribution is a negative exponential function. 
 
-The below plot is on a log-log scale, the frequency versus rank gives a linear relation [EXPLAIN WHY]. 
-
-For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ 
+For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ "pas necessaire a mon avis"
 
 ```{r fit, echo = FALSE, message = FALSE}
 
@@ -274,7 +246,6 @@ library(stats)
 
 ```
 
-[IMPROVE PLOT MAYBE ?]
 
 ```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
 
@@ -285,11 +256,8 @@ ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+
    ggtitle("The Zipf's law on a log-log scale")
 ```
 
-Both plots show that *women*, *female*, *data* and *found* are the most frequent terms of the corpus indicating that they are not specific to one chapter (i.e. document) but are frequent in all chapters. 
+This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words.
 
-### Tidytext
-
-[ADD codes]
 
 
 
