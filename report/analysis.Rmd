@@ -569,12 +569,14 @@ Are terms co-occurring ? if yes, a lot ?
 ```{r clustering with co-occurrences, echo=F, message=F, warning=F}
 
 # Makes a co-occurrence on a (half-)window of 3
-data.fcm <- fcm(data.tk, 
+data.fcm <- fcm(data.tk2, 
                 window = 3, 
                 tri = FALSE)
 
 # Makes the co-occurrence matrix symmetrical
 data.fcm <- (data.fcm + t(data.fcm))/2
+
+data.feat <- textstat_frequency(dfm(data.tk2)) %>% filter(rank <= 40) 
 
 # Makes a matrix
 data.fcm.mat <- melt(as.matrix(data.fcm[data.feat$feature, 
