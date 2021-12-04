@@ -1,0 +1,113 @@
+```{r, echo=F, message=F}
+source(here::here("scripts/setup.R"))
+```
+
+# Exploratory Data Analysis (EDA)
+
+To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package**.
+
+## Cloud of Words plot
+
+The Cloud of Words plot is possible representation used to visualize term frequencies. Nevertheless, this vizualition is more graphic than informative, this is why we decided to start our EDA with. 
+
+The size and the position (centered) are propotional to the frequency.
+
+[Improve plot: use different colors]
+
+```{r cloud of words for corpus plot, echo=F, message=F, warning=F}
+
+CoW_cp <- textplot_wordcloud(data.dfm)
+
+CoW_cp 
+
+```
+
+This plot shows that the most frequent terms in the corpus seems to be women, female, male, datum, etc...
+
+
+## Global frequencies
+
+
+To assess a bit more seriously the frequency of the terms, we compute the global frequencies and show the results in the plot below. The following visualization plots the 10 most frequent terms in the whole corpus. As we supposed previously with the cloud of words, the plot indicates that the term *woman* is the most frequent term overall, followed by female, datum, male and, find. The frequency difference between those words are so slight that it was hard to distinguish their rank. In addition we can see that the term "data" has been changed by lemmatization to "datum". 
+
+[Improve plot: layout/color/add title/add subtitle/caption with source]
+
+```{r TF-IDF plot, echo=F, message=F, warning=F}
+
+# Generates counts and document frequencies summaries of the feature of the document-feature matrix "data.dfm"
+data.freq <- textstat_frequency(data.dfm) 
+
+#Plot the results 
+tf_plot <- data.freq  %>% 
+              top_n(10, frequency) %>%                    # selects the top 10 rows by frequency values
+              ggplot(aes(x = reorder(feature, frequency), # orders terms by frequency values
+                         y = frequency)) + 
+              geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + # generates a barplot
+              coord_flip() +                              # flips the coordinates
+              xlab("Frequency") + 
+              ylab("Term")
+
+tf_plot
+
+```
+To deep dive in those frequencies, we display the terms frequency table below which resumes numerically the information (???).  The *feature* column indicates lemmatized tokens, *frequency* returns the number of time the term is found in the corpus, the *rank* sorts the terms by decreasing frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found. There is an important point to make here, "woman" appears 1594 times in the corpus and it is not a specific term as it appears in all the documents. Moreover *woman* appears four times more than the second most frequent term *female* in the corpus and this huge difference could hide some insights. Thus, "woman" will be removed for the rest of our analysis.
+
+!!!!!! Enlever les groupes c'est pas relevant pour nous  !!!!!! 
+
+```{r term frequency, echo = FALSE, message = FALSE}
+kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'), 
+    caption = "Feature/term frequencies") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+```
+
+```{r second cleaning, echo = FALSE, message = FALSE}
+# second cleaning without "woman"
+data.tk3 <- data.tk2 %>% tokens_remove("woman")
+
+# Creates a second document-feature matrix
+data.dfm2 <- dfm(data.tk3) 
+
+# generate second second doc frequency
+data.freq2 <- textstat_frequency(data.dfm2)  
+
+# Generate a second weighted document-feature matrix by tf-idf
+data.tfidf2 <- dfm_tfidf(data.dfm2)
+```
+
+
+## Term-Frequency by Document 
+
+The plot below shows the same information, ten most frequent [frequencies] terms, but by chapters of the book. Here, we show the ten most frequent [frequencies] terms associated with their chapter (i.e. document). We see that the term *woman* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
+
+Regarding the term *female*, even though it is the second most frequent term in the book, it seems to be more specific to chapter 14 *Women's Rights are Human Rights* since we only find it in this particular chapter [is this right?]. 
+
+[Improve plot: color, layout, title, caption with source, can we change text1 by the name of the chapter ?]
+
+-> MAYBE REMOVE WOMEN like in the Harry Potter example and explain why we remove it
+-> I removed all terms like women, female etc... just for this plot, otherwise it is meaningless so we need to change the whole interpretation.  
+
+-> justifier pq on fait pas l'autre plot avec les freq par doc. 
+
+
+```{r cloud of words by document plot, echo=F, message=F, warning=F}
+
+nowoman.10 <- data.dfm2 %>% 
+           tidy() %>%                 # creates a tibble 
+           top_n(10, count) %>%       # selects the top 10 rows by count      
+           ggplot(aes(x = term, 
+                      y = count)) +   
+           geom_col(fill = "dodgerblue3", alpha = 0.5) + 
+           coord_flip() + 
+           xlab("Term") +
+           ylab("Frequency") +
+           facet_wrap(~ document, 
+                      ncol = 2) +
+           theme_minimal()
+
+nowoman.10
+
+```
+
+
+
