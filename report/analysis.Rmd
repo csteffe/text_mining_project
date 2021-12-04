@@ -60,7 +60,7 @@ The following table shows the average sentiment over the token values of each ch
 data.sent <- tokens_lookup(data.tk3, 
                            dictionary = data_dictionary_LSD2015) %>% 
              dfm() %>%                                                # creates a dtm matrix
-             tidy()
+             tidy()%>%arrange(document)
 
 kbl(data.sent, 
     caption = "Sentiment Analysis (Dictionary-Based)") %>% 
@@ -151,6 +151,25 @@ sent_bychap <- sentiment_by(text,
                             by = document) %>%
                arrange(desc(ave_sentiment)) %>%
                filter(document != "NA")
+
+# removing text after sent_bychat
+for (i in 1:9){
+  sent_bychap[i,1] <- substr(sent_bychap[i,1],
+                      1,
+                      9)
+  
+  sent_bychap$text[[i]] <- substring(sent_bychap$text[[i]],
+                              10)
+}
+
+for (i in 10:16){
+  sent_bychap[i,1] <- substr(sent_bychap[i,1],
+                      1,
+                      10)
+  
+  sent_bychap$text[[i]]<-substring(sent_bychap$text[[i]],
+                            11)
+}
 
 kbl(sent_bychap, 
     caption = "Sentiment Values by Chapter") %>% 
@@ -328,6 +347,8 @@ kbl(clust_eu,
                 full_width = NULL)  
 
 ```
+It is interesting to observe that cluster one seems more to have words about transport and work, cluster two about car, and cluster 3 about medical.  
+
 
 ##### Inverted Jaccard Dissimilarity Matrix
 
@@ -365,6 +386,8 @@ kbl(clust_jac,
                 full_width = NULL)  
 
 ```
+Using jaccard we still have two cluster that have terms the same previous previous clustering using euclidean distance : transport and medical, but the cluster 3 is different with top terms related to disaster or war, rather than top terms related to cars.  
+
 
 ##### Inverted Cosine Dissimilarity Matrix
 
@@ -402,6 +425,7 @@ kbl(clust_cos,
                 full_width = NULL)  
 
 ```
+Here we have cluster top terms similar than using euclidean distance.  
 
 #### K-Means
 
@@ -429,6 +453,8 @@ kbl(clust_eu_km,
                 full_width = NULL)  
 
 ```
+Using kmean we have the cluster 2 that is different from other method, with top terms related to politics.
+
 
 ##### Jaccard
 
@@ -527,8 +553,8 @@ data.cos2 <- textstat_simil(data.tfidf,
                             method = "cosine", 
                             margin = "features")
 
-data.hc <- hclust(as.dist(1 - data.cos2))
-plot(data.hc)
+#data.hc <- hclust(1-dist(data.cos2))
+#plot(data.hc)
 
 #PROBLEM C!!!!
 
