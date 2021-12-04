@@ -641,7 +641,7 @@ The below output shows the association between the first six chapters and the te
 ```{r LSA topics with documents, echo=F, message=F, warning=F}
 
 # Extract matrices from LSA decomposition for documents
-head(data.lsa$docs)
+data.lsa$docs
 
 ```
 
@@ -671,7 +671,7 @@ The below output shoes the association between the first six most frequent words
 ```{r LSA topics with terms, echo=F, message=F, warning=F}
 
 # Extract matrices from LSA decomposition for features
-head(data.lsa$features)
+head(data.lsa$features, n = 10)
 
 ```
 
