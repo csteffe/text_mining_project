@@ -49,7 +49,7 @@ CoW_cp <- textplot_wordcloud(data.dfm)
 CoW_cp 
 
 ```
-Unsurprisingly, the term "woman" is at the centre of the cloud of words due to its high frequency throughout the corpus. However, its high frequency may mask important information and as this term does not provide any value, it will be removed for the rest of our analysis.
+Unsurprisingly, the term "woman" is at the center of the cloud of words due to its high frequency throughout the corpus. However, its high frequency may mask important information as this term does not provide any value. Thus, "woman" will be removed for the rest of our analysis.
 ```{r second cleaning, echo = FALSE, message = FALSE}
 # second cleaning without "woman"
 data.tk3 <- data.tk2 %>% tokens_remove("woman")
@@ -81,7 +81,7 @@ Regarding the term *female*, even though it is the second most frequent term in 
 
 dfm.nowoman <- data.tk2 %>% tokens_remove(c("female","woman"))%>% dfm()
 
-nowoman.10 <- data.dfm2 %>% 
+nowoman.10 <- data.dfm %>% 
            tidy() %>%                 # creates a tibble 
            top_n(10, count) %>%       # selects the top 10 rows by count      
            ggplot(aes(x = term, 
@@ -100,10 +100,11 @@ nowoman.10
 ## TF-IDF by Document
 
 The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable] 
-
+plutot ca non?
+The following plot shows the 10 highest TF-IDF compute by chapter. For example the term *tax* is really frequent and specific in chapter 13 whereas chapter 10 is associated with *trial* and *drug*.
 ```{r tfidf by document plot, echo=F, message=F, warning=F}
 
-tfidf_plot <- data.tfidf %>% 
+tfidf_plot <- data.tfidf2 %>% 
               tidy() %>%  
               top_n(10, count) %>% 
               ggplot(aes(x = term, 
@@ -155,7 +156,7 @@ The below plot shows the frequency of a term relative to its document frequency 
 
 ```{r TF vs DF, echo=F, message=F, warning=F}
 
-data.freq2 %>% 
+data.freq %>% 
  ggplot(aes(x = log(docfreq), 
   y = log(frequency))) +
  geom_text(aes(label = feature), 
