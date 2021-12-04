@@ -1,53 +1,45 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
-# 1. Data Gathering
-
-[we will explain the method: identify your own source of text data and perform any necessary scraping or
-parsing tasks to construct the dataset -> read from pdf, why it's easy -> just load the data and when it can be more difficult -> encoding issues ]
-
--> advantage: easy to upload : *read_pdf()* function
--> disadvantage: cleaning can be more difficult
-
 ```{r setup, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
 ```
 
-The book *Invisible Women* under study was downloaded from [ADD WEBSITE SOURCE] in its PDF version. To upload it in *Rstudio*, we use the *pdf_text* utility from the **pdftools** package that extracts texts from pdf files.
+# 1. Data Gathering
+The book *Invisible Women* under study was downloaded from [ADD WEBSITE SOURCE] in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from pdf files.
+One of its advantage, is that is it easy to upload. On the cons side, the cleaning can sometimes be quite difficult.
 
 ```{r load data, echo = FALSE, message = FALSE}
+#load the data
 text <- pdf_text(here::here("data/Invisible Women.pdf"))
 ```
+Here are the book's characteristics:
+
+| Title | Author | Date | Parts | Chapters | Pages |
+|:---|:---|:---|:---|:---|:---|
+| Invisible Women | Caroline Perez Criado | 2019 | 6 | 16 | 399 |
+
 
 # 2. Data Structuring and Cleaning
 
 ## Corpus
+*The preface* of the book starts on page 11 and *the introduction* on page 15.  
 
-The preface of the book starts on page 11 and the introduction on page 15.  
+```{r start and stop, message=FALSE, warning=FALSE, include=FALSE}
 
-(To create corpus with chapter : https://cran.r-project.org/web/packages/corpus/vignettes/corpus.html, and cleaning.)  
-
-```{r start and stop, echo = FALSE, message = FALSE, warning = FALSE}
-
-# The text starts after the Project Gutenberg header...
+# The text starts after the title page of part I
 start <- grep("CHAPTER 1", text)
 start < -start[1]
-#print(book[34])
 
-# The text ends at the Project Gutenberg footer.
+# The text ends just before the "Afterword" section
 stop <- grep("Afterword", text) - 1
 stop<-stop[2]
-#print(text[259])
 
+# extract lines from the book
 lines <- text[start:stop]
 
 ```
 
-```{r, chapters, echo = FALSE, message = FALSE}
+```{r chapters, echo=FALSE, message=FALSE, warning=FALSE}
 
-# chapters start with "1.", "2.", etc...
+# chapters start with "CHAPTER 1", "CHAPTER 2", etc...
 chapter <- grep("CHAPTER", lines)
 
 # Gets the section texts (including the front matter)
@@ -63,7 +55,7 @@ text <- trimws(text)
 # Discards the front matter
 text <- text[-1]
 
-# Gets the section titles, removing the prefix ("1.", "2.", etc.)
+# Gets the section titles
 document <- sub("^[[:space:]]*[[:digit:]]+[.][[:space:]]*", "", lines[chapter])
 document <- trimws(document)
 
@@ -72,15 +64,8 @@ document <- trimws(document)
 After indicating where exactly the text under study starts and ends and, after extracting the chapter titles and organizing the text by chapters, we obtain the usable data to further analyze *Invisible Women*'s text. 
 
 ```{r corpus, echo = FALSE, message = FALSE}
-
-library(corpus)
-
 # Creates a corpus object
 data <- corpus_frame(document, text) 
-
-# set the row names; not necessary but makes results easier to read
-#rownames(data) <- sprintf("ch%02d", seq_along(chapter))
-
 ```
 
 ```{r title wrangling, echo = FALSE, message = FALSE}
@@ -109,24 +94,30 @@ for (i in 10:16){
 # Checks type of "data"
 #typeof(data) # list
 
-print(data)
+kable(data[1:5,],
+      caption = "Head of Invisible Women's corpus") %>% 
+      kable_styling(bootstrap_options = c("striped",
+                                          "hover", 
+                                          "condensed", 
+                                          "responsive"),
+                    full_width = T, 
+                    position = "left", 
+                    font_size = 16, 
+                    fixed_thead = T)
 
 ```
 
 ## Tokenization
 
-Tokenization is the method used to split a text into tokens (i.e. unit of analysis, here: words?). Here, we tokenize (i.e. split) the chapters (i.e. document) by space. To tokenize, we proceed to remove punctuation, symbols and separators because we believe that removing them will not affect our analysis and keeping them will not bring more insight to our analysis. We keep numbers since the book focuses on statistics. Therefore, numbers will be a key element of the analysis?. 
+Tokenization is the method used to split a text into tokens. Our unit of analysis are words. Here, we tokenize the chapters (i.e. document) by space. To do so, we proceed to remove numbers, punctuation, symbols and separators because we believe that it will not affect our analysis and keeping them will not bring more insight.
 
 ### Quanteda
 
-The **Quanteda** package uses a corpus object (unlike **tidytext** package that uses a data frame?).
+The **Quanteda** package uses a corpus object.
 
-The below summary shows that *Invisible Women* consists of 16 documents. And for each document, three columns indicates the number of tokens (i.e. terms), the number of sentences as well as the number of token types per document. 
+The below summary shows that *Invisible Women* consists of 16 documents. And for each document, three columns indicates the number of tokens, the number of sentences as well as the number of token types per document. 
 
 ```{r corpus summary, echo = FALSE, message = FALSE}
-
-library(quanteda)
-
 # Loads into a corpus
 data.cp <- corpus(text)
 summary(data.cp)
@@ -145,15 +136,11 @@ data.tk1 <- data.cp %>%
 
 ```
 
-### Tidytext 
-
-[ADD SAMES CODES BUT USING TIDYTEXT]
-
 ## Stop Words
 
-To continue the cleaning process, we remove useless words that bring very to no information using the *stop_words* dictionary from the **quanteda** package and, we proceed to map letters to lower cases since names (such as first or last names) are not of a specific importance in this book. 
+To continue the cleaning process, we remove useless words that bring very to no information using the *stop_words* dictionary from the **quanteda** package and we map letters to lower cases since names (such as first or last names) are not of a specific importance in this book. 
 
-The advantage of removing stop words is that it reduces the dimension of the number of features/terms to analyze so that the focus of the analysis is on terms that bring relevant informatio (i.e. dimension reduction method). 
+The advantage of removing stop words is that it reduces the dimension of the number of features/terms to analyze so that the focus of the analysis is on terms that bring relevant information. In this aim, we remove the word "chapter" which does not provide any value. 
 
 ### Quanteda
 
@@ -161,39 +148,30 @@ The advantage of removing stop words is that it reduces the dimension of the num
 
 # Removes stop words and converts into lower cases 
 data.tk2 <- data.tk1 %>%
-            tokens_remove(stop_words$word) %>%
+            tokens_remove(stop_words$word) %>% 
+            tokens_remove("chapter") %>%
             tokens_tolower()
 
 ```
 
-### Tidytext
-
-[ADD CODE FOR THIS PACKAGE]
-
 ## Lemmatization
-
-Lemmatization also simplifies tokens by generating a token dictionary for each token to reduce a vocabulary (i.e. set of types in a corpus) to its useful essence. [ADD AN EXAMPLE LIKE ABOVE] For example, "?" was reduced to "" and has thus "?" as a lemma. 
+                                                    
+Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Therefore the set of types in a corpus is shorten. For example, "started" and "starts" were reduced to "start" and have thus "start" as a lemma. 
 
 ### Quanteda
 
 ```{r lemmatization, echo = FALSE, message = FALSE}
 
-# Lemmatization: replaces tokens in a tokens object (i.e. text)
-library(lexicon)
+# Lemmatization
 data.tk2 <- data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
-                                          replacement = hash_lemmas$lemma)%>% tokens_remove("chapter")
-
+                                          replacement = hash_lemmas$lemma)
 ```
-
-### Tidytext
-
-[ADD CODES]
 
 ## Stemming 
 
-Stemming simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Stemming reduces the size of a corpus'? vocabulary. 
+Stemming also simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Just as lemmatization, stemming reduces the size of a vocabulary but in an inconsistent way. 
 
--> for interpretation matter: since the interpretation of the terms are important here, we decide not to use the stemming in the rest of the analysis.
+For interpretation matter, since the interpretation of the terms are important here, we decide not to use the stemming in the rest of the analysis.
 
 ### Quanteda
 
@@ -206,7 +184,7 @@ data_stem <- data.tk2 %>% tokens_wordstem()
 
 ```
 
-### Tidytext
+### Tidytext "remove"
 
 [ADD SAME CODE FOR THIS PACKAGE]
 
@@ -222,7 +200,7 @@ data.dfm
 
 ```
 
-### Tidytext
+### Tidytext "remove"
 
 [Add code for this package]
 
@@ -230,7 +208,7 @@ data.dfm
 
 ### Quanteda
 
-The below table displays the term frequencies. The *feature* column indicates a lemmatized and stemmatized token, *frequency* returns the number of time the lemma? is found in the corpus?, the *rank* indicates ?, the *docfreq* indicates the document frequency which is the number of documents in which the token is found and *group* indicates ?.
+The below table displays the term frequencies. The *feature* column indicates a lemmatized "and stemmatized" token, *frequency* returns the number of time the term is found in the corpus, the *rank* sorts the terms by frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found and *group* indicates ?.
 
 ```{r term frequency, echo = FALSE, message = FALSE}
 
