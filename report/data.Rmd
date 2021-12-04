@@ -237,15 +237,12 @@ The Zipf's law shows the distribution of words used in a corpus compared to his 
 
 The below plot is on a log-log scale, the frequency versus rank gives a negative linear relation as the original distribution is a negative exponential function. 
 
-For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ "pas necessaire a mon avis"
+For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ "pas necessaire a mon avis ni le plot en dessous"
 
 ```{r fit, echo = FALSE, message = FALSE}
-
-library(stats)
 #fit_women <- lm() # [FINISH!!]
 
 ```
-
 
 ```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
 
