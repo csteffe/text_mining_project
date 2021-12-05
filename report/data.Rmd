@@ -3,23 +3,25 @@ source(here::here("scripts/setup.R"))
 ```
 
 # 1. Data Gathering
-The book *Invisible Women* under study was downloaded from [ADD WEBSITE SOURCE] in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from pdf files.
-One of its advantage, is that is it easy to upload. On the cons side, the cleaning can sometimes be quite difficult.
+
+The book *Invisible Women* under study was downloaded from [source: https://yes-pdf.com/book/113#google_vignette] in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from pdf files.
+One of its advantages, is that is it easy to upload. On the cons side, the cleaning can sometimes be quite long and tedious.
 
 ```{r load data, echo = FALSE, message = FALSE}
 #load the data
 text <- pdf_text(here::here("data/Invisible Women.pdf"))
 ```
+
 Here are the book's characteristics:
 
 | Title | Author | Date | Parts | Chapters | Pages |
 |:---|:---|:---|:---|:---|:---|
 | Invisible Women | Caroline Perez Criado | 2019 | 6 | 16 | 399 |
 
-
 # 2. Data Structuring and Cleaning
 
 ## Corpus
+
 *The preface* of the book starts on page 11 and *the introduction* on page 15.  
 
 ```{r start and stop, message=FALSE, warning=FALSE, include=FALSE}
@@ -61,12 +63,14 @@ document <- trimws(document)
 
 ```
 
-After indicating where exactly the text under study starts and ends and, after extracting the chapter titles and organizing the text by chapters, we obtain the usable data to further analyze *Invisible Women*'s text. 
+After indicating where exactly the text under study starts and ends, and after extracting the chapter titles and organizing the text by chapters, we obtain the usable data to further analyze *Invisible Women*'s content. 
 
 ```{r corpus, echo = FALSE, message = FALSE}
 # Creates a corpus object
 data <- corpus_frame(document, text) 
 ```
+
+The below output shows the beginning of the first five chapters of the book.
 
 ```{r title wrangling, echo = FALSE, message = FALSE}
 
@@ -109,13 +113,13 @@ kable(data[1:5,],
 
 ## Tokenization
 
-Tokenization is the method used to split a text into tokens. Our unit of analysis are words. Here, we tokenize the chapters (i.e. document) by space. To do so, we proceed to remove numbers, punctuation, symbols and separators because we believe that it will not affect our analysis and keeping them will not bring more insight.
+Tokenization is the method used to split a text into tokens. Our unit of analysis are words. Here, we tokenize the chapters (i.e. document) by space. To do so, we proceed to remove numbers, punctuation, symbols and separators because we believe that it will not affect our analysis and keeping them [KEEPING WHAT?] will not bring more insight.
 
 ### Quanteda
 
 The **Quanteda** package uses a corpus object.
 
-The below summary shows that *Invisible Women* consists of 16 documents. And for each document, three columns indicates the number of tokens, the number of sentences as well as the number of token types per document. 
+The below summary shows that *Invisible Women* consists of 16 documents (i.e. chapters) and for each document, three columns indicate the number of tokens, the number of sentences as well as the number of token types per document. 
 
 ```{r corpus summary, echo = FALSE, message = FALSE}
 # Loads into a corpus
@@ -156,7 +160,9 @@ data.tk2 <- data.tk1 %>%
 
 ## Lemmatization
                                                     
-Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Therefore the set of types in a corpus is shorten. For example, "started" and "starts" were reduced to "start" and have thus "start" as a lemma. 
+Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Consequently, the set of types in a corpus is shortened [THE NUMBER OF TOKEN TYPES IS REDUCED?]. For example, "started" and "starts" are reduced to "start" and have thus "start" as a lemma. 
+
+The below output displays for each chapter the lemmas of the first tokens as well as the total number of different lemmas by chapter. For example, chapter (i.e. text) one contains 2,413 different lemmas. 
 
 ```{r lemmatization, echo = FALSE, message = FALSE}
 
@@ -168,9 +174,9 @@ head(data.tk2)
 
 ## Stemming 
 
-Stemming also simplifies tokens by reducing a word to its stem with simple rule based algorithm *token_wordstem()* function. Just as lemmatization, stemming reduces the size of a vocabulary but in an inconsistent way. 
+Stemming also simplifies tokens by reducing a word to its stem with simple rule based algorithm usig the *token_wordstem()* function. As lemmatization, stemming reduces the size of a vocabulary but in an inconsistent way. [EXPLAIN WHY IN AN INCONSISTENT WAY]
 
-For interpretation matter, since it is important here, we decide not to use the stemming in the rest of our analysis. But we do it for demonstration purpose.
+Since the interpretation of the tokens matter, we decide not to use the stemming in the rest of our analysis and only apply it here to demonstrate its purpose, since reducing a word to its stem does not guarantee meaningful tokens (e.g official is reduced to offici).
 
 The below output displays the first twelve tokens reduced to their steam for each document. For example, "snow-clearing" was reduced to "snow-clear". 
 
@@ -182,19 +188,21 @@ head(data_stem)
 
 ## Document-Term Matrix (DTM)
 
-Now, without considering the stemming, we compute the **Document-Term-Matrix** that will be useful all along our work.
+Now, without considering the stemming, we compute the **Document-Term-Matrix** that will be useful throughout the analysis.
+
+The below snapshot of the matrix indicates that after cleaning and lemmatizing, there are 5,742 features to be analyzed and that the DTM is sparse at 83.76% (i.e. contains mostly zeros). The matrix displays the frequency of features (i.e. terms or words here) by documents (i.e. texts or chapters here). For example, the first row indicates that the word *sexist* is found twice and the word *town* is found six times and, the first column indicates that the word *sexist* is found in chapter one, chapter four and chapter 6. 
 
 ```{r DTM, echo = FALSE, message = FALSE}
 # Creates a document-feature matrix
 data.dfm <- dfm(data.tk2)  
 data.dfm
-
 ```
-The above table displays the documents/texts and the terms/features. Thus, after cleaning and lemmatization, the token types size is 5'742. It also indicates that the DTM is mostly sparse, at 83.76%.
 
 ## Global Frequencies
 
-The below table displays the term frequencies. The *feature* column indicates lemmatized tokens, *frequency* returns the number of time the term is found in the corpus, the *rank* sorts the terms by decreasing frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found.
+The below table displays the term frequencies (i.e. frequency by term). The *feature* column shows lemmatized tokens, *frequency* returns the number of times the term is found in the corpus, the *rank* sorts the terms by decreasing frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found. [WHAT ABOUT GROUP?]
+
+This table indicates that for example, the term *woman* has the highest frequency (i.e. appears the most in the corpus) and is found in all the chapters (i.e. documents) of the book. 
 
 ```{r term frequency, echo = FALSE, message = FALSE}
 
@@ -207,12 +215,11 @@ kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'),
                 full_width = NULL)  
 ```
 
-
 ## Term Frequency and Inverse Document Matrix (TF-IDF)
 
-The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to rebalance a word frequency with respect to its document specificity.
+The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF) [IT SEEMS WRONG]. In other words, it is used to re-balance a word frequency with respect to its document specificity.
 
-The below output shows, for the document-feature matrix of 16 documents and 8,640 features, the weighted frequency for each token by document. Obviously, the sparsity stays the same.
+The below output shows the weighted frequency for each token, by document. 
 
 ```{r term frequency and inverse document matrix, echo = FALSE, message = FALSE}
 # Weighted document-feature matrix by tf-idf
@@ -220,7 +227,7 @@ data.tfidf <- dfm_tfidf(data.dfm)
 data.tfidf
 ```
 
-The following output shows the twenty terms that have the largest TF-IDF. 
+From the above TF-IDF matrix, we extract the twenty terms that have the largest TF-IDF in a decreasing fashion. [ADD INTERPRETATION BY COMPARING THE TERMS TAX AND SANCHEZ]
 
 ```{r largest tf-idf per word, echo = FALSE, message = FALSE}
 # 20 largest TF-IDFs
@@ -233,16 +240,11 @@ sort(apply(data.tfidf,
 
 ## Zipf's Law
 
-The Zipf's law shows the distribution of words used in a corpus compared to his rank in the frequency table . It says that the frequency of a token is inversely proportional to its rank.
+The Zipf's law shows the distribution of words used in a corpus compared to its rank in the frequency table. It says that the frequency of a token is inversely proportional to its rank.
 
-The below plot is on a log-log scale, the frequency versus rank gives a negative linear relation as the original distribution is a negative exponential function. 
+The below plot displays the log-frequency agaist the log-rank of the terms and shows the negative linear relation relationship between the frequency and the rank. 
 
-For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ "pas necessaire a mon avis ni le plot en dessous"
-
-```{r fit, echo = FALSE, message = FALSE}
-#fit_women <- lm() # [FINISH!!]
-
-```
+This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are indeed frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words.
 
 ```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
 
@@ -253,7 +255,7 @@ ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+
    ggtitle("The Zipf's law on a log-log scale")
 ```
 
-This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words.
+
 
 
 
