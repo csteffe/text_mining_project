@@ -59,7 +59,6 @@ The instantaneous response of the public to the release of the best-seller was a
 We chose to proceed to the text mining analysis of the content of this book because one of the team members had recently read it for a book club and suggested to dive deeper into the hot-topic of gender bias in data. Considering the orientation we chose to specialize in - Business Analytics - and the amount of time invested in learning about data and perfecting our skills in data science, we realized that we were missing one perspective: data analysis from a gender perspective. Therefore, the analysis of this book allows us to kill two birds with one stone: improving new data science skills (i.e. text mining) on the edge to Artificial Intelligence (AI) and study (text) data from a gender perspective lens.
 
 
-[MAYBE DO A TEXT MINING ANALYTICS OF HER FIRST BOOK AND COMPARE VOCABULRAY ? I THINK WE HAVE TIME AND IT COULD BE INTERESTING]
 
 
 
