@@ -16,11 +16,11 @@ This section dives deeper into the analysis of the content of the corpus. Each p
 source(here::here("scripts/setup.R"))
 ```
 
-## Sentiment Analysis
+## Sentiment Analysis (opinion mining)
 
-Now that the content of the corpus is cleaned, we proceed to the its sentiment analysis which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based). 
+Now that the content of the corpus is cleaned, we proceed to its sentiment analysis which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based).  
 
-When analyzing the sentiment emerging from a document, we do not use the data in which stop words are removed since they might be in the sentiment dictionary and prove useful insight. 
+When analyzing the sentiment emerging from a document, we do not use the data in which stop words are removed since they might be in the sentiment dictionary and provide useful insight. 
 
 ```{r data.tk1, echo=F, message=F, warning=F}
 
@@ -41,11 +41,11 @@ data.tk3 <- data.tk1 %>%
 
 ### Dictionary-Based 
 
-The dictionary-based sentiment analysis matches tokens from each document to a reference dictionary with token values and then look for word polarity. The sentiment is the average over token values of the document. 
+The dictionary-based sentiment analysis matches tokens from each document to a reference dictionary with token values and then, look for word polarity. The sentiment is the average over token values of the document. 
 
 The disadvantage of the dictionary-based sentiment analysis is that the negative forms are not taken into consideration. For example, in the sentence *I don't enjoy the show*, the sentence will be considered positive because it will not consider the contraction *don't* but only the word *enjoy*.
 
-The following table shows the average sentiment over the token values of each chapter of the book. The possible sentiment can be **positive**, **negative**, **neg_positive** or **neg_negative**.
+The following non-exhaustive table shows the number of terms matched with a **positive**, **negative**, **neg_positive** or **neg_negative** sentiment for each document (i.e. chapter). For example, in chapter one, 142 terms are matched with a negative sentiment and 167 are found matched with a positive sentiment. 
 
 ```{r dictionary-based analysis, echo=F, message=F, warning=F}
 
@@ -55,19 +55,21 @@ The following table shows the average sentiment over the token values of each ch
 # Matches tokens with dictionary values
 data.sent <- tokens_lookup(data.tk3, 
                            dictionary = data_dictionary_LSD2015) %>% 
-             dfm() %>%                                                # creates a dtm matrix
-             tidy()%>%arrange(document)
+             dfm() %>%     # creates a dtm matrix
+             tidy() %>%
+             arrange(document)
 
-kbl(data.sent, 
+kbl(head(data.sent, 
+         n = 10),
     caption = "Sentiment Analysis (Dictionary-Based)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
 
 ```
 
-The graph is a graphical representation of the above table. For each chapter of the book, we see the proportion of each type of sentiments. 
+The below graph is a representation of the previous table. For each chapter of the book, we see the proportion of terms matched with a positive, negative, negative positive or negative negative sentiment. 
 
--> remove neg_neg and neg_pos !!
+Overall, positive and negative sentiments are found in all 16 chapters of the book. Although, more terms are recognized as negative (3,596) than as positive (2,661) indicating that the frequency of negative terms is higher than the one of positive terms. 
 
 ```{r dictionary-based analysis plot, echo=F, message=F, warning=F}
 
@@ -79,16 +81,33 @@ ggplot(data.sent,
   geom_bar(stat = "identity") + 
   coord_flip() + 
   labs(title = "Dictionary-Based Sentiment Analysis",
-       x = "Count",
-       y = "Chapter (i.e. document)")
+       x = "Chapter (i.e. document)",
+       y = "Count",
+       fill = "Sentiment")
+
+neg <- data.sent %>%
+       filter(term == "negative")
+
+neg_count <- sum(neg$count) # 3,596
+
+pos <- data.sent %>%
+       filter(term == "positive")
+
+pos_count <- sum(pos$count) # 2,661
+
+neg_pos <- data.sent %>%
+           filter(term == "neg_positive")
+
+neg_neg <- data.sent %>%
+           filter(term == "neg_negative")
 
 ```
 
 ### Valence Shifters 
 
-The valence shifters approach uses positive/negative sentiment scores (i.e. value-based) to extract the sentiment of a document. Here, we use two dictionaries, a polarized words dicitonary and a valence-shifters one. 
+The valence shifters approach uses positive/negative sentiment scores (i.e. value-based) to extract the sentiment of a document. Here, we use two dictionaries, a polarized words dictionary where we find a list of terms communicating a positive or negative attitude and a valence-shifters dictionary which provides terms that alter or intensify the meaning of the polarized words. 
 
-The next table shows the first ten words of the polarized words dictionary, displaying the words and their numerical value.
+The next table shows the first ten words of the polarized words dictionary and their numerical score.
 
 ```{r polarized words dictionary, echo=F, message=F, warning=F}
 
@@ -102,7 +121,7 @@ kbl(head(hash_sentiment_jockers_rinker, 10),
 
 ```
 
-The next table shows the first ten words of the valence-shifters dictionary, displaying the words and their numerical value.
+The next table shows the first ten words of the valence-shifters dictionary and their numerical score.
 
 ```{r valence-shifters dictionary, echo=F, message=F, warning=F}
 
@@ -114,9 +133,9 @@ kbl(head(hash_valence_shifters, 10),
 
 ```
 
-To proceed to the value-shifters sentiment analysis, we first extract the sentences from the text and then we compute the sentiment value for each sentence. Because the column *word_count* had NAs we remove rows that show NAs since no sentiment information can be provided (i.e. sentiment = 0)?.
+To proceed to the valance-shifters sentiment analysis, we extract the sentences from the text and we compute the sentiment value for each sentence. Because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted. Moreover, we do not assign weights to certain types of sentences (e.g. questions) since we believe that the sentence type does not have a particular influence in our analysis.
 
-One possibility is to assign weights to certain types of sentences to 0 which unpolarizes them. For example, we could have decided to unpolarize the questions but here we decided to keep them as we believe they could be insightful. 
+The below output displays the sentiment value of the first ten sentences of the corpus and indicates the number of terms for each. Anything below -0.05 is considered negative and anything above 0.05 is considered positive. Anything in between is considered neutral. For example, the first sentence is negative (-0.408), the seventh sentence is neutral (0) and the eigth sentence is positive (0.332). 
 
 ```{r sentiment analysis, echo=F, message=F, warning=F}
 
@@ -136,9 +155,9 @@ kbl(head(sent_bysent, 10),
 
 After taking a look at the sentiment score for each sentence, we zoom out to look into the sentiment score by chapter of the book. The *ave_sentiment* column gives the average sentiment (i.e) score by chapter. 
 
-[Remove text form the document column and keep only the chapter number] The below table displays the sentiment scores from largest to smallest for the chapters of the book. According to the table, chapter 6 *Being Worth Less Than A Shoe* has the greatest average sentiment score with 0.275 which is considered positive and chapter 7 *The Plough Hypothesis* has the smallest score with -0.3953 which is considered negative. 
+The below table displays the average sentiment scores by chapter in a decreasing fashion. According to the table, chapter 4 *The Myth of Meritocracy* has the greatest positive average. In total, five chapters have a positive sentiment (i.e. scores above 0.05), four have a negative sentiment (i.e. scores below -0.05) and seven chapters have a neutral sentiment (i.e. scores between -0.05 and 0.05).  -> CORRECT ONCE PROBLEM FIXED 
 
-In total, five chapters have a positive sentiment (i.e. scores above 0.05), four have a negative sentiment (i.e. scores below -0.05) and seven chapters have a neutral sentiment (i.e. scores between -0.05 and 0.05). 
+[PROBLEM IL NY A PAS TOUS LES CHAPITRES ET LES CHAPITRES APPARAIISSENT PLUSIEURS FOIS]
 
 ```{r sentiment analysis by document, echo=F, message=F, warning=F}
 
@@ -174,8 +193,11 @@ kbl(sent_bychap,
 
 ```
 
-Sentiment changes as sentences changes. Thus, in order to better track the evolution of sentiment we plot the sentiment scores' evolution by chapter of the book (i.e. document). 
-[Improve plot: remove text from document column so x is readible/layout]
+Sentiment changes as sentences change. Thus, in order to better track the evolution of the sentiment, we plot the sentiment scores' evolution by chapter of the book (i.e. by document). 
+
+The below plot shows the range of sentiment scores by chapter indicating how much sentiment evolves throughout the sentences.
+
+PROBLEM NOT ALL CHAPTERS ARE ON THE PLOT 
 
 ```{r sentiment analysis by document plot, echo=F, message=F, warning=F}
 
@@ -185,8 +207,8 @@ sent_bychap %>%
   geom_bar(stat = "identity") + 
   coord_flip() +
   labs(title = "Sentiment Score By Chapter",
-       x = "Sentiment Score",
-       y = "Chapter")
+       x = "Chapter",
+       y = "Sentiment Score")
 
 ```
 
