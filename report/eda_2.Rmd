@@ -111,12 +111,13 @@ Chapter 10, namely *The Drugs Don't Work*, is associated with "sex", "drug" and 
 
 Concerning chapter 13, *From Purse to Wallet*, we only have one related word, "tax". Such as "drug", although frequent, "tax" does not appear in a lot of documents. 
 
-chapter 14 *Women's Rights are Human Rights*
+chapter 14,*Women's Rights are Human Rights*,has a large frequency of the term *datum*.
 
 Chapter 3, *The Long Friday*
 
 Chapter 4, *Myth of Meritocracy*
 
+Chapter 9, *A Sea of Dudes* 
 
 We see that the term *woman* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
 
@@ -164,13 +165,6 @@ The Zipf's law shows the distribution of words used in a corpus compared to his 
 
 The below plot is on a log-log scale, the frequency versus rank gives a negative linear relation as the original distribution is a negative exponential function. 
 
-For example, the $log(f_women) \approx a + b*log(r_women) \approx ?$ "pas necessaire a mon avis ni le plot en dessous"
-
-```{r fit, echo = FALSE, message = FALSE}
-#fit_women <- lm() # [FINISH!!]
-
-```
-
 ```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
 
 # Illustration of the Zipf's law 
@@ -180,18 +174,18 @@ ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+
    ggtitle("The Zipf's law on a log-log scale")
 ```
 
-This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words.
+This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words. The Zipf's law now leads us to move to weighted frequencies. 
 
 ## Term Frequency and Inverse Document Matrix (TF-IDF)
 
 The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to rebalance a word frequency with respect to its document specificity.
 
-The below output shows, for the document-feature matrix of 16 documents and 8,640 features, the weighted frequency for each token by document. Obviously, the sparsity stays the same.
+The below output shows, for the document-feature matrix of 16 documents and 5'741 features, the weighted frequency for each token by document. (Obviously, the sparsity stays the same.)
 
 ```{r term frequency and inverse document matrix, echo = FALSE, message = FALSE}
 # Weighted document-feature matrix by tf-idf
-data.tfidf <- dfm_tfidf(data.dfm)
-data.tfidf
+data.tfidf2 <- dfm_tfidf(data.dfm2)
+data.tfidf2
 ```
 
 The following output shows the twenty terms that have the largest TF-IDF. 
@@ -204,12 +198,14 @@ sort(apply(data.tfidf,
      decreasing = TRUE)[1:20]
 
 ```
+We can see for example that the words "tax","trial", "drug" and "dummy"  appear quite often in the corpus and in few documents.
 
 ## TF-IDF by Document
 
-The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable] 
-plutot ca non?
-The following plot shows the 10 highest TF-IDF compute by chapter. For example the term *tax* is really frequent and specific in chapter 13 whereas chapter 10 is associated with *trial* and *drug*.
+[The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable 
+plutot ca non?]
+
+The following plot shows the 10 highest TF-IDF associated with their chapter. For example the term *tax* is still really frequent and now specific to chapter 13 whereas chapter 10 is now associated with *trial* and *drug*. Chapter 14 is in fact more specifically associated with the term *interrupt* than with the term *female*.
 ```{r tfidf by document plot, echo=F, message=F, warning=F}
 
 tfidf_plot <- data.tfidf2 %>% 
@@ -226,7 +222,7 @@ tfidf_plot
 
 ```                
 
-## Largest TF-IDF (over all documents) 
+## Largest TF-IDF (over all documents) [remove?]
 
 The below plot displays the terms that have at least one large TF-IDF . To do so, we compute for each term the maximum TF-IDF over all chapters of the book. The output shows that the term *tax* has a large TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book.
 
@@ -241,7 +237,7 @@ tfidf_max <- data.tfidf %>%
              group_by(term) %>%
              summarize(count = max(count)) %>% 
              arrange(desc(count)) %>%
-             top_n(10, count) %>%
+             top_n(20, count) %>%
              ggplot(aes(x = reorder(term, count), 
                         y = count)) + 
              geom_bar(stat = "identity") + 
@@ -259,18 +255,16 @@ tfidf_max
 
 
 ## Keyness
+The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. To illustrate that we select chapter 14, *Women’s Rights are Human Rights*, which has the specific term *interrupt* which is a rather vague term and compute its Keyness compare to the reference.
 
-The keyness measure is a chi-square test of independence indicating whether a term is characteristic of a target compared to a reference. 
+[We compute for each chapter of the book (i.e. text1 to text16) the keyness of terms. Each chapter (i.e. text[i]) is then at some point the target and the reference.] remove!!
 
-We compute for each chapter of the book (i.e. text1 to text16) the keyness of terms. Each chapter (i.e. text[i]) is then at some point the target and the reference. 
-
-Add interpretation
-
+The plot below allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
 ```{r keyness, echo=F, message=F, warning=F}
 
 for (i in 1:nrow(data)){ # I don't know what variable to use because dfm is not a data frame ??
   
-   data.keyness <- textstat_keyness(data.dfm, target =paste("text",i,sep="") )
+   data.keyness <- textstat_keyness(data.dfm, target =paste("text",14,sep="") )
    textplot_keyness(data.keyness)
   
 }
@@ -312,12 +306,6 @@ Describe what we see on the plot ? The generated network is very interesting. In
 [Improve plot layout]
 
 ```{r network, echo=F, message=F, warning=F}
-
-library(igraph)
-
-
-
-
 # Keep strongest co-occurrences
 data.coocc[data.coocc <= 6500] <- 0
 data.coocc[data.coocc > 6500] <- 1
@@ -430,10 +418,10 @@ The below table shows how in chapter 1 (i.e. text1) the word *women* are used.
 ```{r pattern location, echo=F, message=F, warning=F}
 
 # Checks the result
-head(kwic(data.cp, pattern = "women")) 
+head(kwic(data.cp, pattern = c("female","male")))
 
 kbl(head(kwic(data.cp, 
-              pattern = "women")), 
+              pattern = c("female","male"))), 
     caption = "Pattern Location") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -441,10 +429,9 @@ kbl(head(kwic(data.cp,
 ```
 
 ```{r xray plot, echo=F, message=F, warning=F}
-
 # Plot
 textplot_xray(kwic(data.cp, 
-                   pattern = c("women")))
+                   pattern = c("female","male")))
 
 ```
 
@@ -456,7 +443,7 @@ We can extend to two patterns. The below lexical dispersion plot shows that the 
 ```{r xray plot 2 patterns, echo=F, message=F, warning=F}
 
 # Plot
-textplot_xray(kwic(data.cp, pattern = c("women")),
+textplot_xray(kwic(data.cp, pattern = c("female")),
               kwic(data.cp, pattern = c("sex")),
               scale = "absolute")
 
