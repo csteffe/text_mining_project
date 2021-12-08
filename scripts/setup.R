@@ -10,7 +10,7 @@ packages <- c(
   "knitr", "kableExtra", "bookdown","haven", "rmarkdown","readr","quanteda", "quanteda.textplots",
   "quanteda.textplots", "tidytext", "corpus", "quanteda.textstats", "quanteda.textmodels", "seededlda",
   "dplyr","ggplot2","broom", "stats", "broom", "sentimentr",
-  "lexicon","igraph"# for the report
+  "lexicon","igraph","gifski"# for the report
 )
 purrr::walk(packages, library, character.only = TRUE)
 

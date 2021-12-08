@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 # Exploratory Data Analysis (EDA)
@@ -269,12 +269,14 @@ We compute for each chapter of the book (i.e. text1 to text16) the keyness of te
 
 Add interpretation
 
-```{r keyness, echo=F, message=F, warning=F}
+```{r keyness, echo=F, message=F, warning=F, animation.hook = "gifski", , interval = 15}
+
 
 for (i in 1:nrow(data)){ # I don't know what variable to use because dfm is not a data frame ??
   
    data.keyness <- textstat_keyness(data.dfm, target =paste("text",i,sep="") )
-  textplot_keyness(data.keyness)
+  print(textplot_keyness(data.keyness))
+  
   
 }
 
