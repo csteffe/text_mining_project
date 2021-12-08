@@ -647,7 +647,7 @@ The first dimension of LSA is associated with the document lengths (i.e. sum of 
 library(quanteda.textmodels)
 
 # Latent Semantic Analysis on DTM matrix
-data.lsa <- textmodel_lsa(data.dfm, 
+data.lsa <- textmodel_lsa(data.dfm2, 
                           nd = 10)          # number of dimensions/topics included in the output
 
 ```
@@ -670,7 +670,7 @@ To verify if the first dimension is associated with the document length we look 
 ```{r first dimension, echo=F, message=F, warning=F}
 
 # Number of tokens per text = row-sum of the DTM 
-doc.freq <- ntoken(data.tk2) 
+doc.freq <- ntoken(data.tk3) 
 
 # Scatter plot
 data.frame(doc.freq, 
@@ -1154,11 +1154,39 @@ head(data.de) ## document vectors
 
 ## Supervised Analysis
 
-The goal of the supervised analysis is to re-classify its documents (i.e. chapters) using the features (i.e. terms) analysed previously [add where maybe] [is that a good reformulation of the aim?]. To do so, we proceed to a machine learning approach consisting of splitting the corpus (*data* object) into a training and a test sets. Then, we train the classifiers on the training set and finally the best classifiers are selected on the test set. 
+The goal of the supervised analysis is to re-classify its documents (i.e. chapters) using the features (i.e. terms) analyzed previously [add where maybe] [is that a good reformulation of the aim?]. To do so, we proceed to a machine learning approach consisting of splitting the corpus (*data* object) into a training and a test sets. Then, we train the classifiers on the training set and finally the best classifiers are selected on the test set. 
 
 To be able to proceed to the classification method described above, the corpus must be cleaned in order for the features (i.e. terms) to be usable. The cleaning process is achieved in the *Data Structuring and Cleaning* of the **Data** section and consists in sequential steps from the tokenization, removing useless words (i.e. stop words), lemmatization (i.e. tokens simplification) to stemming (i.e. reduce words to their stems). 
 
+```{r test, echo=F, message=F, warning=F}
+# set the response to predict (parts of the book as factor)
+y <- as.factor(data$part)
 
+# dimension reduction with LSA 
+# reduce feature to 30 terms
+data.lsa <- textmodel_lsa(data.dfm2, nd = 30) 
+
+# transform to data frame
+df <- data.frame(Class=y, X=data.lsa$docs)  
+
+
+set.seed(333)
+# train the classifier (random forest)
+index.tr <- sample(size=round(0.7*length(y)), x=c(1:length(y)), replace=FALSE)
+df.tr <- df[index.tr,]
+df.te <- df[-index.tr,]
+
+library(ranger)
+
+data.fit <- ranger(Class ~ ., 
+                     data = df.tr)
+pred.te <- predict(data.fit, df.te)
+
+library(caret)
+
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+
+```
 
 
 
