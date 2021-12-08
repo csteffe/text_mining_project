@@ -153,9 +153,6 @@ nowoman.10
 #---> Il y a un soucis ça plot pas les 10 termes les plus fréquents au travers de tous les docs mais juste les 10 fréquences les plus hautes par doc... Pas sûre d'être claire
 ```
 
-
-
-
 ## Zipf's Law
 
 The Zipf's law shows the distribution of words used in a corpus compared to his rank in the frequency table . It says that the frequency of a token is inversely proportional to its rank.
@@ -219,7 +216,7 @@ tfidf_plot
 
 ```                
 
-## Largest TF-IDF (over all documents) [remove?]
+## Largest TF-IDF (over all documents) 
 
 The below plot displays the terms that have at least one large TF-IDF . To do so, we compute for each term the maximum TF-IDF over all chapters of the book. The output shows that the term *tax* has a large TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book.
 
@@ -249,22 +246,23 @@ tfidf_max
 
 ```   
 
-
-
 ## Keyness
+
 The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. To illustrate that we select chapter 14, *Women’s Rights are Human Rights*, which has the specific term *interrupt* which is a rather vague term and compute its Keyness compare to the reference.
 
 [We compute for each chapter of the book (i.e. text1 to text16) the keyness of terms. Each chapter (i.e. text[i]) is then at some point the target and the reference.] remove!!
 
 The plot below allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
-```{r keyness, echo=F, message=F, warning=F}
+```{r keyness, echo=F, message=F, warning=F, animation.hook = "gifski", , interval = 15}
 
-#for (i in 1:nrow(data)){ # I don't know what variable to use because dfm is not a data frame ??
+
+for (i in 1:nrow(data)){ # I don't know what variable to use because dfm is not a data frame ??
   
-   data.keyness <- textstat_keyness(data.dfm, target =paste("text",14,sep="") )
-   textplot_keyness(data.keyness)
+   data.keyness <- textstat_keyness(data.dfm, target =paste("text",i,sep="") )
+  print(textplot_keyness(data.keyness))
   
-#}
+  
+}
 
 
 ```
@@ -325,7 +323,7 @@ Lexical diversity is a diversity index that measures the richness of the vocabul
 
 The TTR is a diversity measure indicating a document's richness in the number of token types (i.e. vocabulary). The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 is the TTR the richest is the vocabulary of a document. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
 
-The below table sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.622 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.457. Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.622. 
+The below table sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.555 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.457. Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.356. 
 
 ```{r TTR, echo=F, message=F, warning=F}
 
@@ -335,7 +333,7 @@ ttr <- data.dfm %>%
 ttr <- ttr %>%
        arrange(desc(ttr$TTR))
 
-ttr[c(1:3,14:16),] %>% kbl(align = c('c', 'c'), 
+ttr %>% kbl(align = c('c', 'c'), 
     caption = "Token-Type Ratio (TTR)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -377,7 +375,7 @@ mattr <- data.tk2 %>%
 mattr <- mattr %>%
          arrange(desc(mattr$MATTR))
 
-mattr[c(1:3,14:16),] %>% kbl(align = c('c', 'c'), 
+mattr %>% kbl(align = c('c', 'c'), 
     caption = "Moving-Average Token-Type Ratio (MATTR)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
