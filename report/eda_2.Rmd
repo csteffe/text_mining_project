@@ -14,12 +14,9 @@ The size and the position (centered) are propotional to the frequency.
 
 [Improve plot: use different colors]
 
-```{r cloud of words for corpus plot, echo=F, message=F, warning=F}
+```{r cloud of words for corpus plot, echo=F, message=FALSE, warning=FALSE}
 
-CoW_cp <- textplot_wordcloud(data.dfm)
-
-CoW_cp 
-
+textplot_wordcloud(data.dfm)
 ```
 
 This plot shows that the most frequent terms in the corpus seems to be women, female, male, datum, etc...
@@ -205,7 +202,7 @@ We can see for example that the words "tax","trial", "drug" and "dummy"  appear 
 [The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable 
 plutot ca non?]
 
-The following plot shows the 10 highest TF-IDF associated with their chapter. For example the term *tax* is still really frequent and now specific to chapter 13 whereas chapter 10 is now associated with *trial* and *drug*. Chapter 14 is in fact more specifically associated with the term *interrupt* than with the term *female*.
+The following plot shows the 10 highest TF-IDF associated with their chapter. For example the term *tax* is still really frequent and now specific to chapter 13 whereas chapter 10 is now associated with *trial* and *drug*. Chapter 14 is in fact more specifically associated with the term *interrupt* than with the term *female* in TF by document.
 ```{r tfidf by document plot, echo=F, message=F, warning=F}
 
 tfidf_plot <- data.tfidf2 %>% 
@@ -262,12 +259,12 @@ The keyness measure is a chi-square test of independence indicating whether some
 The plot below allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
 ```{r keyness, echo=F, message=F, warning=F}
 
-for (i in 1:nrow(data)){ # I don't know what variable to use because dfm is not a data frame ??
+#for (i in 1:nrow(data)){ # I don't know what variable to use because dfm is not a data frame ??
   
    data.keyness <- textstat_keyness(data.dfm, target =paste("text",14,sep="") )
    textplot_keyness(data.keyness)
   
-}
+#}
 
 
 ```
@@ -282,9 +279,9 @@ The feature co-occurrence matrix is a 8,640 by 8,640 matrix with 74,649,600 elem
 
 # Creates a feature co-occurrence matrix
 
-data.nowoman<-data.tk2%>%tokens_remove(c("women","female","woman"))
+#data.nowoman<-data.tk2%>%tokens_remove(c("women","female","woman"))
 
-data.coocc <- fcm(data.nowoman,     
+data.coocc <- fcm(data.tk3,     
                   context = "document", 
                   tri = FALSE)                 # returns upper and lower triangles of the matrix
 
@@ -338,9 +335,7 @@ ttr <- data.dfm %>%
 ttr <- ttr %>%
        arrange(desc(ttr$TTR))
 
-library(kableExtra)
-kbl(ttr, 
-    align = c('c', 'c'), 
+ttr[c(1:3,14:16),] %>% kbl(align = c('c', 'c'), 
     caption = "Token-Type Ratio (TTR)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -382,8 +377,7 @@ mattr <- data.tk2 %>%
 mattr <- mattr %>%
          arrange(desc(mattr$MATTR))
 
-kbl(mattr, 
-    align = c('c', 'c'), 
+mattr[c(1:3,14:16),] %>% kbl(align = c('c', 'c'), 
     caption = "Moving-Average Token-Type Ratio (MATTR)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -413,7 +407,7 @@ mattr_plot
 
 Dispersion or X-Ray plots inspect where a specific token is used in each text by locating a pattern in each text. 
 
-The below table shows how in chapter 1 (i.e. text1) the word *women* are used. 
+The below table shows how in chapter 1 (i.e. text1) he words *female* and *male* are used. 
 
 ```{r pattern location, echo=F, message=F, warning=F}
 
