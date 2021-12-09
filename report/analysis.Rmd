@@ -1159,13 +1159,11 @@ The goal of the supervised analysis is to re-classify its documents (i.e. chapte
 To be able to proceed to the classification method described above, the corpus must be cleaned in order for the features (i.e. terms) to be usable. The cleaning process is achieved in the *Data Structuring and Cleaning* of the **Data** section and consists in sequential steps from the tokenization, removing useless words (i.e. stop words), lemmatization (i.e. tokens simplification) to stemming (i.e. reduce words to their stems). 
 
 ```{r test, echo=F, message=F, warning=F}
-# set the response to predict (parts of the book as factor)
-y <- as.factor(supervised_data$part)
 
-# dimension reduction with LSA 
-# reduce feature to 30 terms
+# transform data frame into copus object
 supervised_cp <- corpus(supervised_data,text_field = "pagetext")
 
+# data cleaning ans lemmatization
 supervised_tk <- supervised_cp %>% 
                    tokens(remove_numbers = TRUE,
                           remove_punct = TRUE,
@@ -1180,27 +1178,32 @@ supervised_tk <- supervised_cp %>%
                                           replacement = hash_lemmas$lemma) %>%
                    tokens_remove(c("chapter","woman")) 
 
+# create dfm object
 supervied_dfm <- dfm(supervised_tk)
 
+# dimension reduction with LSA 
+# reduce feature to 30 terms
 data.lsa <- textmodel_lsa(supervied_dfm, nd = 30) 
+
+# set the response to predict (parts of the book as factor)
+y <- as.factor(supervised_data$part)
 
 # transform to data frame
 df <- data.frame(Class=y, X=data.lsa$docs)  
 
 
 set.seed(333)
-# train the classifier (random forest)
+# split training set 80% and test set 20%
 index.tr <- sample(size=round(0.8*length(y)), x=c(1:length(y)), replace=FALSE)
 df.tr <- df[index.tr,]
 df.te <- df[-index.tr,]
 
-library(ranger)
-
+# train the classifier (random forest)
 data.fit <- ranger(Class ~ ., 
                      data = df.tr)
 pred.te <- predict(data.fit, df.te)
 
-library(caret)
+
 
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 
