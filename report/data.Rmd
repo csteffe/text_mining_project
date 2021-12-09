@@ -112,6 +112,55 @@ kable(data[1:5,],
 
 ```
 
+```{r}
+#supervised learning data cleaning
+
+
+# count the total number of pages additioning all the pages
+totalpages <- 0
+
+for ( i in 1 :nrow(data)){
+  # split the paragraph by pages
+  paragraphdata <- strsplit(data$text[[i]],"\n\n")
+  # count the number of pages for the chapter
+  NbPages <- length(paragraphdata[[1]])
+  # add the number of pages of the chapter to the total number of pages 
+  totalpages <- totalpages + NbPages
+  
+  
+}
+
+
+
+# remove change the nb of pages because the chapter number and the name of the chapter are counted as a two pages
+totalpages_nochap <- totalpages - (16*2)
+
+# create emptydata frame with all the pages
+supervised_data <- data.frame(matrix(NA, ncol = 4, nrow = totalpages_nochap))
+colnames(supervised_data)<-c("document","part","page_nb","pagetext")
+
+rowindex <- 1
+
+for (i in 1:nrow(data)){
+  paragraphdata <- strsplit(data$text[[i]],"\n\n") # split the text to pages
+  paragraphdata <- paragraphdata[[1]][-c(1,2)] # remove first two elements ( chapter and chapter name )
+  
+  NbPages <- length(paragraphdata)# compute the number of pages
+  
+  for (j in 1:NbPages){
+    supervised_data$document[[rowindex]] <- data$document[[i]]
+    supervised_data$part[[rowindex]] <- data$part[[i]]
+    supervised_data$page_nb[[rowindex]] <- paste(i,j,sep=".")
+    supervised_data$pagetext[[rowindex]] <- paragraphdata[j]
+    rowindex <- rowindex+1
+  }
+}
+
+
+
+```
+
+
 ## Tokenization
 
 Tokenization is the method used to split a text into tokens. Our unit of analysis are words. Here, we tokenize the chapters (i.e. document) by space. To do so, we proceed to remove numbers, punctuation, symbols and separators because we believe that it will not affect our analysis and keeping them [KEEPING WHAT?] will not bring more insight.
