@@ -186,7 +186,7 @@ The following output shows the twenty terms that have the largest TF-IDF.
 
 ```{r largest tf-idf per word, echo = FALSE, message = FALSE}
 # 20 largest TF-IDFs
-sort(apply(data.tfidf,
+sort(apply(data.tfidf2,
            2,
            max),
      decreasing = TRUE)[1:20]
@@ -226,7 +226,7 @@ The below plot displays the terms that have at least one large TF-IDF . To do so
 
 ```{r max tf-idf, echo=F, message=F, warning=F}
 
-tfidf_max <- data.tfidf %>% 
+tfidf_max <- data.tfidf2 %>% 
              tidy() %>%
              group_by(term) %>%
              summarize(count = max(count)) %>% 
@@ -255,15 +255,13 @@ The keyness measure is a chi-square test of independence indicating whether some
 The plot below allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
 ```{r keyness, echo=F, message=F, warning=F, animation.hook = "gifski", , interval = 15}
 
-
-for (i in 1:nrow(data)){ # I don't know what variable to use because dfm is not a data frame ??
+for (i in 1:nrow(data)){ 
   
    data.keyness <- textstat_keyness(data.dfm, target =paste("text",i,sep="") )
   print(textplot_keyness(data.keyness))
   
   
 }
-
 
 ```
 
@@ -279,12 +277,12 @@ The feature co-occurrence matrix is a 8,640 by 8,640 matrix with 74,649,600 elem
 
 #data.nowoman<-data.tk2%>%tokens_remove(c("women","female","woman"))
 
-data.coocc <- fcm(data.tk3,     
+data.coocc <- fcm(data.tk2,     
                   context = "document", 
                   tri = FALSE)                 # returns upper and lower triangles of the matrix
 
 index <- data.freq[-c(1,2),] %>% 
-         filter(frequency > 30) %>%  # filter for co-occurrences greater than 8
+         filter(frequency > 80) %>%  # filter for co-occurrences greater than 8
          data.frame() %>% 
          select(feature)
 
@@ -301,9 +299,25 @@ Describe what we see on the plot ? The generated network is very interesting. In
 [Improve plot layout]
 
 ```{r network, echo=F, message=F, warning=F}
+# Creates a feature co-occurrence matrix
+
+#data.nowoman<-data.tk2%>%tokens_remove(c("women","female","woman"))
+
+data.coocc <- fcm(data.tk2,     
+                  context = "document", 
+                  tri = FALSE)                 # returns upper and lower triangles of the matrix
+
+index <- data.freq[-c(1,2),] %>% 
+         filter(frequency > 110) %>%  # filter for co-occurrences greater than 8
+         data.frame() %>% 
+         select(feature)
+
+data.coocc <- data.coocc[index$feature, index$feature]
+
+
 # Keep strongest co-occurrences
-data.coocc[data.coocc <= 6500] <- 0
-data.coocc[data.coocc > 6500] <- 1
+data.coocc[data.coocc <= 2100] <- 0
+data.coocc[data.coocc > 2100] <- 1
 
 # Creates a network from the co-occurrences matrix
 network <- graph_from_adjacency_matrix(data.coocc, 
@@ -314,6 +328,7 @@ plot(network,
      layout = layout_with_kk)
 
 ```
+The graph above reveals that the terms *datum*, *male* and *find* are central and co-occur a lot with the other terms around.
 
 ## Lexical Diversity
 
