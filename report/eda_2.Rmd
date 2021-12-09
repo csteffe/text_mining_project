@@ -149,8 +149,6 @@ nowoman.10 <- data.dfm2 %>%
 
 nowoman.10
 
-
-#---> Il y a un soucis ça plot pas les 10 termes les plus fréquents au travers de tous les docs mais juste les 10 fréquences les plus hautes par doc... Pas sûre d'être claire
 ```
 
 ## Zipf's Law
