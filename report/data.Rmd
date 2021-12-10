@@ -266,65 +266,6 @@ data.dfm <- dfm(data.tk2)
 data.dfm
 ```
 
-## Global Frequencies
-
-The below table displays the term frequencies (i.e. frequency by term). The *feature* column shows lemmatized tokens, *frequency* returns the number of times the term is found in the corpus, the *rank* sorts the terms by decreasing frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found. [WHAT ABOUT GROUP?]
-
-This table indicates that for example, the term *woman* has the highest frequency (i.e. appears the most in the corpus) and is found in all the chapters (i.e. documents) of the book. 
-
-```{r term frequency, echo = FALSE, message = FALSE}
-
-# Generates counts and document frequencies summaries of the feature of the document-feature matrix "data.dfm"
-data.freq <- textstat_frequency(data.dfm) 
-
-kbl(head(data.freq, 10), align = c('c', 'c', 'c', 'c', 'c'), 
-    caption = "Feature/term frequencies") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
-```
-
-## Term Frequency and Inverse Document Matrix (TF-IDF)
-
-The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF) [IT SEEMS WRONG]. In other words, it is used to re-balance a word frequency with respect to its document specificity.
-
-The below output shows the weighted frequency for each token, by document. 
-
-```{r term frequency and inverse document matrix, echo = FALSE, message = FALSE}
-# Weighted document-feature matrix by tf-idf
-data.tfidf <- dfm_tfidf(data.dfm)
-data.tfidf
-```
-
-From the above TF-IDF matrix, we extract the twenty terms that have the largest TF-IDF in a decreasing fashion. [ADD INTERPRETATION BY COMPARING THE TERMS TAX AND SANCHEZ]
-
-```{r largest tf-idf per word, echo = FALSE, message = FALSE}
-# 20 largest TF-IDFs
-sort(apply(data.tfidf,
-           2,
-           max),
-     decreasing = TRUE)[1:20]
-
-```
-
-## Zipf's Law
-
-The Zipf's law shows the distribution of words used in a corpus compared to its rank in the frequency table. It says that the frequency of a token is inversely proportional to its rank.
-
-The below plot displays the log-frequency agaist the log-rank of the terms and shows the negative linear relation relationship between the frequency and the rank. 
-
-This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are indeed frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words.
-
-```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
-
-# Illustration of the Zipf's law 
-ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+ 
-   geom_point()+
-   geom_label(data = data.freq[c(1:5,6627:6631)], aes(label=feature))+
-   ggtitle("The Zipf's law on a log-log scale")
-```
-
-
-
 
 
 
