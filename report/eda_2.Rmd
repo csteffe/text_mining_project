@@ -42,10 +42,12 @@ tf_plot <- data.freq  %>%
                          y = frequency)) + 
               geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + # generates a barplot
               coord_flip() +                              # flips the coordinates
-              xlab("Frequency") + 
-              ylab("Term") +
-              theme_minimal() +
-              ggtitle("Top 10 global frequencies")
+              labs(title = "Top 10 global frequencies",
+               subtitle = "",
+               x = "Term",
+               y = "Freqency",
+               caption = "source: Invisible Women.pdf")
+
 
 tf_plot
 
@@ -145,12 +147,14 @@ nowoman.10 <- data.dfm2 %>%
                       y = count)) +   
            geom_col(fill = "dodgerblue3", alpha = 0.5) + 
            coord_flip() + 
-           xlab("Term") +
-           ylab("Frequency") +
+          labs(title = "Top 10 frequencies along with documents",
+           subtitle = "",
+           x = "Term",
+           y = "Freqency",
+           caption = "source: Invisible Women.pdf") +
            facet_wrap(~ document, 
                       ncol = 2) +
-           theme_minimal() +
-           ggtitle("Top 10 frequencies along with documents")
+           theme_minimal() 
 
 nowoman.10
 
@@ -168,8 +172,12 @@ The below plot is on a log-log scale, the frequency versus rank gives a negative
 ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+ 
    geom_point(color = "dodgerblue3", alpha = 0.5)+
    geom_label(data = data.freq[c(1:5,6627:6631)], aes(label=feature)) +
-   ggtitle("The Zipf's law on a log-log scale")+
+   labs(title = "The Zipf's law on a log-log scale",
+    subtitle = "",
+    caption = "source: Invisible Women.pdf")+
    theme_minimal()
+
+
 ```
 
 This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words. The Zipf's law now leads us to move to weighted frequencies. 
@@ -256,8 +264,11 @@ tfidf_plot <- data.tfidf2 %>%
               facet_wrap(~ document, 
                          ncol = 2) +
               theme_minimal() +
-               ggtitle("10 Largest TF-IDF Associated to Chapters")
-  
+               labs(title = "10 Largest TF-IDF Associated to Chapters",
+               subtitle = "",
+               x = "Term",
+               y = "Count",
+               caption = "source: Invisible Women.pdf")
 
 tfidf_plot
 
@@ -341,9 +352,68 @@ network <- graph_from_adjacency_matrix(data.coocc,
 
 plot(network, 
      layout = layout_with_kk)
+title(main = "Network graph", sub = "source: Invisible Women.pdf")
+  
 
 ```
 The graph above reveals that the terms *datum*, *male* and *find* are central and co-occur a lot with the other terms around.
+
+## Dispersion Plot 
+
+Dispersion or X-Ray plots inspect where a specific token is used in each text by locating a pattern in each text. 
+
+The below table shows how in chapter 1 (i.e. text1) he words *female* and *male* are used. 
+
+```{r pattern location, echo=F, message=F, warning=F}
+
+# Checks the result
+head(kwic(data.cp, pattern = c("female","male")))
+
+kbl(head(kwic(data.cp, 
+              pattern = c("female","male"))), 
+    caption = "Pattern Location") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+
+```{r xray plot, echo=F, message=F, warning=F}
+# Plot
+textplot_xray(kwic(data.cp, pattern = c("female","male"))) +
+ labs(title = "Lexical dispersion plot (female and male)",
+                   subtitle = "",
+                   caption ="source: Invisible Women.pdf")
+```
+
+We can extend to two patterns. The below lexical dispersion plot shows that the term *sex* is more specific to chapter 10 and that *women* and *sex* are not necessarily associated. 
+
+-> ADD TITLE OF TEXT 10 AND EXPLAIN WH THESE TWO TOKENS WOULD APPEAR MORE OFTEN TOGETHER
+-> comparison female and male terms 
+
+```{r xray-plot 2 patterns, echo=F, message=F, warning=F}
+
+# Plot
+textplot_xray(kwic(data.cp, pattern = c("female")),
+              kwic(data.cp, pattern = c("sex")),
+              scale = "absolute") +
+               labs(title = "Lexical dispersion plot (female and sex)",
+                   subtitle = "",
+                   caption ="source: Invisible Women.pdf")
+
+# intéressant de comparer female et male ?? 
+```
+```{r xray plot 2 patterns, echo=F, message=F, warning=F}
+
+# Plot
+textplot_xray(kwic(data.cp, pattern = c("male")),
+              kwic(data.cp, pattern = c("sex")),
+              scale = "absolute") +
+               labs(title = "Lexical dispersion plot (male and sex)",
+                   subtitle = "",
+                   caption ="source: Invisible Women.pdf")
+
+# intéressant de comparer female et male ?? 
+```
 
 ## Lexical Diversity
 
@@ -382,7 +452,8 @@ ttr_plot <- ttr %>%
             labs(title = "Token-Type Ration (TTR)",
                  subtitle = "Chapter 15 has the richest vocabulary",
                  x = "Chapter",
-                 y = "TTR") +
+                 y = "TTR",
+                 caption ="source: Invisible Women.pdf") +
                  theme_minimal()
 
 ttr_plot  # [ADD TTR ESTIMATES ON THE TIP OF THE BARS AND REMOVE PREVIOUS PLOT]
@@ -401,7 +472,7 @@ The Moving-Average Token-Type Ration ranges from 0.914 to 0.936 over all chapter
 
 mattr <- data.tk2 %>% 
          textstat_lexdiv(measure = "MATTR", 
-                         MATTR_window = 20)    # determines the size of the window to use [je pense que 80 c'est bien parce que ça améliore le MATTR et plus ça change pas grand chose + chapter 15 est le plus riche]
+                         MATTR_window = 80)    # determines the size of the window to use [je pense que 80 c'est bien parce que ça améliore le MATTR et plus ça change pas grand chose + chapter 15 est le plus riche]
 
 mattr <- mattr %>%
          arrange(desc(mattr$MATTR))
@@ -421,63 +492,15 @@ mattr %>% kbl(align = c('c', 'c'),
 
 mattr_plot <- mattr %>% 
               ggplot(aes(reorder(document, -MATTR), MATTR)) + 
-              geom_bar(stat = "identity") +
+              geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
               labs(title = "Moving-Average Token-Type Ratio (MATTR)",
                    subtitle = "",
                    x = "Chapter",
-                   y = "MATTR")
+                   y = "MATTR",
+                   caption ="source: Invisible Women.pdf")
 
 mattr_plot
 
 ```
 
 
-## Dispersion Plot [after co-occurence ??]
-
-Dispersion or X-Ray plots inspect where a specific token is used in each text by locating a pattern in each text. 
-
-The below table shows how in chapter 1 (i.e. text1) he words *female* and *male* are used. 
-
-```{r pattern location, echo=F, message=F, warning=F}
-
-# Checks the result
-head(kwic(data.cp, pattern = c("female","male")))
-
-kbl(head(kwic(data.cp, 
-              pattern = c("female","male"))), 
-    caption = "Pattern Location") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
-
-```
-
-```{r xray plot, echo=F, message=F, warning=F}
-# Plot
-textplot_xray(kwic(data.cp, 
-                   pattern = c("female","male")))
-
-```
-
-We can extend to two patterns. The below lexical dispersion plot shows that the term *sex* is more specific to chapter 10 and that *women* and *sex* are not necessarily associated. 
-
--> ADD TITLE OF TEXT 10 AND EXPLAIN WH THESE TWO TOKENS WOULD APPEAR MORE OFTEN TOGETHER
--> comparison female and male terms 
-
-```{r xray plot 2 patterns, echo=F, message=F, warning=F}
-
-# Plot
-textplot_xray(kwic(data.cp, pattern = c("female")),
-              kwic(data.cp, pattern = c("sex")),
-              scale = "absolute")
-
-# intéressant de comparer female et male ?? 
-```
-```{r xray plot 2 patterns, echo=F, message=F, warning=F}
-
-# Plot
-textplot_xray(kwic(data.cp, pattern = c("male")),
-              kwic(data.cp, pattern = c("sex")),
-              scale = "absolute")
-
-# intéressant de comparer female et male ?? 
-```
