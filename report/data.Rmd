@@ -156,6 +156,24 @@ for (i in 1:nrow(data)){
   }
 }
 
+# Cleaning 
+
+# transform data frame into copus object
+supervised_cp <- corpus(supervised_data,text_field = "pagetext")
+
+# data cleaning ans lemmatization
+supervised_tk <- supervised_cp %>% 
+                   tokens(remove_numbers = TRUE,
+                          remove_punct = TRUE,
+                          remove_symbols = TRUE,
+                          remove_separators = TRUE) %>%
+                   tokens_split(separator = "'") %>%
+                   tokens_split(separator = "-") %>%
+                   tokens_remove(stop_words$word) %>% 
+                   tokens_tolower() %>%  
+                   tokens_replace(pattern = hash_lemmas$token, 
+                                          replacement = hash_lemmas$lemma) %>%
+                   tokens_remove(c("chapter","woman")) 
 
 
 ```
