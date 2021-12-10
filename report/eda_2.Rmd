@@ -286,8 +286,7 @@ The plot below allows us to see that this chapter is characterized by the terms 
 for (i in 1:nrow(data)){ 
   
    data.keyness <- textstat_keyness(data.dfm, target =paste("text",i,sep="") )
-  print(textplot_keyness(data.keyness))
-  
+  print(textplot_keyness(data.keyness)) 
   
 }
 
@@ -427,7 +426,7 @@ The below table sorts chapters of the book by descending TTR. According to TTR, 
 
 ```{r TTR, echo=F, message=F, warning=F}
 
-ttr <- data.dfm %>% 
+ttr <- data.dfm2 %>% 
        textstat_lexdiv()  # computes the lexical diversity
 
 ttr <- ttr %>%
