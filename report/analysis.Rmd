@@ -1177,16 +1177,17 @@ set.seed(245)
 index.tr <- sample(size=round(0.4*length(y)), x=c(1:length(y)), replace=FALSE)
 df.tr <- df[index.tr,]
 df.te <- df[-index.tr,]
-library(ranger)
+
 # train the classifier (random forest)
 data.fit <- ranger(Class ~ ., 
                      data = df.tr)
 pred.te <- predict(data.fit, df.te)
 
 
-library(caret)
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+```
 
+```{r, echo = false}
 set.seed(999)
 trctrl <- trainControl(method = "boot")
 
