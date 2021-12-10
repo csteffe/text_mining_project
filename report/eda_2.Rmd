@@ -1,5 +1,6 @@
 ```{r, echo=F, message=F}
 source(here::here("scripts/setup.R"))
+
 ```
 
 # Exploratory Data Analysis (EDA)
@@ -10,7 +11,7 @@ To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package
 
 The Cloud of Words plot is possible representation used to visualize term frequencies. Nevertheless, this vizualition is more graphic than informative, this is why we decided to start our EDA with. 
 
-The size and the position (centered) are propotional to the frequency.
+The size and the position (centered) are proportional to the frequency.
 
 [Improve plot: use different colors]
 
@@ -102,18 +103,22 @@ data.tfidf2 <- dfm_tfidf(data.dfm2)
 
 ## Term-Frequency by Document 
 
-The plot below shows kind of the same information than the frequency plot but with a little twist. Here, we show the top 10 frequencies associated with their chapter.  
+The plot below shows kind of the same information than the frequency plot but with a little twist. Here, we show the top 10 frequencies associated with their chapter. It would have been interesting to have the top frequencies of each documents but there would have been an information overload as there are 16 chapters, so we decided not to display it. 
 
 Chapter 10, namely *The Drugs Don't Work*, is associated with "sex", "drug" and "study". In the previous plot (TF versus DF), we've been able to see that although "sex" and "study" appear in multiple documents, "drug" is a bit less document frequent. Nevertheless, we do not want to over interpret and the specificity will be covered more deeply in the following section. 
 
 Concerning chapter 13, *From Purse to Wallet*, we only have one related word, "tax". Such as "drug", although frequent, "tax" does not appear in a lot of documents. 
 
-chapter 14,*Women's Rights are Human Rights*,has a large frequency of the term *datum*.
+chapter 14,*Women's Rights are Human Rights*,has a large frequency of the term *female*.
 
-Chapter 3, *The Long Friday*
+Chapter 3, *The Long Friday*, is related to the words *pay*, *leave* and *time*.
 
-Chapter 4, *Myth of Meritocracy*
+Chapter 4, *Myth of Meritocracy*, is associated to *female* and *male*. 
 
+Even though some of those words are informative, others are extremely general. Indeed, it is not enlightening to have *female* associated to one document as the whole book is about feminism.  
+
+
+---------------------------------------
 Chapter 9, *A Sea of Dudes* 
 
 We see that the term *woman* is the most associated with chapters 11, 10 and 3 which are respectively, *Yentl Syndrome*, *The Drugs Don't Work* and *The Long Friday*. 
@@ -126,7 +131,7 @@ Regarding the term *female*, even though it is the second most frequent term in 
 -> I removed all terms like women, female etc... just for this plot, otherwise it is meaningless so we need to change the whole interpretation.  
 
 -> justifier pq on fait pas l'autre plot avec les freq par doc. 
-
+------------------------------------------
 
 ```{r cloud of words by document plot, echo=F, message=F, warning=F}
 
@@ -153,7 +158,7 @@ nowoman.10
 
 ## Zipf's Law
 
-The Zipf's law shows the distribution of words used in a corpus compared to his rank in the frequency table . It says that the frequency of a token is inversely proportional to its rank.
+The Zipf's law shows the distribution of words used in a corpus compared to his rank in the frequency table. It says that the frequency of a token is inversely proportional to its rank.
 
 The below plot is on a log-log scale, the frequency versus rank gives a negative linear relation as the original distribution is a negative exponential function. 
 
@@ -161,9 +166,10 @@ The below plot is on a log-log scale, the frequency versus rank gives a negative
 
 # Illustration of the Zipf's law 
 ggplot(data.freq, aes(x = log(rank), y = log(frequency)))+ 
-   geom_point()+
+   geom_point(color = "dodgerblue3", alpha = 0.5)+
    geom_label(data = data.freq[c(1:5,6627:6631)], aes(label=feature)) +
-   ggtitle("The Zipf's law on a log-log scale")
+   ggtitle("The Zipf's law on a log-log scale")+
+   theme_minimal()
 ```
 
 This plot shows that *women*, *female*, *datum* and *find* are the most frequent terms of the corpus indicating that they are not specific to one chapter but are frequent in all chapters. It means, according to the Zipf's law, that these words are very frequent in the corpus and could hide some meaningful information as they are not stop words. The Zipf's law now leads us to move to weighted frequencies. 
@@ -172,9 +178,9 @@ This plot shows that *women*, *female*, *datum* and *find* are the most frequent
 
 The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to rebalance a word frequency with respect to its document specificity.
 
-The below output shows, for the document-feature matrix of 16 documents and 5'741 features, the weighted frequency for each token by document. (Obviously, the sparsity stays the same.)
+The below output shows, for the document-feature matrix of 16 documents and 5'741 features, the weighted frequency for each token by document. Obviously, the sparsity stays the same.
 
-```{r term frequency and inverse document matrix, echo = FALSE, message = FALSE}
+```{r term frequency and inverse document matrix, echo=FALSE, message=FALSE}
 # Weighted document-feature matrix by tf-idf
 data.tfidf2 <- dfm_tfidf(data.dfm2)
 data.tfidf2
@@ -182,7 +188,7 @@ data.tfidf2
 
 The following output shows the twenty terms that have the largest TF-IDF. 
 
-```{r largest tf-idf per word, echo = FALSE, message = FALSE}
+```{r largest tf-idf per word, echo=FALSE, message=FALSE}
 # 20 largest TF-IDFs
 sort(apply(data.tfidf2,
            2,
@@ -191,28 +197,6 @@ sort(apply(data.tfidf2,
 
 ```
 We can see for example that the words "tax","trial", "drug" and "dummy"  appear quite often in the corpus and in few documents.
-
-## TF-IDF by Document
-
-[The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable 
-plutot ca non?]
-
-The following plot shows the 10 highest TF-IDF associated with their chapter. For example the term *tax* is still really frequent and now specific to chapter 13 whereas chapter 10 is now associated with *trial* and *drug*. Chapter 14 is in fact more specifically associated with the term *interrupt* than with the term *female* in TF by document.
-```{r tfidf by document plot, echo=F, message=F, warning=F}
-
-tfidf_plot <- data.tfidf2 %>% 
-              tidy() %>%  
-              top_n(10, count) %>% 
-              ggplot(aes(x = term, 
-                         y = count)) +
-              geom_col() + 
-              coord_flip() + 
-              facet_wrap(~ document, 
-                         ncol = 2)
-
-tfidf_plot
-
-```                
 
 ## Largest TF-IDF (over all documents) 
 
@@ -232,17 +216,52 @@ tfidf_max <- data.tfidf2 %>%
              top_n(20, count) %>%
              ggplot(aes(x = reorder(term, count), 
                         y = count)) + 
-             geom_bar(stat = "identity") + 
+             geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + 
              coord_flip() +
              labs(title = "Largest TF-IDF in the book",
                   subtitle = "",
                   x = "Max TF-IDF",
                   y = "Term",
-                  caption = "source: Invisible Women.pdf")
+                  caption = "source: Invisible Women.pdf") + 
+             theme_minimal() 
              
 tfidf_max
 
-```   
+```  
+
+## TF-IDF by Document
+
+[The following plots show how some chapters are associated with certain words **using TF-IDF**. [Add interpretation when readable 
+plutot ca non?]
+
+The following plot shows the 10 highest TF-IDF associated with their chapter. 
+
+Chapter 1, 
+Chapter 10, *The Drugs Don't Work*, is now associated with *trial* and how we kind of guess *drug*. 
+The term *tax* is still really frequent and we can now definitely state that it is specific to chapter 13.   
+Chapter 14, *Women's Rights are Human Rights*, is in fact more specifically associated with the term *interrupt* than with the term *female* in TF by document.
+Chapter 2, *toilet*
+Chapter 7, *stove*
+Chapter 9, *vr*, *dummy*, *crash*
+
+```{r tfidf by document plot, echo=F, message=F, warning=F}
+
+tfidf_plot <- data.tfidf2 %>% 
+              tidy() %>%  
+              top_n(10, count) %>% 
+              ggplot(aes(x = term, 
+                         y = count)) +
+              geom_col(fill = "dodgerblue3", alpha = 0.5) + 
+              coord_flip() + 
+              facet_wrap(~ document, 
+                         ncol = 2) +
+              theme_minimal() +
+               ggtitle("10 Largest TF-IDF Associated to Chapters")
+  
+
+tfidf_plot
+
+```                
 
 ## Keyness
 
@@ -292,9 +311,7 @@ data.coocc
 
 Using the above feature co-occurrences matrix, we generate a network (object). To generate a readable network of co-occurrences, we add a second condition on feature co-occurrences that is to keep only the strongest co-occurrences, greater than 10000. 
 
-Describe what we see on the plot ? The generated network is very interesting. Indeed, it has a circular shape with no term at the center that would indicate that it, for example *women*, is associated with the others. In fact, it seems that even by keeping only feature co-occurrences above 1,000, the network's shape remains circular. 
-
-[Improve plot layout]
+Describe what we see on the plot ? The generated network is very interesting. Indeed, it has a circular shape with no term at the center that would indicate that it, for example *women*, is associated with the others. In fact, it seems that even by keeping only feature co-occurrences above 1,000, the network's shape remains circular. [??]
 
 ```{r network, echo=F, message=F, warning=F}
 # Creates a feature co-occurrence matrix
@@ -336,7 +353,7 @@ Lexical diversity is a diversity index that measures the richness of the vocabul
 
 The TTR is a diversity measure indicating a document's richness in the number of token types (i.e. vocabulary). The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 is the TTR the richest is the vocabulary of a document. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
 
-The below table sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.555 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.457. Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.356. 
+The below table sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.555 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.457. Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.356[???]. 
 
 ```{r TTR, echo=F, message=F, warning=F}
 
@@ -346,7 +363,7 @@ ttr <- data.dfm %>%
 ttr <- ttr %>%
        arrange(desc(ttr$TTR))
 
-ttr %>% kbl(align = c('c', 'c'), 
+ttr %>% kbl(align = c('l', 'c'), 
     caption = "Token-Type Ratio (TTR)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -361,11 +378,12 @@ The below graph plots the above information.
 
 ttr_plot <- ttr %>% 
             ggplot(aes(reorder(document, -TTR), TTR)) + 
-            geom_bar(stat = "identity") +
+            geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
             labs(title = "Token-Type Ration (TTR)",
                  subtitle = "Chapter 15 has the richest vocabulary",
                  x = "Chapter",
-                 y = "TTR")
+                 y = "TTR") +
+                 theme_minimal()
 
 ttr_plot  # [ADD TTR ESTIMATES ON THE TIP OF THE BARS AND REMOVE PREVIOUS PLOT]
 
@@ -383,7 +401,7 @@ The Moving-Average Token-Type Ration ranges from 0.914 to 0.936 over all chapter
 
 mattr <- data.tk2 %>% 
          textstat_lexdiv(measure = "MATTR", 
-                         MATTR_window = 20)    # determines the size of the window to use 
+                         MATTR_window = 20)    # determines the size of the window to use [je pense que 80 c'est bien parce que ça améliore le MATTR et plus ça change pas grand chose + chapter 15 est le plus riche]
 
 mattr <- mattr %>%
          arrange(desc(mattr$MATTR))
@@ -395,7 +413,7 @@ mattr %>% kbl(align = c('c', 'c'),
 
 ```
 
-The below graph plots the above information and shows that the MATTR among chapters are very similar. 
+[As seen in the table below the MATTR among chapters are very similar so we decided to not represent it graphically.] The below graph plots the above information and shows that the MATTR among chapters are very similar. 
 
 [Improve plot]
 
@@ -414,7 +432,7 @@ mattr_plot
 ```
 
 
-## Dispersion Plot
+## Dispersion Plot [after co-occurence ??]
 
 Dispersion or X-Ray plots inspect where a specific token is used in each text by locating a pattern in each text. 
 
@@ -454,4 +472,12 @@ textplot_xray(kwic(data.cp, pattern = c("female")),
 
 # intéressant de comparer female et male ?? 
 ```
+```{r xray plot 2 patterns, echo=F, message=F, warning=F}
 
+# Plot
+textplot_xray(kwic(data.cp, pattern = c("male")),
+              kwic(data.cp, pattern = c("sex")),
+              scale = "absolute")
+
+# intéressant de comparer female et male ?? 
+```
