@@ -4,12 +4,12 @@ source(here::here("scripts/setup.R"))
 
 # 1. Data Gathering
 
-The book *Invisible Women* under study was downloaded from [source: https://yes-pdf.com/book/113#google_vignette] in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from pdf files.
+The book *Invisible Women* under study is directly downloaded from [source: https://yes-pdf.com/book/113#google_vignette] in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from pdf files.
 One of its advantages, is that is it easy to upload. On the cons side, the cleaning can sometimes be quite long and tedious.
 
 ```{r load data, echo = FALSE, message = FALSE}
 #load the data
-text <- pdf_text(here::here("data/Invisible Women.pdf"))
+text <- pdf_text("https://yes-pdf.com/electronic-book/33")
 ```
 
 Here are the book's characteristics:
