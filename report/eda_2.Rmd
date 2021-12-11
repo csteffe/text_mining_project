@@ -9,12 +9,9 @@ To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package
 
 ## Cloud of Words plot
 
-The Cloud of Words plot is possible representation used to visualize term frequencies. Nevertheless, this vizualition is more graphic than informative, this is why we decided to start our EDA with. 
+The Cloud of Words plot is possible representation used to visualize term frequencies. Nevertheless, this visualization is more graphic than informative, this is why we decided to start our EDA with. 
 
 The size and the position (centered) are proportional to the frequency.
-
-[Improve plot: use different colors]
-
 ```{r cloud of words for corpus plot, echo=F, message=FALSE, warning=FALSE}
 
 textplot_wordcloud(data.dfm)
@@ -27,8 +24,6 @@ This plot shows that the most frequent terms in the corpus seems to be women, fe
 
 
 To assess a bit more seriously the frequency of the terms, we compute the global frequencies and show the results in the plot below. The following visualization plots the 10 most frequent terms in the whole corpus. As we supposed previously with the cloud of words, the plot indicates that the term *woman* is the most frequent term overall, followed by female, datum, male and, find. The frequency difference between those words are so slight that it was hard to distinguish their rank. In addition we can see that the term "data" has been changed by lemmatization to "datum". 
-
-[Improve plot: layout/color/add title/add subtitle/caption with source]
 
 ```{r TF-IDF plot, echo=F, message=F, warning=F}
 
@@ -178,49 +173,31 @@ data.tfidf2 <- dfm_tfidf(data.dfm2)
 data.tfidf2
 ```
 
-The following output shows the twenty terms that have the largest TF-IDF. 
+The following plot shows the twenty largest TF-IDF with the associated terms.
 Note that it is equal to the result of computing for each term the maximum TF-IDF over all chapters of the book.
-```{r largest tf-idf per word, echo=FALSE, message=FALSE}
-# 20 largest TF-IDFs
-T20_tfidf <- sort(apply(data.tfidf2,
-           2,
-           max),
-     decreasing = TRUE)[1:20]
-
-kable(T20_tfidf,col.names = "TF-IDF",
-      caption = "Top 20 TF-IDF") %>% 
-      kable_styling(bootstrap_options = c("striped",
-                                          "hover", 
-                                          "condensed", 
-                                          "responsive"),
-                    full_width = T, 
-                    position = "left", 
-                    font_size = 16, 
-                    fixed_thead = T)
-```
 We can see for example that the words "tax","trial", "drug" and "dummy"  appear quite often in the corpus and in few documents.
 
-Here is the graphical representation: 
-```{r max tf-idf, echo=F, message=F, warning=F}
+```{r max tf-idf, echo=F, message=F, warning=F,fig.width=8}
 
-tfidf_max <- data.tfidf2 %>% 
-             tidy() %>%
-             group_by(term) %>%
-             summarize(count = max(count)) %>% 
-             arrange(desc(count)) %>%
-             top_n(20, count) %>%
-             ggplot(aes(x = reorder(term, count), 
-                        y = count)) + 
-             geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + 
-             coord_flip() +
-             labs(title = "Largest TF-IDF in the book",
-                  subtitle = "",
-                  x = "Max TF-IDF",
-                  y = "Term",
-                  caption = "source: Invisible Women.pdf") + 
-             theme_minimal() 
+data.tfidf2 %>% 
+    tidy() %>%
+    group_by(term) %>%
+    summarize(count = max(count)) %>% 
+    arrange(desc(count)) %>%
+    top_n(20, count) %>%
+    ggplot(aes(x = reorder(term, count), y = count)) + 
+    geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + 
+    coord_flip() +
+    geom_text(aes(label = sprintf("%0.1f", round(count, digits = 1))),
+              hjust=1, vjust=0.5, color="white", size=3.5)+
+    labs(title = "Largest TF-IDF in the book",
+    subtitle = "",
+             x = "Max TF-IDF",
+             y = "Term",
+             caption = "source: Invisible Women.pdf") + 
+    theme_minimal() 
              
-tfidf_max
+
 
 ```  
 
@@ -302,7 +279,7 @@ data.coocc
 
 Using the above feature co-occurrences matrix, we generate a network (object). To generate a readable network of co-occurrences, we add a second condition on feature co-occurrences that is to keep only the strongest co-occurrences, greater than 2100. 
 
-```{r network, echo=F, message=F, warning=F}
+```{r network, echo=F, message=F, warning=F, fig.width=10}
 # Creates a feature co-occurrence matrix
 # Keep strongest co-occurrences
 data.coocc[data.coocc <= 2100] <- 0
@@ -383,44 +360,31 @@ This last plot reveals that the term *male* is frequently present in Chapter 10,
 
 Lexical diversity is a diversity index that measures the richness of the vocabulary in one document. 
 
-### Token-Type Ratio (TTR) [Les chiffres ont changé]
+### Token-Type Ratio (TTR) 
 
-The TTR is a diversity measure indicating a document's richness in the number of token types (i.e. vocabulary). The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 is the TTR the richest is the vocabulary of a document. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
+The TTR is a diversity measure indicating a document's richness in the number of token types. The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 is the TTR the richest is the vocabulary of a document. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
 
-The below table sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.555 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.457. Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.356[???]. 
+The below graph sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.592 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.374. [Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.356[???].] ??? on le garde?
 
-```{r TTR, echo=F, message=F, warning=F}
 
+```{r TTR plot, echo=F, message=F, warning=F, fig.width=8}
 ttr <- data.dfm2 %>% 
        textstat_lexdiv()  # computes the lexical diversity
 
 ttr <- ttr %>%
        arrange(desc(ttr$TTR))
 
-ttr %>% kbl(align = c('l', 'c'), 
-    caption = "Token-Type Ratio (TTR)") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
-
-```
-
-The below graph plots the above information.
-
-[Improve plot]
-
-```{r TTR plot, echo=F, message=F, warning=F}
-
-ttr_plot <- ttr %>% 
-            ggplot(aes(reorder(document, -TTR), TTR)) + 
-            geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
-            labs(title = "Token-Type Ration (TTR)",
-                 subtitle = "Chapter 15 has the richest vocabulary",
-                 x = "Chapter",
-                 y = "TTR",
-                 caption ="source: Invisible Women.pdf") +
-                 theme_minimal()
-
-ttr_plot  # [ADD TTR ESTIMATES ON THE TIP OF THE BARS AND REMOVE PREVIOUS PLOT]
+ttr %>% 
+  ggplot(aes(reorder(document, -TTR), TTR)) + 
+  geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
+  geom_text(aes(label = sprintf("%0.3f", round(TTR, digits = 3))),
+                              vjust=1.6, color="white", size=3.5)+
+  labs(title = "Token-Type Ration (TTR)",
+       subtitle = "Chapter 15 has the richest vocabulary",
+       x = "Chapter",
+       y = "TTR",
+       caption ="source: Invisible Women.pdf") +
+       theme_minimal()
 
 ```
 
@@ -428,42 +392,25 @@ ttr_plot  # [ADD TTR ESTIMATES ON THE TIP OF THE BARS AND REMOVE PREVIOUS PLOT]
 
 Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an algorithm using windows of the text to compute the TTR and repeating several times over different windows of the same size the TTR computation. The advantage of the MATTR is that it is less dependent on the length of the document than TTR. A too large window can produce an error since no local TTR can be computed and a too small window results in pointless values (always 1). MATTR is computed using ordered tokens.
 
-The Moving-Average Token-Type Ration ranges from 0.914 to 0.936 over all chapters of the book and according to the MATTR, chapter 6 *Being Worth Less Than a Show* has the richest vocabulary with a MATTR of 0.936. 
-
--> EXPLAIN WHY ALMOSTALL EQUAL TO 1 
-
-```{r MATTR, echo=F, message=F, warning=F}
-
+The below graph plots the the Moving-Average Token-Type Ration and shows that the MATTR among chapters are very similar and it ranges from 0.798 to 0.725 over all chapters of the book. According to the MATTR, chapter 15 *Who Will Rebuild?* still has the richest vocabulary with a MATTR of 0.798. 
+```{r MATTR plot, echo=F, message=F, warning=F, fig.width=8}
 mattr <- data.tk2 %>% 
          textstat_lexdiv(measure = "MATTR", 
-                         MATTR_window = 80)    # determines the size of the window to use [je pense que 80 c'est bien parce que ça améliore le MATTR et plus ça change pas grand chose + chapter 15 est le plus riche]
-
+                         MATTR_window = 80)    
 mattr <- mattr %>%
          arrange(desc(mattr$MATTR))
 
-mattr %>% kbl(align = c('c', 'c'), 
-    caption = "Moving-Average Token-Type Ratio (MATTR)") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
-
-```
-
-[As seen in the table below the MATTR among chapters are very similar so we decided to not represent it graphically.] The below graph plots the above information and shows that the MATTR among chapters are very similar. 
-
-[Improve plot]
-
-```{r MATTR plot, echo=F, message=F, warning=F}
-
-mattr_plot <- mattr %>% 
-              ggplot(aes(reorder(document, -MATTR), MATTR)) + 
-              geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
-              labs(title = "Moving-Average Token-Type Ratio (MATTR)",
+mattr %>% 
+ ggplot(aes(reorder(document, -MATTR), MATTR)) + 
+ geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
+ geom_text(aes(label = sprintf("%0.3f", round(MATTR, digits = 3))),
+                            vjust=1.6, color="white", size=3.5)+
+ labs(title = "Moving-Average Token-Type Ratio (MATTR)",
                    subtitle = "",
                    x = "Chapter",
                    y = "MATTR",
                    caption ="source: Invisible Women.pdf")
 
-mattr_plot
 
 ```
 
