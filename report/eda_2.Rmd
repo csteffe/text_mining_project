@@ -348,10 +348,9 @@ textplot_xray(kwic(data.cp, pattern = c("female","male"))) +
                    caption ="source: Invisible Women.pdf")
 ```
 
-We can extend to two patterns. The below lexical dispersion plot shows that the term *sex* is more specific to chapter 10 and that *women* and *sex* are not necessarily associated. 
+The above lexical dispersion plot shows that these two terms appear in almost all chapters and seem to appear close together. It also shows that they are present together with higher frequency in chapters 4 (*The Long Friday*) and 14(*Women's Rights are Human Rights*).
 
--> ADD TITLE OF TEXT 10 AND EXPLAIN WH THESE TWO TOKENS WOULD APPEAR MORE OFTEN TOGETHER
--> comparison female and male terms 
+The below plot shows that the term *sex* is more specific to chapter 10 (*The Drugs Don't Work*) and that *female* and *sex* are not necessarily associated. Note that here *sex* is reduced to its lemma and it is necessary to keep in mind all its declensions in the analysis of this plot.
 
 ```{r xray-plot 2 patterns, echo=F, message=F, warning=F}
 
@@ -378,6 +377,7 @@ textplot_xray(kwic(data.cp, pattern = c("male")),
                    caption ="source: Invisible Women.pdf")
 
 ```
+This last plot reveals that the term *male* is frequently present in Chapter 10, which is the most specific to the term *sex*. Furthermore, we can conclude that this chapter(*The Drugs Don't Work*) will focus on gender topics by associating the terms *sex*, *female* and *male*.
 
 ## Lexical Diversity
 
