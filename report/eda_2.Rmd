@@ -239,10 +239,15 @@ tfidf_plot
 
 ## Keyness
 
-The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. To illustrate that we select chapter 14, *Women’s Rights are Human Rights*, which has the specific term *interrupt* which is a rather vague term and compute its Keyness compare to the reference.
+The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. To illustrate that we select chapter 14 *Women’s Rights are Human Rights* which has the specific  which is a rather vague term and compute its Keyness compare to the reference.
+
 ```{r keyness, echo=F, message=F, warning=F}
-data.keyness <- textstat_keyness(data.dfm, target =paste("text",14,sep="") )
-  print(textplot_keyness(data.keyness)) 
+
+data.keyness <- textstat_keyness(data.dfm, 
+                                 target = paste("text", 14, sep = ""))
+
+print(textplot_keyness(data.keyness)) 
+  
 ```
 
 The plot above allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
@@ -260,9 +265,9 @@ for (i in 1:nrow(data)){
 
 ## Link between words
 
-Here, we look at how words are connected and how inter-connected they are. We first compute the co-occurrences between terms. 
+Here, we look at how words co-occur and how inter-connected they are and to do so, we first compute the co-occurrences between terms. 
 
-The feature co-occurrence matrix is a 5'741 by 5'741 matrix with 32,959,081 elements. Because of the size of the matrix, we reduce the matrix's size following a condition. Thus, the condition is to keep co-occurrences that occur more than 110 times between two words. After filtering for co-occurrences greater than 110, we get a smaller feature co-occurrence matrix of dimensions 20 by 20 features. 
+The feature co-occurrence matrix is a 5,741 by 5,741 matrix (32,959,081 elements) in which is displayed the number of times two terms co-occur (i.e. co-occurrence frequency) in the corpus. Because of the large size of the matrix, we decide to reduce its size by keeping only co-occurrences greater than 110. The latter condition allows us to focus our attention on terms that appear the most together in the corpus, implying that they have a specific connection of interest in the context of the book. After applying this condition to the matrix, we get the following smaller feature co-occurrence matrix of dimensions 20 by 20 features (400 elements). 
 
 ```{r co-occurrences, echo=F, message=F, warning=F}
 
@@ -284,9 +289,12 @@ data.coocc
 
 ```
 
-Using the above feature co-occurrences matrix, we generate a network (object). To generate a readable network of co-occurrences, we add a second condition on feature co-occurrences that is to keep only the strongest co-occurrences, greater than 2100. 
+Using the above feature co-occurrences matrix, we generate a network (object) displaying visually the inter-connections of interest between the co-occurring terms appearing more than 110 times in the corpus. To generate a readable network of co-occurrences, we add a second condition on the co-occurring features and we keep only the co-occurrences greater than 2,100. 
+
+The below network reveals that the terms *datum*, *male* and *find* are central and co-occur a lot with the surrounding terms. The output shows a surprising finding which is that for a book named **Invisible Women**, the term *female* is not a central term co-occurring the most with other terms. Therefore, to dig deeper into this finding, we decide to re-introduce the term *woman* and we find an even more surprising result which is that *woman* is still not at the center of the co-occurrences despite its significantly large frequency (1,594 out of 36,160 or 4.4% of all frequencies).
 
 ```{r network, echo=F, message=F, warning=F, fig.width=10}
+
 # Creates a feature co-occurrence matrix
 # Keep strongest co-occurrences
 data.coocc[data.coocc <= 2100] <- 0
@@ -301,9 +309,7 @@ plot(network,
      layout = layout_with_kk)
 title(main = "Network graph", sub = "source: Invisible Women.pdf")
   
-
 ```
-The graph above reveals that the terms *datum*, *male* and *find* are central and co-occur a lot with the other terms around. It is surprising that for a book named "Invisible Women", the term "female" is not found in the largest co-occurrences. So we reintroduced the term "woman" and even more surprisingly this term is still not in the center of the co-occurrences despite its enormous frequency.
 
 ## Dispersion Plot 
 
