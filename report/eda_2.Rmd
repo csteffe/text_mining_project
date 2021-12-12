@@ -239,7 +239,9 @@ tfidf_plot
 
 ## Keyness
 
-The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. To illustrate that we select chapter 14 *Women’s Rights are Human Rights* which has the specific  which is a rather vague term and compute its Keyness compare to the reference.
+The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. We illustrate the keyness by investigating why the vague term *interrupt* is associated to chapter 14 *Women’s Rights are Human Rights*. Thus, we compute its keyness and compare it to the other chapters (i.e. reference).
+
+The plot below allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
 
 ```{r keyness, echo=F, message=F, warning=F}
 
@@ -250,13 +252,16 @@ print(textplot_keyness(data.keyness))
   
 ```
 
-The plot above allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
+Then, we compute for each chapter of the book the keyness of terms in order to better understand what each chapter is about. The following visualization is an animated illustration (in a gif format). Each chapter is then at some point the target and the reference. 
 
-We compute for each chapter of the book the keyness of terms and we display them in the below gif format. Each chapter is then at some point the target and the reference. 
+Chapter 1 *Can Snow-Clearing be Sexist?* displays terms related to public transportation and cities' infrastructure, chapter 2 *Gender Neutral With Urinals* mentions terms in connection with public spaces and dangerous behaviors, chapter 3 *The Long Friday* seem to be about parental benefits in the workplace, chapter 4 *The Myth of Meritocracy* elaborates on success, chapter 5 *The Henry Higgins Effect* is a bit more difficult to grasp but uses terms related to chemicals and effect on health such as cancer, chapter 6 *Being Worth Less Than a Shoe* is also less specific to one vocabulary type but seems to be about profession and precariousness, chapter 7 *The Plough Hypothesis* uses terms related to agriculture, chapter 8 *One-Size-Fits-Men* seems to be about technologies like smartphones and data science, chapter 9 *A Sea of Dudes* uses vocabulary connected to automobiles, chapter 10 *The Drugs Don’t Work* is about clinical trials, chapter 11 *Yentl Syndrome* uses a medical vocabulary, chapter 12 *A Costless Resource to Exploit* seems to be about economics, chapter 13 *From Purse to Wallet* is connected to household consumption, chapter 14 *Women’s Rights are Human Rights* is about politics, chapter 15 *Who Will Rebuild?* implies a topic surrounding rebuilding a more peaceful world and chapter 16 *It’s Not the Disaster that Kills You* evolves around extreme poverty in the world.  
+
 ```{r keyness2, echo=F, message=F, warning=F, animation.hook = "gifski", , interval = 15}
+
 for (i in 1:nrow(data)){ 
   
-   data.keyness <- textstat_keyness(data.dfm, target =paste("text",i,sep="") )
+   data.keyness <- textstat_keyness(data.dfm, 
+                                    target = paste("text",i,sep="") )
   print(textplot_keyness(data.keyness)) 
   
 }
