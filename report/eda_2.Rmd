@@ -52,7 +52,7 @@ tf_plot
 
 ## Term-Frequency (TF)
 
-To deep dive into these frequencies, we then display a Term-Frequency (TF) table providing information on term frequencies, their rank and document frequencies. Indeed, the *feature* lists the lemmatized tokens, the *frequency* provides the number of times the term is found in the corpus (i.e. global frequency), the *rank* sorts the terms by decreasing frequencies (i.e. rank is negatively proportinoal to the frequency), the *docfreq* indicates the number of documents in which the token is found (i.e. document frequency). 
+To deep dive into these frequencies, we then display a Term-Frequency (TF) table providing information on term frequencies, their rank and document frequencies. Indeed, the *feature* lists the lemmatized tokens, the *frequency* provides the number of times the term is found in the corpus (i.e. global frequency), the *rank* sorts the terms by decreasing frequencies (i.e. rank is inversely proportional to the frequency), the *docfreq* indicates the number of documents in which the token is found (i.e. document frequency). 
 
 The table below shows that *woman* appears 1594 times in the corpus and in all 16 documents (docfreq = 16) which means that it is not a document-specific term. Moreover, it appears four times more than the second most frequent term *female*.
 
@@ -144,25 +144,27 @@ nowoman.10
 
 ## Zipf's Law
 
-The Zipf's law shows the distribution of words used in a corpus compared to his rank in the frequency table. It says that the frequency of a token is inversely proportional to its rank.
+The Zipf's law shows the distribution of words used in a corpus by plotting the term-frequencies against their ranks and, it says that the frequency of a token is inversely proportional to its rank. Therefore, the below plot (on a log-log scale) shows a negative linear relation (the original distribution (non log-log) is a negative exponential function). 
 
-The below plot is on a log-log scale, the frequency versus rank gives a negative linear relation as the original distribution is a negative exponential function. 
+This plot shows that *female*, *datum*, *male*, *find* and *time* are the most frequent terms of the corpus probably indicating that they are not chapter-specific but frequent in all chapters of the book. Indeed, although the Zipf's Law do not provide precise information on document specificity, there is a very low probability that these terms are specific to one or few chapters that are sufficiently lengthy to make them appear as much. Therefore, according to the Zipf's law, these terms are very frequent in the overall corpus and consequently could hide some meaningful information as they are not considered stop words [can we explain this a bit better?]. The Zipf's law now leads us to move to look at weighted frequencies. 
 
-```{r Zipf law plot log-log, echo = FALSE, message = FALSE}
+```{r Zipf law plot, echo = FALSE, message = FALSE}
 
 # Illustration of the Zipf's law 
-ggplot(data.freq2, aes(x = log(rank), y = log(frequency)))+ 
-   geom_point(color = "dodgerblue3", alpha = 0.5)+
-   geom_label(data = data.freq2[c(1:5,6627:6631)], aes(label=feature)) +
+ggplot(data.freq2, 
+       aes(x = log(rank), 
+           y = log(frequency))) + 
+   geom_point(color = "dodgerblue3", 
+              alpha = 0.5) +
+   geom_label(data = data.freq2[c(1:5,6627:6631)], 
+              aes(label = feature)) +
    labs(title = "The Zipf's law on a log-log scale",
-    subtitle = "",
-    caption = "source: Invisible Women.pdf")+
+        subtitle = "",
+        caption = "source: Invisible Women.pdf") +
    theme_minimal()
 
 
 ```
-
-This plot shows that *female*, *datum*, *male*, *find* and *time* are the most frequent terms of the corpus probably indicating that they are not specific to one chapter but are frequent in all chapters. Indeed, although Zipf's Law do not state about the specificity, there is a very low probability that those words are specific to a chapter that is sufficiently long to make it as frequent. It means, according to the Zipf's law, that these words are very frequent in the corpus therefore it could hide some meaningful information as they are not stop words. The Zipf's law now leads us to move to weighted frequencies. 
 
 ## Term Frequency and Inverse Document Matrix (TF-IDF)
 
