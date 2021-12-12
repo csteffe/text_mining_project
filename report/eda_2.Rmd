@@ -373,12 +373,12 @@ Lexical diversity is a diversity index that measures the richness of the vocabul
 
 ### Token-Type Ratio (TTR) 
 
-The TTR is a diversity measure indicating a document's richness in the number of token types. The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 is the TTR the richest is the vocabulary of a document. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
+The TTR is a diversity measure indicating a document's richness in the number of token types. The more types of tokens are found in a document, the richest is the vocabulary of this specific document. The closest to 1 the TTR is, the richest the vocabulary of a document is. We need to be careful with the TTR measure because it is dependent on the length of the document. TTR is computed using the document-term matrix.
 
-The below graph sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.592 and that chapter 3 *The Long Friday* has the poorest with a TTR of 0.374. [Overall, the book seems to have a medium vocabulary richness since the TTR does not exceed 0.356[???].] ??? on le garde?
-
+The below graph sorts chapters of the book by descending TTR. According to TTR, chapter 15 *Who Will Rebuild?* has the richest vocabulary among all chapters of the book with a TTR of 0.592 and chapter 3 *The Long Friday* has the poorest with a TTR of 0.374. Overall, the richness of vocabulary is not very diverse which could be explained by the fact that the author focuses on the specific gender issue, therefore using repetitively gender-specific terms. 
 
 ```{r TTR plot, echo=F, message=F, warning=F, fig.width=8}
+
 ttr <- data.dfm2 %>% 
        textstat_lexdiv()  # computes the lexical diversity
 
@@ -387,7 +387,9 @@ ttr <- ttr %>%
 
 ttr %>% 
   ggplot(aes(reorder(document, -TTR), TTR)) + 
-  geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
+  geom_bar(stat = "identity", 
+           fill = "dodgerblue3", 
+           alpha = 0.5) +
   geom_text(aes(label = sprintf("%0.3f", round(TTR, digits = 3))),
                               vjust=1.6, color="white", size=3.5)+
   labs(title = "Token-Type Ration (TTR)",
@@ -401,10 +403,12 @@ ttr %>%
 
 ### Moving-Average Token-Type Ratio (MATTR)
 
-Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an algorithm using windows of the text to compute the TTR and repeating several times over different windows of the same size the TTR computation. The advantage of the MATTR is that it is less dependent on the length of the document than TTR. A too large window can produce an error since no local TTR can be computed and a too small window results in pointless values (always 1). MATTR is computed using ordered tokens.
+The Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an algorithm using windows of the text to compute the TTR and repeating several times over different windows of the same size the TTR computation. The advantage of the MATTR is that it is less dependent on the length of the document than the TTR. Note that a too large window can produce an error since no local TTR can be computed and a too small window results in pointless values (always 1). MATTR is computed using ordered tokens.
 
-The below graph plots the the Moving-Average Token-Type Ration and shows that the MATTR among chapters are very similar and it ranges from 0.798 to 0.725 over all chapters of the book. According to the MATTR, chapter 15 *Who Will Rebuild?* still has the richest vocabulary with a MATTR of 0.798. 
+The below graph shows the the Moving-Average Token-Type Ratio and shows that the MATTR among chapters are very similar and that it ranges from 0.725 to 0.798  over all chapters of the book. According to the MATTR, chapter 15 *Who Will Rebuild?* still has the richest vocabulary with an MATTR of 0.798. 
+
 ```{r MATTR plot, echo=F, message=F, warning=F, fig.width=8}
+
 mattr <- data.tk2 %>% 
          textstat_lexdiv(measure = "MATTR", 
                          MATTR_window = 80)    
@@ -413,15 +417,18 @@ mattr <- mattr %>%
 
 mattr %>% 
  ggplot(aes(reorder(document, -MATTR), MATTR)) + 
- geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) +
+ geom_bar(stat = "identity", 
+          fill = "dodgerblue3", 
+          alpha = 0.5) +
  geom_text(aes(label = sprintf("%0.3f", round(MATTR, digits = 3))),
-                            vjust=1.6, color="white", size=3.5)+
+           vjust = 1.6, 
+           color = "white", 
+           size = 3.5)+
  labs(title = "Moving-Average Token-Type Ratio (MATTR)",
-                   subtitle = "",
-                   x = "Chapter",
-                   y = "MATTR",
-                   caption ="source: Invisible Women.pdf")
-
+      subtitle = "",
+      x = "Chapter",
+      y = "MATTR",
+      caption ="source: Invisible Women.pdf")
 
 ```
 
