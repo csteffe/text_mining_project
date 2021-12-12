@@ -313,9 +313,9 @@ title(main = "Network graph", sub = "source: Invisible Women.pdf")
 
 ## Dispersion Plot 
 
-Dispersion or X-Ray plots inspect where a specific token is used in each text by locating a pattern in each text. 
+After investigating term co-occurrences, we look at how terms move together in the book. Dispersion or X-Ray plots inspect where a specific token is used in each text by locating a pattern in each text. 
 
-The below plot shows how the words *female* and *male* are used among the chapters. 
+The below lexical dispersion plot shows how the terms *female* and *male* move along the chapters. First, *male* is found in all chapters but only once in chapter 6 *Being Worth Less Than A Shoe* whereas as *female* is only not found in chapter 15, namely *Who Will Rebuild*. When considering the implication of the title of this chapter, this finding seems a bit curious. Second, these two terms often seem to appear together at some point in chapters. Third, we also see that they are both present in chapters 4 *The Long Friday* and 14 *Women's Rights are Human Rights* at a higher frequency but not necessarily used at the same location suggesting that the author might compare the two more in these chapters.   
 
 ```{r pattern location, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -331,16 +331,15 @@ kbl(head(kwic(data.cp,
 ```
 
 ```{r xray plot, echo=F, message=F, warning=F}
+
 # Plot
 textplot_xray(kwic(data.cp, pattern = c("female","male"))) +
- labs(title = "Lexical dispersion plot (female and male)",
+ labs(title = "Lexical dispersion plot: female and male",
                    subtitle = "",
                    caption ="source: Invisible Women.pdf")
 ```
 
-The above lexical dispersion plot shows that these two terms appear in almost all chapters and seem to appear close together. It also shows that they are present together with higher frequency in chapters 4 (*The Long Friday*) and 14(*Women's Rights are Human Rights*).
-
-The below plot shows that the term *sex* is more specific to chapter 10 (*The Drugs Don't Work*) and that *female* and *sex* are not necessarily associated. Note that here *sex* is reduced to its lemma and it is necessary to keep in mind all its declensions in the analysis of this plot.
+After exploring the movements of *female* and *male*, we look at the movements between *female* and *sex*. Note that here *sex* is reduced to its lemma so it could refer to the gender, the nature of a relation or any other terms related to sexuality. The below plot shows that the term *sex* is more specific to chapter 10 *The Drugs Don't Work* and that *female* and *sex* are not necessarily associated. 
 
 ```{r xray-plot 2 patterns, echo=F, message=F, warning=F}
 
@@ -348,13 +347,13 @@ The below plot shows that the term *sex* is more specific to chapter 10 (*The Dr
 textplot_xray(kwic(data.cp, pattern = c("female")),
               kwic(data.cp, pattern = c("sex")),
               scale = "absolute") +
-               labs(title = "Lexical dispersion plot (female and sex)",
-                   subtitle = "",
-                   caption ="source: Invisible Women.pdf")
+               labs(title = "Lexical dispersion plot: female and sex",
+                    subtitle = "",
+                    caption ="source: Invisible Women.pdf")
 
-# intéressant de comparer female et male ?? 
 ```
 
+Lastly, we explore the movements of *male* and *sex*. This following plot reveals that *male* and *sex* seem to be used together most often in Chapter 10 *The Drugs Don't Work*. Furthermore, using previous results where we find that chapter 10 is associated with *trial* and *drug*, we can conclude that this chapter probably focuses on clinical trials and gender.
 
 ```{r xray plot 2 patterns, echo=F, message=F, warning=F}
 
@@ -362,12 +361,11 @@ textplot_xray(kwic(data.cp, pattern = c("female")),
 textplot_xray(kwic(data.cp, pattern = c("male")),
               kwic(data.cp, pattern = c("sex")),
               scale = "absolute") +
-               labs(title = "Lexical dispersion plot (male and sex)",
-                   subtitle = "",
-                   caption ="source: Invisible Women.pdf")
+               labs(title = "Lexical dispersion plot: male and sex",
+                    subtitle = "",
+                    caption ="source: Invisible Women.pdf")
 
 ```
-This last plot reveals that the term *male* is frequently present in Chapter 10, which is the most specific to the term *sex*. Furthermore, we can conclude that this chapter(*The Drugs Don't Work*) will focus on gender topics by associating the terms *sex*, *female* and *male*.
 
 ## Lexical Diversity
 
