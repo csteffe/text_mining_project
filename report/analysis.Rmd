@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 
-# Analysis
+# 4. Analysis
 
 This section dives deeper into the analysis of the content of the corpus. Each part of our analysis is supported by well-designed relevant charts and graphs using the **ggplot2**, **sentimentr**, **reshape2**, **quanteda.textmodels**, **seededlda** and **text2vec** packages [VERIFY IF ALL THESE PACKAGES PROVIDE OR HELP PROVIDE A GRAPHICAL REPRESENTATION].
 
@@ -16,9 +16,9 @@ This section dives deeper into the analysis of the content of the corpus. Each p
 source(here::here("scripts/setup.R"))
 ```
 
-## Sentiment Analysis (opinion mining)
+## Sentiment Analysis 
 
-Now that the content of the corpus is cleaned, we proceed to its sentiment analysis which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based).  
+Now that the content of the corpus is cleaned, we proceed to its sentiment analysis (i.e. opinion mining) which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based).  
 
 When analyzing the sentiment emerging from a document, we do not use the data in which stop words are removed since they might be in the sentiment dictionary and provide useful insight. 
 
@@ -1199,8 +1199,6 @@ train(Class~.,
       trControl=trctrl, 
       preProcess = c("center","scale"), 
       tuneLength = 10)
-
-
 
 ```
 
