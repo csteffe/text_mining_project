@@ -18,11 +18,11 @@ source(here::here("scripts/setup.R"))
 
 ## Sentiment Analysis 
 
-Now that the content of the corpus is cleaned, we proceed to its sentiment analysis (i.e. opinion mining) which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based).  
+Now that the content of the corpus is cleaned and that we have explored its content, we proceed to its sentiment analysis (i.e. opinion mining) which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based).  
 
 When analyzing the sentiment emerging from a document, we do not use the data in which stop words are removed since they might be in the sentiment dictionary and provide useful insight. 
 
-```{r data.tk1, echo=F, message=F, warning=F}
+```{r data.tk4, echo=F, message=F, warning=F}
 
 # Tokenize = create a tokens object
 #data.tk1 <- tokens(data.cp,
@@ -32,10 +32,10 @@ When analyzing the sentiment emerging from a document, we do not use the data in
                    #remove_separators = TRUE)
 
 # Not removing the stop words
-data.tk3 <- data.tk1 %>%
+data.tk4 <- data.tk1 %>%
             tokens_tolower() %>%
             tokens_replace(pattern = hash_lemmas$token, 
-                              replacement = hash_lemmas$lemma)
+                           replacement = hash_lemmas$lemma)
 
 ```
 
