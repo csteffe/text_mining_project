@@ -67,7 +67,7 @@ kbl(head(data.freq[,1:4],
 
 ```
 
-## Term-Frequency against Document-Frequency 
+## Term-Frequency versus Document-Frequency 
 
 The below graph gives an overall graphical view of the previous table indicating 1) the term-frequency and 2) whether a word is specific to a document or not (i.e. document-frequency). As observed previously, we see that *woman* is the most frequent term in the corpus and that it is not document-specific since it is the most frequent term over all chapters of the book. On the contrary, the terms *trial* and *tax* are less frequent overall and also less frequent in documents meaning that they are more specific to some chapters (i.e. documents) of the book. 
  
@@ -109,40 +109,34 @@ data.tfidf2 <- dfm_tfidf(data.dfm2)
 
 ## Term-Frequency by Document 
 
-The plot below shows kind of the same information than the frequency plot but with a little twist. Here, we show the top 10 frequencies associated with their chapter. It would have been interesting to have the top frequencies of each documents but there would have been an information overload as there are 16 chapters, so we decided not to display it. 
+The plot below shows the ten most frequent terms for chapters of the book [how are the chapters chosen?]. It would have been interesting to have the top frequencies of each document but there would have been an information overload as there are 16 chapters so we decided not to display it. 
 
-Chapter 10, namely *The Drugs Don't Work*, is associated with "sex", "drug" and "study". In the previous plot (TF versus DF), we've been able to see that although "sex" and "study" appear in multiple documents, "drug" is a bit less document frequent. Nevertheless, we do not want to over interpret and the specificity will be covered more deeply in the following section. 
+[I dont understand how these ten most frequent terms are chosen ? they are not the ten overall msot frequent ! it's confusing because they dont match the order of the ten msot frequent terms overall !!!]
 
-Concerning chapter 13, *From Purse to Wallet*, we only have one related word, "tax". Such as "drug", although frequent, "tax" does not appear in a lot of documents. 
+First, we see that Chapter 10 (i.e. text10), namely **The Drugs Don't Work**, is associated with *sex*, *drug* and *study*. In the previous plot (TF versus DF), we saw that *sex* and *study* are not document-specific but that *drug* is more document-specific. Therefore, we can assume that *drug* is more specific to chapter 10 then the two other terms. Nevertheless, we do not want to jump to conclusion right now and the document-specificity of terms will be explored deeper later. Second, chapter 13, *From Purse to Wallet* seems to only be associated to *tax* and as well as *drug*, *tax* is more document-specific. Third, chapter 14, *Women's Rights are Human Rights* is only associated to *female*. Fourth, chapter 3, *The Long Friday* is related to *pay*, *leave* and *time* and lastly, chapter 4, *Myth of Meritocracy* is equally associated to *female* and *male*. 
 
-chapter 14,*Women's Rights are Human Rights*,has a large frequency of the term *female*.
+Even though some of those words are informative, others are much less insightful. Indeed, it is not enlightening to have *female* associated to one document as the whole book is about feminism.  
 
-Chapter 3, *The Long Friday*, is related to the words *pay*, *leave* and *time*.
-
-Chapter 4, *Myth of Meritocracy*, is associated to *female* and *male*. 
-
-Even though some of those words are informative, others are extremely general. Indeed, it is not enlightening to have *female* associated to one document as the whole book is about feminism.  
-
-```{r cloud of words by document plot, echo=F, message=F, warning=F}
+```{r term-frequency by document plot, echo=F, message=F, warning=F}
 
 nowoman.10 <- data.dfm2 %>% 
-           tidy() %>%  
-           #group_by(term) %>% 
-  # creates a tibble 
-           top_n(10, count) %>%       # selects the top 10 rows by count   
-           #ungroup() %>% 
-           ggplot(aes(x = reorder(term, count), 
-                      y = count)) +   
-           geom_col(fill = "dodgerblue3", alpha = 0.5) + 
-           coord_flip() + 
-          labs(title = "Top 10 frequencies along with documents",
-           subtitle = "",
-           x = "Term",
-           y = "Freqency",
-           caption = "source: Invisible Women.pdf") +
-           facet_wrap(~ document, 
-                      ncol = 2) +
-           theme_minimal() 
+               tidy() %>%  
+               #group_by(term) %>% 
+               # creates a tibble 
+               top_n(10, count) %>%       # selects the top 10 rows by count   
+               #ungroup() %>% 
+               ggplot(aes(x = reorder(term, count), 
+                          y = count)) +   
+               geom_col(fill = "dodgerblue3", alpha = 0.5) + 
+               coord_flip() + 
+               labs(title = "Top 10 frequencies along with documents",
+                    subtitle = "",
+                    x = "Term",
+                    y = "Freqency",
+                    caption = "source: Invisible Women.pdf") +
+               facet_wrap(~ document, 
+                          ncol = 2) +
+               theme_minimal() 
 
 nowoman.10
 
