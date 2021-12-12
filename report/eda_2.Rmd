@@ -7,18 +7,18 @@ source(here::here("scripts/setup.R"))
 
 To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package**.
 
-## Cloud of Words plot
+## Cloud of Words
 
-The Cloud of Words plot is possible representation used to visualize term frequencies. Nevertheless, this visualization is more graphic than informative, this is why we decided to start our EDA with. 
+To start the EDA, we proceed to visually assess which words are expected to be found the most regularly in the corpus. Thus, the CoW plot is a visual representation of term frequencies in which the size and position of terms are proportional to their frequencies. Nevertheless, this visualization is more graphic than informative since the only information we can extract from is that the terms with the largest font sizes are the most frequent in the corpus. Indeed, from the below plot, we see that *woman* is the most used (largest font size and centered position) term in the corpus, followed by *female*, *datum*, *male*, *find*, *time*, *gender* and *study*. 
 
-The size and the position (centered) are proportional to the frequency.
-```{r cloud of words for corpus plot, echo=F, message=FALSE, warning=FALSE}
+To generate the CoW plot, we use the DTM that was obtained after cleaning and lemmatizing but without considering the stemming, see *Document-Term Matrix* in Section 2 **Data Structuring and Cleaning**.  **Data**
 
+```{r cloud of words, echo=F, message=FALSE, warning=FALSE}
+
+# Generate Cloud of Words plot
 textplot_wordcloud(data.dfm)
+
 ```
-
-This plot shows that the most frequent terms in the corpus seems to be women, female, male, datum, etc...
-
 
 ## Global frequencies
 

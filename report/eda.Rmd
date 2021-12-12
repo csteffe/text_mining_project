@@ -34,7 +34,7 @@ tf_plot
 
 ```
 
-## Cloud of Words plot
+## Cloud of Words
 
 The Cloud of Words plot is another possible representation used to visualize term frequencies.
 
