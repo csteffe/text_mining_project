@@ -3,7 +3,7 @@ source(here::here("scripts/setup.R"))
 
 ```
 
-# Exploratory Data Analysis (EDA)
+# 3. Exploratory Data Analysis (EDA)
 
 To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package**.
 
@@ -211,10 +211,9 @@ data.tfidf2 %>%
 
 ## TF-IDF by Document
 
-The following plot shows the 10 highest TF-IDF associated with their chapter. 
-To avoid redundancy, we will not comment each of the term-document. But for chapter 10, *The Drugs Don't Work*, we can see it is now associated with *trial* and how we kind of guess *drug*. 
-The term *tax* is still really frequent and we can now definitely state that it is specific to chapter 13, *From Purse to Wallet*.   
-Chapter 14, *Women's Rights are Human Rights*, is in fact more specifically associated with the term *interrupt* than with the term *female* in TF by document.
+After looking at the overall largest TF-IDFs in the corpus, we look at the ten largest TF-IDFs by chapters of the book. The following plot shows that chapter 10, *The Drugs Don't Work*, is now associated with *trial* and *drug*, that *tax* is really frequent in chapter 13 *From Purse to Wallet* so we can now state that it is specific to this chapter and that chapter 14, *Women's Rights are Human Rights*, is in fact more specifically associated with the term *interrupt* than with the term *female* as shown in the *Term-Frequency by Document* section of the **Exploratory Data Analysis (EDA)**. 
+
+[what's the firm term ? vr ? ]
 
 ```{r tfidf by document plot, echo=F, message=F, warning=F}
 
@@ -228,11 +227,11 @@ tfidf_plot <- data.tfidf2 %>%
               facet_wrap(~ document, 
                          ncol = 2) +
               theme_minimal() +
-               labs(title = "10 Largest TF-IDF Associated to Chapters",
-               subtitle = "",
-               x = "Term",
-               y = "Count",
-               caption = "source: Invisible Women.pdf")
+               labs(title = "Largest TF-IDF by Document",
+                    subtitle = "",
+                    x = "Term",
+                    y = "Count",
+                    caption = "source: Invisible Women.pdf")
 
 tfidf_plot
 
