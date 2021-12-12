@@ -54,7 +54,7 @@ tf_plot
 
 To deep dive into these frequencies, we then display a Term-Frequency (TF) table providing information on term frequencies, their rank and document frequencies. Indeed, the *feature* lists the lemmatized tokens, the *frequency* provides the number of times the term is found in the corpus (i.e. global frequency), the *rank* sorts the terms by decreasing frequencies (i.e. rank is negatively proportinoal to the frequency), the *docfreq* indicates the number of documents in which the token is found (i.e. document frequency). 
 
-The table below shows that *woman* appears 1594 times in the corpus and in all 16 documents (docfreq = 16) which means that it is not a document-specific term. Moreover, it appears four times more than the second most frequent term *female* [and this huge difference could hide some insights].
+The table below shows that *woman* appears 1594 times in the corpus and in all 16 documents (docfreq = 16) which means that it is not a document-specific term. Moreover, it appears four times more than the second most frequent term *female*.
 
 ```{r term frequency, echo = FALSE, message = FALSE}
 
@@ -69,29 +69,30 @@ kbl(head(data.freq[,1:4],
 
 ## Term-Frequency against Document-Frequency 
 
-Now let's have a global graphical view on the frequency of a term relative to its document frequency (i.e. number of documents in which a term is found), indicating whether a word is specific to a document or not. As seen previously, we see that *women* is not document-specific since it is the most frequent term over all chapters of the book and that it is found in all of them. On the contrary, the words *trial* and *tax* are less frequent and also less frequent in documents making them more document-specific. 
+The below graph gives an overall graphical view of the previous table indicating 1) the term-frequency and 2) whether a word is specific to a document or not (i.e. document-frequency). As observed previously, we see that *woman* is the most frequent term in the corpus and that it is not document-specific since it is the most frequent term over all chapters of the book. On the contrary, the terms *trial* and *tax* are less frequent overall and also less frequent in documents meaning that they are more specific to some chapters (i.e. documents) of the book. 
  
-For all the reasons mentionned until here, we decided to remove "woman" for the rest of our analysis.
-[Improve plot]
+Since we observe that *woman* has a very large term-frequency and is not document-specific, we decide to remove this term for the rest of our analysis because we believe it will hide some important and interesting insights as it will always appear as the top frequency in all documents. 
 
+[Can we use a nicer looking theme ?]
 ```{r TF vs DF, echo=F, message=F, warning=F}
 
 data.freq %>% 
  ggplot(aes(x = log(docfreq), 
-  y = log(frequency))) +
+            y = log(frequency))) +
  geom_text(aes(label = feature), 
-      position = position_jitter(), 
-      size=3) + 
+           position = position_jitter(), 
+           size = 3) + 
  labs(title = "TF versus DF (log-log)",
-   subtitle = "",
-   x = "Document log-frequency",
-   y = "Term log-frequency",
-  caption = "source: Invisible Women.pdf") +
+      subtitle = "",
+      x = "Document log-frequency",
+      y = "Term log-frequency",
+      caption = "source: Invisible Women.pdf") +
   theme_minimal()
 
 ```
 
 ```{r second cleaning, echo = FALSE, message = FALSE}
+
 # second cleaning without "woman"
 data.tk3 <- data.tk2 %>% tokens_remove("woman")
 
@@ -103,8 +104,8 @@ data.freq2 <- textstat_frequency(data.dfm2)
 
 # Generate a second weighted document-feature matrix by tf-idf
 data.tfidf2 <- dfm_tfidf(data.dfm2)
-```
 
+```
 
 ## Term-Frequency by Document 
 
