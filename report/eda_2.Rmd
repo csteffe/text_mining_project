@@ -11,7 +11,7 @@ To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package
 
 To start the EDA, we proceed to visually assess which words are expected to be found the most regularly in the corpus. Thus, the CoW plot is a visual representation of term frequencies in which the size and position of terms are proportional to their frequencies. Nevertheless, this visualization is more graphic than informative since the only information we can extract from is that the terms with the largest font sizes are the most frequent in the corpus. Indeed, from the below plot, we see that *woman* is the most used (largest font size and centered position) term in the corpus, followed by *female*, *datum*, *male*, *find*, *time*, *gender* and *study*. 
 
-To generate the CoW plot, we use the DTM that was obtained after cleaning and lemmatizing but without considering the stemming, see *Document-Term Matrix* in Section 2 **Data Structuring and Cleaning**.  **Data**
+To generate the CoW plot, we use the DTM that was obtained after cleaning and lemmatizing but without considering the stemming, see *Document-Term Matrix* in Section 2 **Data Structuring and Cleaning**.  
 
 ```{r cloud of words, echo=F, message=FALSE, warning=FALSE}
 
@@ -20,10 +20,13 @@ textplot_wordcloud(data.dfm)
 
 ```
 
-## Global frequencies
+## Global Frequency
 
+To assess more accurately the frequency of the terms in the corpus, we compute the global frequencies. The following graphical representation displays the ten most frequent terms in the corpus. As inferred previously from the CoW, we see that *woman* is the most frequent term overall followed by *female*, *datum*, *male*, *find*, *time*, *gender* and *study*. 
 
-To assess a bit more seriously the frequency of the terms, we compute the global frequencies and show the results in the plot below. The following visualization plots the 10 most frequent terms in the whole corpus. As we supposed previously with the cloud of words, the plot indicates that the term *woman* is the most frequent term overall, followed by female, datum, male and, find. The frequency difference between those words are so slight that it was hard to distinguish their rank. In addition we can see that the term "data" has been changed by lemmatization to "datum". 
+Global frequencies indicate that *woman* is by far the most frequent term and that the frequency differences between the following nine terms are much less extreme (i.e. their ranks are less distinguishable). 
+
+In addition, we see that the term *data* was lemmatized into *datum*. 
 
 ```{r TF-IDF plot, echo=F, message=F, warning=F}
 
@@ -38,25 +41,33 @@ tf_plot <- data.freq  %>%
               geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + # generates a barplot
               coord_flip() +                              # flips the coordinates
               labs(title = "Top 10 global frequencies",
-               subtitle = "",
-               x = "Term",
-               y = "Freqency",
-               caption = "source: Invisible Women.pdf")
-
+                   subtitle = "",
+                   x = "Term",
+                   y = "Freqency",
+                   caption = "source: Invisible Women.pdf")
 
 tf_plot
 
 ```
-To deep dive in those frequencies, we display the terms frequency table below which resumes numerically the information (???).  The *feature* column indicates lemmatized tokens, *frequency* returns the number of time the term is found in the corpus, the *rank* sorts the terms by decreasing frequencies, the *docfreq* indicates the document frequency which is the number of documents in which the token is found. There is an important point to make here, "woman" appears 1594 times in the corpus and it is not a specific term as it appears in all the documents. Moreover *woman* appears four times more than the second most frequent term *female* in the corpus and this huge difference could hide some insights.
 
+## Term-Frequency (TF)
+
+To deep dive into these frequencies, we then display a Term-Frequency (TF) table providing information on term frequencies, their rank and document frequencies. Indeed, the *feature* lists the lemmatized tokens, the *frequency* provides the number of times the term is found in the corpus (i.e. global frequency), the *rank* sorts the terms by decreasing frequencies (i.e. rank is negatively proportinoal to the frequency), the *docfreq* indicates the number of documents in which the token is found (i.e. document frequency). 
+
+The table below shows that *woman* appears 1594 times in the corpus and in all 16 documents (docfreq = 16) which means that it is not a document-specific term. Moreover, it appears four times more than the second most frequent term *female* [and this huge difference could hide some insights].
 
 ```{r term frequency, echo = FALSE, message = FALSE}
-kbl(head(data.freq[,1:4], 10), align = c('c', 'c', 'c', 'c', 'c'), #originally the data.freq has a column named group but as it is not relevant for us we select only the 3 first columns
+
+kbl(head(data.freq[,1:4], 
+         10), 
+    align = c('c', 'c', 'c', 'c', 'c'), #originally the data.freq has a column named group but as it is not relevant for us we select only the 3 first columns
     caption = "Term frequencies") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
+
 ```
-## Term Frequency against Document Frequency 
+
+## Term-Frequency against Document-Frequency 
 
 Now let's have a global graphical view on the frequency of a term relative to its document frequency (i.e. number of documents in which a term is found), indicating whether a word is specific to a document or not. As seen previously, we see that *women* is not document-specific since it is the most frequent term over all chapters of the book and that it is found in all of them. On the contrary, the words *trial* and *tax* are less frequent and also less frequent in documents making them more document-specific. 
  
@@ -77,9 +88,6 @@ data.freq %>%
    y = "Term log-frequency",
   caption = "source: Invisible Women.pdf") +
   theme_minimal()
-
-
-
 
 ```
 
