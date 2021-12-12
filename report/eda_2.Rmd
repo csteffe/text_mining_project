@@ -166,11 +166,11 @@ ggplot(data.freq2,
 
 ```
 
-## Term Frequency and Inverse Document Matrix (TF-IDF)
+## Term-Frequency and Inverse-Document Matrix (TF-IDF)
 
-The TF-IDF matrix is a weighted document-feature matrix by term frequency-inverse document frequency (TF-IDF). In other words, it is used to rebalance a word frequency with respect to its document specificity.
+The TF-IDF matrix is a weighted document-feature matrix displaying term frequency–inverse document frequency that shows how important a word is to a document. In other words, it is used to re-balance a term frequency with respect to its document-specificity.
 
-The below output shows, for the document-feature matrix of 16 documents and 5'741 features, the weighted frequency for each token by document. The sparsity has increased a bit in comparison to the DTM matrix as "women", a term occurring in all the document, has been removed.
+The below output is the document-feature matrix of 16 documents and 5'741 features which shows the weighted frequencies of each token by chapters of the book. The sparsity (83.77%) increases a bit [add the amount of the increase] compared to the DTM matrix when *women* is not removed. [explain why it induces an increase in sparsity]
 
 ```{r term frequency and inverse document matrix, echo=FALSE, message=FALSE}
 # Weighted document-feature matrix by tf-idf
@@ -178,9 +178,7 @@ data.tfidf2 <- dfm_tfidf(data.dfm2)
 data.tfidf2
 ```
 
-The following plot shows the twenty largest TF-IDF with the associated terms.
-Note that it is equal to the result of computing for each term the maximum TF-IDF over all chapters of the book.
-We can see for example that the words "tax","trial", "drug" and "dummy"  appear quite often in the corpus and in few documents.
+The following plot shows the twenty largest TF-IDF and their respective terms. Note that it is equal to the result of computing for each term the maximum TF-IDF over all chapters of the book. The output shows that *tax* has the largest TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book and that *trial*, *drug* and *dummy* appear also quite often in the corpus and in few documents.
 
 ```{r max tf-idf, echo=F, message=F, warning=F,fig.width=8}
 
@@ -190,19 +188,24 @@ data.tfidf2 %>%
     summarize(count = max(count)) %>% 
     arrange(desc(count)) %>%
     top_n(20, count) %>%
-    ggplot(aes(x = reorder(term, count), y = count)) + 
-    geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + 
+    ggplot(aes(x = reorder(term, count), 
+               y = count)) + 
+    geom_bar(stat = "identity", 
+             fill = "dodgerblue3", 
+             alpha = 0.5) + 
     coord_flip() +
     geom_text(aes(label = sprintf("%0.1f", round(count, digits = 1))),
-              hjust=1, vjust=0.5, color="white", size=3.5)+
+              hjust=1, 
+              vjust=0.5, 
+              color="white", 
+              size=3.5)+
     labs(title = "Largest TF-IDF in the book",
-    subtitle = "",
-             x = "Max TF-IDF",
-             y = "Term",
-             caption = "source: Invisible Women.pdf") + 
+         subtitle = "",
+         x = "Max TF-IDF",
+         y = "Term",
+         caption = "source: Invisible Women.pdf") + 
     theme_minimal() 
              
-
 
 ```  
 
