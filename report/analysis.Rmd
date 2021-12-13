@@ -5,9 +5,9 @@ This section dives deeper into the analysis of the content of the corpus in whic
 The previous exploratory data analysis sheds light on overall and document-specific findings related to terms and vocabulary used throughout the book. Indeed, following a top-down approach, we examine terms specific to the general corpus which unsurprisingly reveal a gender-centric vocabulary and then look more closely at the focus of each chapter on the gender discrimination issue on which *Invisible Women* devotes all its attention. 
 
 Looking at the complexity of the book, *Invisible Women* is built of 16 chapters divided in six parts and tells its story over 280 pages. For the purpose of the following analysis, we take care of  talk about the complexity of the book: specify the length of the text before and after the cleaning ? assess the difference (big or small)  and interpret (if big, most words are bringing no information, if small, most terms are insightful) ? [DO YOU HAVE ANY OTHER IDEAS THAT COULD ASSESS THE COMPLEXITY OF THE TEXT ?]
-
 -> talk about the uniqueness of the data : [NOT SURE WHAT TO MENTION HERE BUT MUST BE MENTIONNED]
 
+The subsequent analysis is as follows. We first study the sentiment of the corpus by extracting for each chapter its average sentiment using a qualitative and a quantitative approach. Then, we focus our attention on the similarity between terms to study their context and between chapters to better understand their associated topics of interest. From clustering of term similarities, we continue through topic modelling using two approaches. Finally, we end with an unsupervised and supervised learning methods to represent terms and documents in dimensions. 
 
 ## Sentiment Analysis 
 
@@ -64,7 +64,6 @@ kbl(data.sent,
 The below graph is a representation of the previous table. For each chapter of the book, we see the proportion of terms matched with a positive, negative, negative positive or negative negative sentiment. 
 
 Overall, positive and negative sentiments are found in all 16 chapters of the book. Although, more terms are recognized as negative (3,596) than as positive (2,661) indicating that the frequency of negative terms is higher than the one of positive terms. 
-
 ```{r dictionary-based analysis plot2, echo=F, message=F, warning=F}
 
 data.sent <- tokens_lookup(data.tk4, 
@@ -349,8 +348,6 @@ plot(data.hc_jac)
 
 ```
 
-
-
 ```{r Jaccard cutree, echo=F, message=F, warning=F}
 
 # Creates three clusters
@@ -394,8 +391,8 @@ kbl(clust_jac,
   scroll_box(height = "5%")
 
 ```
-Using jaccard we still have two cluster that have terms the same previous previous clustering using euclidean distance : transport and medical, but the cluster 3 is different with top terms related to disaster or war, rather than top terms related to cars.  
 
+Using jaccard we still have two cluster that have terms the same previous previous clustering using euclidean distance : transport and medical, but the cluster 3 is different with top terms related to disaster or war, rather than top terms related to cars.  
 
 ##### Inverted Cosine Dissimilarity Matrix
 
@@ -409,8 +406,6 @@ data.hc_cos <- hclust(as.dist(1 - data.cos)) # inverted similarity matrix
 plot(data.hc_cos)
 
 ```
-
- 
 
 ```{r cosine cutree, echo=F, message=F, warning=F}
 
@@ -430,7 +425,6 @@ data.clust_cos %>%
   scroll_box(height = "10%")
 
 ```
-
 
 From the clustering, we extract the ten words that are the most used.
 
@@ -490,7 +484,7 @@ data.clust_eu %>%
   scroll_box(height = "10%")
 ```
 
-From the clustering, we extract the ten words that are the most used. 
+From the clustering, we extract the ten words that are the most used. It is interesting to observe that cluster one seems more to have words about transport and work, cluster two about car, and cluster 3 about medical. 
 
 ```{r Euclidean-based clust words, echo=F, message=F, warning=F}
 # Extract most frequent terms from clusters
@@ -514,12 +508,10 @@ kbl(clust_eu,
   scroll_box(height = "10%") 
 
 ```
-It is interesting to observe that cluster one seems more to have words about transport and work, cluster two about car, and cluster 3 about medical.  
 
 #### K-Means
 
 K-means is applied on the features (i.e. terms?) using TF-IDF. 
-
 
 ```{r Euclidean-based km, echo=F, message=F, warning=F}
 
@@ -538,6 +530,8 @@ data.km$cluster %>%
                 full_width = NULL) %>% 
   scroll_box(height = "10%")
 ```
+
+Using kmean we have the cluster 2 that is different from other method, with top terms related to politics.
 
 ```{r km clust words, echo=F, message=F, warning=F}
 
@@ -562,7 +556,6 @@ kbl(clust_km,
   scroll_box(height = "10%")
 
 ```
-Using kmean we have the cluster 2 that is different from other method, with top terms related to politics.
 
 ### Similarities Between Words
 
