@@ -4,6 +4,7 @@
 source(here::here("scripts/setup.R"))
 ```
 
+Throughout 16 chapters, women's invisibility is raised from 16 different approaches revealing  ... 
 * Take home message
 * Limitations
 * Future work?

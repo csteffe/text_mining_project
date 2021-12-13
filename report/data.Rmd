@@ -113,8 +113,8 @@ kable(data[1:5,],
 ```
 
 ```{r}
-#supervised learning data cleaning
 
+#supervised learning data cleaning
 
 # count the total number of pages additioning all the pages
 totalpages <- 0
@@ -127,10 +127,7 @@ for ( i in 1 :nrow(data)){
   # add the number of pages of the chapter to the total number of pages 
   totalpages <- totalpages + NbPages
   
-  
 }
-
-
 
 # remove change the nb of pages because the chapter number and the name of the chapter are counted as a two pages
 totalpages_nochap <- totalpages - (16*2)
@@ -177,7 +174,6 @@ supervised_tk <- supervised_cp %>%
 
 
 ```
-
 
 ## Tokenization
 

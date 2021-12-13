@@ -1,8 +1,10 @@
 # 4. Analysis
 
-This section dives deeper into the analysis of the content of the corpus. Each part of our analysis is supported by well-designed relevant charts and graphs using the **ggplot2**, **sentimentr**, **reshape2**, **quanteda.textmodels**, **seededlda** and **text2vec** packages [VERIFY IF ALL THESE PACKAGES PROVIDE OR HELP PROVIDE A GRAPHICAL REPRESENTATION].
+This section dives deeper into the analysis of the content of the corpus in which each part is supported by well-designed relevant charts and graphs using the **ggplot2**, **sentimentr**, **reshape2**, **quanteda.textmodels**, **seededlda** and **text2vec** packages.
 
--> talk about the complexity of the book: specify the length of the text before and after the cleaning ? assess the difference (big or small)  and interpret (if big, most words are bringing no information, if small, most terms are insightful) ? [DO YOU HAVE ANY OTHER IDEAS THAT COULD ASSESS THE COMPLEXITY OF THE TEXT ?]
+The previous exploratory data analysis sheds light on overall and document-specific findings related to terms and vocabulary used throughout the book. Indeed, following a top-down approach, we examine terms specific to the general corpus which unsurprisingly reveal a gender-centric vocabulary and then look more closely at the focus of each chapter on the gender discrimination issue on which *Invisible Women* devotes all its attention. 
+
+Looking at the complexity of the book, *Invisible Women* is built of 16 chapters divided in six parts and tells its story over 280 pages. For the purpose of the following analysis, we take care of  talk about the complexity of the book: specify the length of the text before and after the cleaning ? assess the difference (big or small)  and interpret (if big, most words are bringing no information, if small, most terms are insightful) ? [DO YOU HAVE ANY OTHER IDEAS THAT COULD ASSESS THE COMPLEXITY OF THE TEXT ?]
 
 -> talk about the uniqueness of the data : [NOT SURE WHAT TO MENTION HERE BUT MUST BE MENTIONNED]
 
