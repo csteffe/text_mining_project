@@ -1,8 +1,6 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
+```{r setup, echo = FALSE, message = FALSE}
+source(here::here("scripts/setup.R"))
+```
 
 # 4. Analysis
 
@@ -12,9 +10,6 @@ This section dives deeper into the analysis of the content of the corpus. Each p
 
 -> talk about the uniqueness of the data : [NOT SURE WHAT TO MENTION HERE BUT MUST BE MENTIONNED]
 
-```{r, echo=F, message=F, warning=F}
-source(here::here("scripts/setup.R"))
-```
 
 ## Sentiment Analysis 
 
@@ -53,17 +48,18 @@ The following non-exhaustive table shows the number of terms matched with a **po
 # data_dictionary_LSD2015 # un-comment to see the object
 
 # Matches tokens with dictionary values
-data.sent <- tokens_lookup(data.tk3, 
+data.sent <- tokens_lookup(data.tk4, 
                            dictionary = data_dictionary_LSD2015) %>% 
              dfm() %>%     # creates a dtm matrix
              tidy() %>%
-             arrange(document)
+             pivot_wider(names_from = term, values_from = count) %>%
+             select(!c(`neg_positive`,`neg_negative`))
 
-kbl(head(data.sent, 
-         n = 10),
+kbl(data.sent,
     caption = "Sentiment Analysis (Dictionary-Based)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
+                full_width = NULL) %>%
+  scroll_box()
 
 ```
 
@@ -72,6 +68,12 @@ The below graph is a representation of the previous table. For each chapter of t
 Overall, positive and negative sentiments are found in all 16 chapters of the book. Although, more terms are recognized as negative (3,596) than as positive (2,661) indicating that the frequency of negative terms is higher than the one of positive terms. 
 
 ```{r dictionary-based analysis plot, echo=F, message=F, warning=F}
+
+data.sent <- tokens_lookup(data.tk4, 
+                           dictionary = data_dictionary_LSD2015) %>% 
+             dfm() %>%     # creates a dtm matrix
+             tidy() %>%
+            filter(term != "neg_positive" & term != "neg_negative")
 
 # Plots the above tibble
 ggplot(data.sent,
@@ -95,11 +97,6 @@ pos <- data.sent %>%
 
 pos_count <- sum(pos$count) # 2,661
 
-neg_pos <- data.sent %>%
-           filter(term == "neg_positive")
-
-neg_neg <- data.sent %>%
-           filter(term == "neg_negative")
 
 ```
 
@@ -110,8 +107,6 @@ The valence shifters approach uses positive/negative sentiment scores (i.e. valu
 The next table shows the first ten words of the polarized words dictionary and their numerical score.
 
 ```{r polarized words dictionary, echo=F, message=F, warning=F}
-
-library(sentimentr)
 
 # Polarized words dictionary
 kbl(head(hash_sentiment_jockers_rinker, 10), 
@@ -162,32 +157,15 @@ The below table displays the average sentiment scores by chapter in a decreasing
 ```{r sentiment analysis by document, echo=F, message=F, warning=F}
 
 # Computes the sentiment score for each chapter
-sent_bychap <- sentiment_by(text,
-                            by = document) %>%
-               arrange(desc(ave_sentiment)) %>%
-               filter(document != "NA")
+sent_bychap <- sentiment_by(text) %>%
+               arrange(element_id) %>%
+               rename(Chapter = element_id) %>%
+               mutate(document = paste("chapter", Chapter, sep = " ")) %>%
+               relocate(document,.before = Chapter) %>% 
+               select(!(Chapter))
 
-# removing text after sent_bychat
-for (i in 1:9){
-  sent_bychap[i,1] <- substr(sent_bychap[i,1],
-                      1,
-                      9)
-  
-  sent_bychap$text[[i]] <- substring(sent_bychap$text[[i]],
-                              10)
-}
-
-for (i in 10:16){
-  sent_bychap[i,1] <- substr(sent_bychap[i,1],
-                      1,
-                      10)
-  
-  sent_bychap$text[[i]]<-substring(sent_bychap$text[[i]],
-                            11)
-}
-
-kbl(sent_bychap, 
-    caption = "Sentiment Values by Chapter") %>% 
+sent_bychap %>% arrange(desc(ave_sentiment))  %>% 
+    kbl(caption = "Sentiment Values by Chapter") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) 
 
@@ -203,12 +181,17 @@ PROBLEM NOT ALL CHAPTERS ARE ON THE PLOT
 
 # Plots the sentiment curve by document
 sent_bychap %>% 
-  ggplot(aes(x = document, y = ave_sentiment)) + 
-  geom_bar(stat = "identity") + 
+  ggplot(aes(x = reorder(document,ave_sentiment), y = ave_sentiment)) + 
+  geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + 
   coord_flip() +
-  labs(title = "Sentiment Score By Chapter",
-       x = "Chapter",
-       y = "Sentiment Score")
+  labs(title = "Sentiment Score by Chapter",
+                   x = "Document",
+                   y = "Average sentiment",
+                   caption = "source: Invisible Women.pdf") +
+  theme_minimal()
+
+
+
 
 ```
 
@@ -216,7 +199,7 @@ sent_bychap %>%
 
 Similarity is a proximity measure. Once can measure similarity between terms to see if they are used in the same context or similarity between documents and see whether a document uses the same tokens. 
 
-### Similarities between Documents
+### Similarities between Documents {.tabset}
 
 #### Jaccard Index
 
@@ -228,9 +211,6 @@ To study similarities between chapters (i.e. documents) of the book, we first co
 data.jac <- textstat_simil(data.tfidf,                  # uses the frequencies
                            method = "jaccard", 
                            margin = "documents")        # between documents
-
-library(reshape2)
-library(ggplot2)
 
 # Converts the object to matrix then to data frame
 data.jac.mat <- melt(as.matrix(data.jac)) 
@@ -252,7 +232,7 @@ ggplot(data = data.jac.mat,
        y = "Chapter")
 
 ```
-
+#### Cosine
 Then, we compute the cosine similarity matrix. 
 
 ```{r Cosine, echo=F, message=F, warning=F}
@@ -282,9 +262,9 @@ ggplot(data = data.cos.mat,
        y = "Chapter")
 
 ```
-
+#### Euclidean similarity 
 Finally, we compute the Euclidean-based similarity matrix. Is there a clearer separation between documents ? compare with above heatmaps ! Which documents are similar ? Are their groups ? 
-
+ 
 ```{r Euclidean, echo=F, message=F, warning=F}
 
 # Euclidean
@@ -325,48 +305,9 @@ To proceed to clustering documents, we need to build the dissimilarities and/or 
 
 Clusters are difficult to interpret. This is why we can look at the most frequent terms in each cluster to understand better what they are grouping.
 
-#### Hierarchical Clustering
+#### Hierarchical Clustering {.tabset}
 
 Hierarchical clustering is based on distances and applied on the dissimilarities.
-
-##### Euclidean-based Dissimilarity Matrix
-
-The Euclidean dissimilarity matrix seems to show that there are three clusters. One grouping chapter 10 *The Drugs Don't Work*, one chapter 9 *A Sea Of Dudes* and the other one the rest of the book. 
-
-```{r Euclidean-based, echo=F, message=F, warning=F}
-
-# Hierarchical clustering
-data.hc_eu <- hclust(as.dist(data.euc))
-
-plot(data.hc_eu)
-
-```
-
-From the clustering, we extract the ten words that are the most used. 
-
-```{r Euclidean-based cutree, echo=F, message=F, warning=F}
-
-# Creates three clusters
-data.clust_eu <- cutree(data.hc_eu, 
-                        k = 3)
-data.clust_eu 
-
-# Extract most frequent terms from clusters
-clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.2 = names(sort(apply(data.tfidf[data.clust_eu == 2,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.3 = names(sort(apply(data.tfidf[data.clust_eu == 3,], 2, sum), 
-                                            decreasing = TRUE)[1:10]))
-
-kbl(clust_eu, 
-    caption = "Ten Most Frequent Terms By Cluster") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
-
-```
-It is interesting to observe that cluster one seems more to have words about transport and work, cluster two about car, and cluster 3 about medical.  
-
 
 ##### Inverted Jaccard Dissimilarity Matrix
 
@@ -387,15 +328,21 @@ From the clustering, we extract the ten words that are the most used.
 
 # Creates three clusters
 data.clust_jac <- cutree(data.hc_jac, 
-                         k = 3)
+                         k = 6)
 data.clust_jac
 
 # Extract most frequent terms from clusters
 clust_jac <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_jac == 1,], 2, sum), 
-                                             decreasing = TRUE)[1:10]),
+                                            decreasing = TRUE)[1:10]),
                        Clust.2 = names(sort(apply(data.tfidf[data.clust_jac == 2,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
                        Clust.3 = names(sort(apply(data.tfidf[data.clust_jac == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.4 = names(sort(apply(data.tfidf[data.clust_jac == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.5 = names(sort(apply(data.tfidf[data.clust_jac == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.6 = names(sort(apply(data.tfidf[data.clust_jac == 6,], 2, sum), 
                                             decreasing = TRUE)[1:10]))
 
 kbl(clust_jac, 
@@ -426,17 +373,22 @@ From the clustering, we extract the ten words that are the most used.
 
 # Creates three clusters
 data.clust_cos <- cutree(data.hc_cos, 
-                         k = 3)
+                         k = 6)
 data.clust_cos
 
 # Extract most frequent terms from clusters
 clust_cos <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_cos == 1,], 2, sum), 
-                                             decreasing = TRUE)[1:10]),
+                                            decreasing = TRUE)[1:10]),
                        Clust.2 = names(sort(apply(data.tfidf[data.clust_cos == 2,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
                        Clust.3 = names(sort(apply(data.tfidf[data.clust_cos == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.4 = names(sort(apply(data.tfidf[data.clust_cos == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.5 = names(sort(apply(data.tfidf[data.clust_cos == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.6 = names(sort(apply(data.tfidf[data.clust_cos == 6,], 2, sum), 
                                             decreasing = TRUE)[1:10]))
-
 kbl(clust_cos, 
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
@@ -444,6 +396,50 @@ kbl(clust_cos,
 
 ```
 Here we have cluster top terms similar than using euclidean distance.  
+
+##### Euclidean-based Dissimilarity Matrix
+
+The Euclidean dissimilarity matrix seems to show that there are three clusters. One grouping chapter 10 *The Drugs Don't Work*, one chapter 9 *A Sea Of Dudes* and the other one the rest of the book. 
+
+```{r Euclidean-based, echo=F, message=F, warning=F}
+
+# Hierarchical clustering
+data.hc_eu <- hclust(as.dist(data.euc))
+
+plot(data.hc_eu)
+
+```
+
+From the clustering, we extract the ten words that are the most used. 
+
+```{r Euclidean-based cutree, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.clust_eu <- cutree(data.hc_eu, 
+                        k = 6)
+data.clust_eu 
+
+# Extract most frequent terms from clusters
+clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.2 = names(sort(apply(data.tfidf[data.clust_eu == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.3 = names(sort(apply(data.tfidf[data.clust_eu == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.4 = names(sort(apply(data.tfidf[data.clust_eu == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.5 = names(sort(apply(data.tfidf[data.clust_eu == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.6 = names(sort(apply(data.tfidf[data.clust_eu == 6,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+
+kbl(clust_eu, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)  
+
+```
+It is interesting to observe that cluster one seems more to have words about transport and work, cluster two about car, and cluster 3 about medical.  
 
 #### K-Means
 
@@ -454,71 +450,31 @@ K-means is applied on the features (i.e. terms?) using TF-IDF.
 ```{r Euclidean-based km, echo=F, message=F, warning=F}
 
 # Creates three clusters
-data.km_eu <- kmeans(data.tfidf,
-                     centers = 3)
-data.km_eu$cluster
+data.km <- kmeans(data.tfidf,
+                     centers = 6)
+data.km$cluster
 
 # Extract most frequent terms from clusters
-clust_eu_km <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.km_eu$cluster == 1,], 2, sum), 
-                                               decreasing = TRUE)[1:10]),
-                          Clust.2 = names(sort(apply(data.tfidf[data.km_eu$cluster == 2,], 2, sum),                                                    decreasing = TRUE)[1:10]),
-                          Clust.3 = names(sort(apply(data.tfidf[data.km_eu$cluster == 3,], 2, sum),  
-                                               decreasing = TRUE)[1:10]))
+clust_km <- data.frame(   Clust.1 = names(sort(apply(data.tfidf[data.km$cluster == 1,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.2 = names(sort(apply(data.tfidf[data.km$cluster == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.3 = names(sort(apply(data.tfidf[data.km$cluster == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.4 = names(sort(apply(data.tfidf[data.km$cluster == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.5 = names(sort(apply(data.tfidf[data.km$cluster == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.6 = names(sort(apply(data.tfidf[data.km$cluster == 6,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
 
-kbl(clust_eu_km, 
+kbl(clust_km, 
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
 
 ```
 Using kmean we have the cluster 2 that is different from other method, with top terms related to politics.
-
-
-##### Jaccard
-
-```{r Jaccard km, echo=F, message=F, warning=F}
-
-# Creates three clusters
-data.km_jac <- kmeans(data.tfidf,
-                      centers = 3)
-data.km_jac$cluster
-
-# Extract most frequent terms from clusters
-clust_jac_km <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.km_jac$cluster == 1,], 2, sum), 
-                                                decreasing = TRUE)[1:10]),
-                           Clust.2 = names(sort(apply(data.tfidf[data.km_jac$cluster == 2,], 2, sum),                                                   decreasing = TRUE)[1:10]),
-                           Clust.3 = names(sort(apply(data.tfidf[data.km_jac$cluster == 3,], 2, sum),  
-                                                decreasing = TRUE)[1:10]))
-
-kbl(clust_jac_km, 
-    caption = "Ten Most Frequent Terms By Cluster") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
-
-```
-
-##### Cosine
-
-```{r cosine km, echo=F, message=F, warning=F}
-
-# Creates three clusters
-data.km_cos <- kmeans(data.tfidf,
-                      centers = 3)
-data.km_cos$cluster
-
-# Extract most frequent terms from clusters
-clust_cos_km <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.km_cos$cluster == 1,], 2, sum), 
-                                                decreasing = TRUE)[1:10]),
-                           Clust.2 = names(sort(apply(data.tfidf[data.km_cos$cluster == 2,], 2, sum),                                                   decreasing = TRUE)[1:10]),
-                           Clust.3 = names(sort(apply(data.tfidf[data.km_cos$cluster == 3,], 2, sum),  
-                                                decreasing = TRUE)[1:10]))
-
-kbl(clust_cos_km, 
-    caption = "Ten Most Frequent Terms By Cluster") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
-
-```
 
 ### Similarities Between Words
 
@@ -561,24 +517,8 @@ ggplot(data = data.cos.mat,
 
 ```
 
-### Clustering Words
 
-To cluster the words, we first have to transform the similarity matrix into a dissimilarity matrix. The following plot is the dendogram of the cosine dissimilarities.
-
-```{r clustering words, echo=F, message=F, warning=F}
-
-data.cos2 <- textstat_simil(data.tfidf, 
-                            method = "cosine", 
-                            margin = "features")
-
-#data.hc <- hclust(1-dist(data.cos2))
-#plot(data.hc)
-
-#PROBLEM C!!!!
-
-```
-
-### Clustering With Co-occurrences
+### Clustering With Co-occurrences [à revoir]
 
 Using co-occurrences to cluster features requires transforming co-occurrences into dissimilarities. Object needs to be the tokens because co-occurrences needs the token order and thus cannot be computed on a BOW object. 
 
@@ -588,7 +528,7 @@ Are terms co-occurring ? if yes, a lot ?
 
 # Makes a co-occurrence on a (half-)window of 3
 data.fcm <- fcm(data.tk2, 
-                window = 3, 
+                window = 80, 
                 tri = FALSE)
 
 # Makes the co-occurrence matrix symmetrical
@@ -644,10 +584,8 @@ The first dimension of LSA is associated with the document lengths (i.e. sum of 
 
 ```{r LSA on, echo=F, message=F, warning=F}
 
-library(quanteda.textmodels)
-
 # Latent Semantic Analysis on DTM matrix
-data.lsa <- textmodel_lsa(data.dfm2, 
+data.lsa <- textmodel_lsa(data.tfidf, 
                           nd = 10)          # number of dimensions/topics included in the output
 
 ```
@@ -670,7 +608,7 @@ To verify if the first dimension is associated with the document length we look 
 ```{r first dimension, echo=F, message=F, warning=F}
 
 # Number of tokens per text = row-sum of the DTM 
-doc.freq <- ntoken(data.tk3) 
+doc.freq <- ntoken(data.tk2) 
 
 # Scatter plot
 data.frame(doc.freq, 
@@ -732,18 +670,7 @@ w.top5
 
 The following biplot associates the positions of the terms (points) and the positions of the document (arrows) in the LSA space for topics 4 and 5 computed above.
 
-The biplot looks very messy due to the large number of tokens in the book. 
-
-```{r biplot, echo=F, message=F, warning=F}
-
- biplot(y = data.lsa$docs[,4:5],      # topics-documents for topics 4 and 5
-        x = data.lsa$features[,4:5],  # topics-features for topics 4 and 5
-        col = c("black","purple"),    # add colors
-       xlab = "Dim 4", 
-       ylab="Dim 5")
-
-```
-This is why we plot it again using only the terms from dimensions 4 and 5. Here, we see that topic (i.e. dimension) 4 is positively associated with *tech*, *body*, *data*, *politicians*, *female*, and anti-associated with *transport*, *leave*, *sexy*. 
+Here, we see that topic (i.e. dimension) 4 is positively associated with *tech*, *body*, *data*, *politicians*, *female*, and anti-associated with *transport*, *leave*, *sexy*. 
 
 ```{r biplot2, echo=F, message=F, warning=F}
 
@@ -758,21 +685,12 @@ biplot(y = data.lsa$docs[,4:5],
        ylab="Dim 5")
 
 ```
-#### LSA on TF-IDF
-
-Repeat lines 586 to 704 replace dtm by tf-idf 
-
-#### LSA Conclusion
-
-compare LSA on TF-IDF and LSA on DTM results
 
 ### Latent Dirichlet Allocation (LDA)
 
 The Latent Dirichlet Allocation is a generative model (i.e. Bayesian model) for topic modeling. LAD generates a Bag of Words model where the number of topics are pre-defined. 
 
 ```{r LDA model, echo=F, message=F, warning=F}
-
-library(seededlda) 
 
 # Sets a seed for reproducibility
 set.seed(1234)
