@@ -1,7 +1,3 @@
-```{r setup, echo = FALSE, message = FALSE}
-source(here::here("scripts/setup.R"))
-```
-
 # 4. Analysis
 
 This section dives deeper into the analysis of the content of the corpus. Each part of our analysis is supported by well-designed relevant charts and graphs using the **ggplot2**, **sentimentr**, **reshape2**, **quanteda.textmodels**, **seededlda** and **text2vec** packages [VERIFY IF ALL THESE PACKAGES PROVIDE OR HELP PROVIDE A GRAPHICAL REPRESENTATION].
@@ -42,7 +38,7 @@ The disadvantage of the dictionary-based sentiment analysis is that the negative
 
 The following non-exhaustive table shows the number of terms matched with a **positive**, **negative**, **neg_positive** or **neg_negative** sentiment for each document (i.e. chapter). For example, in chapter one, 142 terms are matched with a negative sentiment and 167 are found matched with a positive sentiment. 
 
-```{r dictionary-based analysis, echo=F, message=F, warning=F}
+```{r dictionary-based analysis, message=FALSE, warning=FALSE, include=FALSE}
 
 # Dictionary used
 # data_dictionary_LSD2015 # un-comment to see the object
@@ -59,7 +55,7 @@ kbl(data.sent,
     caption = "Sentiment Analysis (Dictionary-Based)") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) %>%
-  scroll_box()
+  scroll_box(height = "20%")
 
 ```
 
@@ -67,7 +63,7 @@ The below graph is a representation of the previous table. For each chapter of t
 
 Overall, positive and negative sentiments are found in all 16 chapters of the book. Although, more terms are recognized as negative (3,596) than as positive (2,661) indicating that the frequency of negative terms is higher than the one of positive terms. 
 
-```{r dictionary-based analysis plot, echo=F, message=F, warning=F}
+```{r dictionary-based analysis plot2, echo=F, message=F, warning=F}
 
 data.sent <- tokens_lookup(data.tk4, 
                            dictionary = data_dictionary_LSD2015) %>% 
@@ -76,16 +72,18 @@ data.sent <- tokens_lookup(data.tk4,
             filter(term != "neg_positive" & term != "neg_negative")
 
 # Plots the above tibble
-ggplot(data.sent,
+ggplotly(ggplot(data.sent,
        aes(x = reorder(document, count), 
            y = count, 
-           fill = term)) + 
+           fill = term, 
+           text = paste('</br><b>Chapter:</b> ', document,
+                              '</br><b>Count:</b> ', count))) + 
   geom_bar(stat = "identity") + 
   coord_flip() + 
   labs(title = "Dictionary-Based Sentiment Analysis",
        x = "Chapter (i.e. document)",
        y = "Count",
-       fill = "Sentiment")
+       fill = "Sentiment"),tooltip = "text")
 
 neg <- data.sent %>%
        filter(term == "negative")
@@ -109,7 +107,7 @@ The next table shows the first ten words of the polarized words dictionary and t
 ```{r polarized words dictionary, echo=F, message=F, warning=F}
 
 # Polarized words dictionary
-kbl(head(hash_sentiment_jockers_rinker, 10), 
+kbl(head(hash_sentiment_jockers_rinker, 5), 
     caption = "Polarized Words Dictionary") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -121,7 +119,7 @@ The next table shows the first ten words of the valence-shifters dictionary and 
 ```{r valence-shifters dictionary, echo=F, message=F, warning=F}
 
 # Valence-shifters dictionary
-kbl(head(hash_valence_shifters, 10), 
+kbl(head(hash_valence_shifters, 5), 
     caption = "Valence-Shifters Dictionary") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -233,6 +231,7 @@ ggplot(data = data.jac.mat,
 
 ```
 #### Cosine
+
 Then, we compute the cosine similarity matrix. 
 
 ```{r Cosine, echo=F, message=F, warning=F}
@@ -263,6 +262,7 @@ ggplot(data = data.cos.mat,
 
 ```
 #### Euclidean similarity 
+
 Finally, we compute the Euclidean-based similarity matrix. Is there a clearer separation between documents ? compare with above heatmaps ! Which documents are similar ? Are their groups ? 
  
 ```{r Euclidean, echo=F, message=F, warning=F}
@@ -769,6 +769,10 @@ Below we see that chapter 14 *Women's Rights Are Human Rights* mainly talks abou
 
 ```{r longest document plot, echo=F, message=F, warning=F}
 
+theta.long <- melt(data.lda$theta, 
+                   varnames = c("Doc", "Topic"), 
+                   value.name = "Theta")
+
 theta.long %>% 
   filter(Doc %in% doc.list) %>%                # selects the selected documents above
   ggplot(aes(reorder_within(Topic, 
@@ -1117,7 +1121,7 @@ pred.te <- predict(data.fit, df.te)
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 ```
 
-```{r, echo = false}
+```{r, echo=FALSE}
 set.seed(999)
 trctrl <- trainControl(method = "boot")
 

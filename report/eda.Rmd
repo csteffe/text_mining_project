@@ -103,7 +103,7 @@ data.dfm2 <- dfm(data.tk3)
 data.freq2 <- textstat_frequency(data.dfm2)  
 
 # Generate a second weighted document-feature matrix by tf-idf
-data.tfidf2 <- dfm_tfidf(data.dfm2)
+data.tfidf <- dfm_tfidf(data.dfm2)
 
 ```
 

@@ -3,8 +3,9 @@ title: "Text Mining Analysis of the best-seller non-fiction book: Invisible Wome
 author: "Aëllya Monney, Colin Steffe, Rémy Tombola and Jasmine Mawjee"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  pdf_document: default
   html_document: default
+   toc: TRUE
+  pdf_document: default
 ---
 
 ```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd', 'Appendix.Rmd')}
