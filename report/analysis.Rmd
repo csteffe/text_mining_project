@@ -752,28 +752,6 @@ The topic-document analysis provided the probabilities for a topic to be found i
 
 The below output shows that more than 60% of topics 2 is about text 13 and more than 60% of topic 3 is about text 14. 
 
-[Improve plot layout: colors]
-
-```{r document-topic, echo=F, message=F, warning=F}
-
-# Converts to a molten data frame
-theta.long <- melt(data.lda$theta, 
-                   varnames = c("Doc", "Topic"), 
-                   value.name = "Theta")
-
-# Long format
-theta.long %>% 
-  group_by(Topic) %>% 
-  top_n(10, Theta) %>%
-  ggplot(aes(reorder_within(Doc, Theta, Topic), Theta)) +
-  geom_col(show.legend = FALSE) +
-  coord_flip()+
-  facet_wrap(~ Topic, scales = "free_y") +
-  scale_x_reordered() + 
-  xlab("Document")
-
-```
-
 To dive a little bit deeper, we then look at the ten six longest chapters (i.e. documents).
 
 ```{r longest document, echo=F, message=F, warning=F}
@@ -795,14 +773,18 @@ theta.long %>%
   filter(Doc %in% doc.list) %>%                # selects the selected documents above
   ggplot(aes(reorder_within(Topic, 
                             Theta, 
-                            Doc), 
-             Theta)) +
+                            Doc,), 
+             Theta, fill = "dodgerblue3", alpha = 0.5)) +
   geom_col(show.legend = FALSE) +
   coord_flip()+
   facet_wrap(~ Doc, 
              scales = "free_y") +
   scale_x_reordered() + 
-  xlab("Document")
+    labs(title = "Topic analysis by Chapter",
+                   x = "Document",
+                   caption = "source: Invisible Women.pdf") +
+  theme_minimal()
+
 
 ```
 
@@ -878,7 +860,7 @@ To verify we take a look at the co-document frequencies. Comparing the two below
 
 ```{r feature matrix for topic 5, echo=F, message=F, warning=F}
 
-# Feature matrix for topic 9
+# Feature matrix for topic 5
 as.matrix(data.codo[term.mat[,5], 
                     term.mat[,5]])
 
@@ -886,7 +868,7 @@ as.matrix(data.codo[term.mat[,5],
 
 ```{r feature matrix for topic 9, echo=F, message=F, warning=F}
 
-# Feature matrix for topic 4
+# Feature matrix for topic 9
 as.matrix(data.codo[term.mat[,9], 
                     term.mat[,9]])
 
@@ -919,7 +901,7 @@ excl
 
 ```
 
-## Embedding
+## Unsupervised learning: Embedding
 
 Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM).
 
@@ -932,20 +914,21 @@ To start with, we compute a feature co-occurrence symmetric matrix with a window
 ```{r fcm, echo=F, message=F, warning=F}
 
 # Makes a co-occurrence on a (half-)window of 5
-data.tok <- tokens(data.cp,
+data.tk5 <- tokens(data.cp,
                    remove_punct = TRUE,
                    remove_symbols = TRUE,
-                   remove_numbers = FALSE,
-                   split_hyphens = TRUE)
+                   remove_numbers = TRUE,
+                   split_hyphens = TRUE) %>%
+                   tokens_tolower() %>%
+                   tokens_remove(stop_words$word) %>%
+                   tokens_remove("chapter") %>% 
+                   tokens_remove(min_nchar = 3) %>%
+                   tokens_replace(pattern=hash_lemmas$token, 
+                   replacement = hash_lemmas$lemma)
 
-data.tok <- data.tok %>% 
-  tokens_tolower() %>%
-  tokens_remove(stop_words$word) %>%
-  tokens_remove(min_nchar = 5) %>%
-  tokens_replace(pattern=hash_lemmas$token, 
-                 replacement = hash_lemmas$lemma)
 
-data.coo <- fcm(data.tok, 
+ 
+data.coo <- fcm(data.tk5, 
                 context = "window", 
                 window = 5, 
                 tri=FALSE)
@@ -954,11 +937,9 @@ head(data.coo)
 
 ```
 
-From the feature co-occurrences matrix we compute two vector representations for a given word (i.e. feature). One representation for a word being the central term and the other one  for a word being in the context. To then have a unique representaion for a given word, we compute the average of the two representations.
+From the feature co-occurrences matrix we compute two vector representations for a given word (i.e. feature). One representation for a word being the central term and the other one  for a word being in the context. To then have a unique representation for a given word, we compute the average of the two representations.
 
 ```{r two representations, echo=F, message=F, warning=F}
-
-library(text2vec)
 
 # Sets a seed for reproducibility 
 set.seed(123)
@@ -971,7 +952,7 @@ data.glove <- GlobalVectors$new(rank = p,    # dimension of the vector space mod
                                 x_max = 10) 
 
 # central vectors; speech.glove$components contains the context vectors
-data.weC <- data.glove$fit_transform(data.coocc) 
+data.weC <- data.glove$fit_transform(data.coo) 
 
 ```
 
@@ -991,7 +972,7 @@ We now plot the vectors of the 50 most used words (50 largest frequencies).
 ```{r unique reprensentaion, echo=F, message=F, warning=F}
 
 # Words with the 50 largest frequencies
-index2 <- textstat_frequency(dfm(data.tok))[1:50,]$feature
+index2 <- textstat_frequency(dfm(data.tk5))[1:20,]$feature
 
 index2 
 
@@ -1008,17 +989,17 @@ plot(data.we[index2, ],
 
 text(x = data.we[index2, ], 
      labels = rownames(data.we[index2, ]))
-
+title(main = "20 most used words", sub = "source: Invisible Women.pdf")
 ```
 
-### Document Embedding 
+### Document Embedding {.tabset}
 
 To build the document embedding we compute the centroids of the documents. First, we need to extract the words in each document. 
 
 ```{r words extraction, echo=F, message=F, warning=F}
 
 # Words in Document 1
-head(data.tok[[1]])
+head(data.tk5[[1]])
 
 ```
 
@@ -1027,9 +1008,7 @@ Then, for these words we extract the word vectors and make a matrix.
 ```{r word vectors, echo=F, message=F, warning=F}
 
 # Word vectors
-head(data.we[data.tok[[1]],])
-
-data.we
+head(data.we[data.tk5[[1]],])
 
 ```
 
@@ -1038,7 +1017,7 @@ Finally, we average all these vectors.
 ```{r average, echo=F, message=F, warning=F}
 
 # Averages all these vectors => Document 1 vector
-apply(data.we[data.tok[[1]],], 2, mean) 
+apply(data.we[data.tk5[[1]],], 2, mean) 
 
 ```
 
@@ -1047,7 +1026,7 @@ Now we make the loop to apply the previous steps on all documents.
 ```{r loop over documents, echo=F, message=F, warning=F}
 
 # Number of documents
-nd <- length(data.tok) 
+nd <- length(data.tk5) 
 
 # Document embedding matrix (1 document per row)
 data.de <- matrix(nr = nd, 
@@ -1057,19 +1036,52 @@ data.de <- matrix(nr = nd,
 for (i in 1:nd){
   
   # drop=FALSE is needed in case there is only one token
-  words_in_i <- data.we[data.tok[[i]], , drop = FALSE] 
+  words_in_i <- data.we[data.tk5[[i]], , drop = FALSE] 
   
   data.de[i,] <- apply(words_in_i, 2, mean)
   
 }
 
-row.names(data.de) <- names(data.tok)
+row.names(data.de) <- names(data.tk5)
 
 head(data.de) ## document vectors
 
 
 ```
+ 
+#### Centroids using DTM 
+```{r plot-texts, echo=F, message=F, warning=F}
 
+# Plots
+plot(data.de, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids")
+text(x=data.de, labels=rownames(data.de))
+title(sub = "source: Invisible Women.pdf")
+```
+
+#### Centroids using TF-IDF
+```{r centroid plot tfidf, echo=F, message=F, warning=F}
+
+data_tfidf <- dfm_tfidf(dfm(data.tk5))
+
+data.detfidf <- matrix(nr=nd, nc=p) # document embedding matrix (1 document per row)
+
+for (i in 1:nd){
+  
+  words_in_i <- data.we[data.tk5[[i]],,drop=FALSE]
+  
+  weights.tfidf <- as.numeric(data_tfidf[i, data.tk5[[i]]])
+  
+  weights.tfidf <- weights.tfidf / sum(weights.tfidf)
+  
+  data.detfidf[i,] <- apply(weights.tfidf * words_in_i,2,sum)
+  
+}
+
+plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids - TFIDF")
+
+text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
+
+```
 ## Supervised Analysis
 
 The goal of the supervised analysis is to re-classify its documents (i.e. chapters) using the features (i.e. terms) analyzed previously [add where maybe] [is that a good reformulation of the aim?]. To do so, we proceed to a machine learning approach consisting of splitting the corpus (*data* object) into a training and a test sets. Then, we train the classifiers on the training set and finally the best classifiers are selected on the test set. 
