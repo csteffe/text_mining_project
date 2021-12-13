@@ -98,29 +98,37 @@ pos_count <- sum(pos$count) # 2,661
 
 ```
 
-### Valence Shifters 
+### Valence Shifters {.tabset}
 
 The valence shifters approach uses positive/negative sentiment scores (i.e. value-based) to extract the sentiment of a document. Here, we use two dictionaries, a polarized words dictionary where we find a list of terms communicating a positive or negative attitude and a valence-shifters dictionary which provides terms that alter or intensify the meaning of the polarized words. 
+
+#### Polarized words dictionary
 
 The next table shows the first ten words of the polarized words dictionary and their numerical score.
 
 ```{r polarized words dictionary, echo=F, message=F, warning=F}
 
 # Polarized words dictionary
-kbl(head(hash_sentiment_jockers_rinker, 5), 
-    caption = "Polarized Words Dictionary") %>% 
+hash_sentiment_jockers_rinker %>% 
+  rename(token = x, value = y) %>% 
+  head(5) %>% 
+  kbl(caption = "Polarized Words Dictionary") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
 
 ```
+
+#### Valence-shifters dictionary
 
 The next table shows the first ten words of the valence-shifters dictionary and their numerical score.
 
 ```{r valence-shifters dictionary, echo=F, message=F, warning=F}
 
 # Valence-shifters dictionary
-kbl(head(hash_valence_shifters, 5), 
-    caption = "Valence-Shifters Dictionary") %>% 
+hash_valence_shifters %>% 
+  rename(token = x, value = y) %>% 
+  head(5) %>% 
+  kbl(caption = "Valence-Shifters Dictionary") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
 
@@ -137,9 +145,12 @@ text_sentences <- get_sentences(text)
 
 # Computes sentiment by sentence
 sent_bysent <- sentiment(text_sentences) %>%   # assigns a polarity scores
-               filter(word_count != "NA")
+               filter(word_count != "NA") %>% 
+               mutate(document = paste("Chapter", element_id, sep = " ")) %>% 
+  relocate(document, .before = element_id) %>% 
+  select(!(element_id))
 
-kbl(head(sent_bysent, 10), 
+kbl(head(sent_bysent, 5), 
     caption = "Sentiment Values by Sentence") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)  
@@ -152,15 +163,16 @@ The below table displays the average sentiment scores by chapter in a decreasing
 
 [PROBLEM IL NY A PAS TOUS LES CHAPITRES ET LES CHAPITRES APPARAIISSENT PLUSIEURS FOIS]
 
-```{r sentiment analysis by document, echo=F, message=F, warning=F}
+[J'ai mis un tooltip avec toutes les infos dans le prochain plot pour pouvoir potentiellement enlever ce tableau]
+
+```{r sentiment analysis by document, echo=F, message=FALSE, warning=FALSE}
 
 # Computes the sentiment score for each chapter
 sent_bychap <- sentiment_by(text) %>%
                arrange(element_id) %>%
-               rename(Chapter = element_id) %>%
-               mutate(document = paste("chapter", Chapter, sep = " ")) %>%
-               relocate(document,.before = Chapter) %>% 
-               select(!(Chapter))
+               mutate(document = paste("Chapter", element_id, sep = " ")) %>% 
+  relocate(document, .before = element_id) %>% 
+  select(!(element_id))
 
 sent_bychap %>% arrange(desc(ave_sentiment))  %>% 
     kbl(caption = "Sentiment Values by Chapter") %>% 
@@ -178,18 +190,24 @@ PROBLEM NOT ALL CHAPTERS ARE ON THE PLOT
 ```{r sentiment analysis by document plot, echo=F, message=F, warning=F}
 
 # Plots the sentiment curve by document
-sent_bychap %>% 
-  ggplot(aes(x = reorder(document,ave_sentiment), y = ave_sentiment)) + 
+#sent_bychap %>% 
+ggplotly(
+  ggplot(sent_bychap, 
+         aes(x = reorder(document,ave_sentiment),
+             y = ave_sentiment, 
+             text = paste('</br><b>Document:</b> ', document,
+                          '</br><b>Word count:</b> ', word_count,
+                          '</br><b>Std. deviation:</b> ', sd)
+             )) + 
   geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + 
   coord_flip() +
   labs(title = "Sentiment Score by Chapter",
                    x = "Document",
                    y = "Average sentiment",
                    caption = "source: Invisible Women.pdf") +
-  theme_minimal()
-
-
-
+  theme_minimal(),
+  tooltip = "text"
+)
 
 ```
 
@@ -227,9 +245,11 @@ ggplot(data = data.jac.mat,
   geom_tile() +
   labs(title = "Heatmap Representation Of Similarities Between Documents",
        x = "Chapter",
-       y = "Chapter")
-
+       y = "Chapter")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 22))
 ```
+
 #### Cosine
 
 Then, we compute the cosine similarity matrix. 
@@ -258,9 +278,12 @@ ggplot(data = data.cos.mat,
   geom_tile() +
   labs(title = "Heatmap Representation Of Similarities Between Documents",
        x = "Chapter",
-       y = "Chapter")
+       y = "Chapter")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 22))
 
 ```
+
 #### Euclidean similarity 
 
 Finally, we compute the Euclidean-based similarity matrix. Is there a clearer separation between documents ? compare with above heatmaps ! Which documents are similar ? Are their groups ? 
@@ -295,7 +318,9 @@ ggplot(data = data.euc.mat,
   geom_tile() +
   labs(title = "Heatmap Representation Of Similarities Between Documents",
        x = "Chapter",
-       y = "Chapter")
+       y = "Chapter")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 22))
 
 ```
 
@@ -322,15 +347,30 @@ plot(data.hc_jac)
 
 ```
 
-From the clustering, we extract the ten words that are the most used. 
+
 
 ```{r Jaccard cutree, echo=F, message=F, warning=F}
 
 # Creates three clusters
 data.clust_jac <- cutree(data.hc_jac, 
                          k = 6)
-data.clust_jac
+data.clust_jac %>% 
+  as.tibble() %>% 
+  mutate(document = as.factor(names(data.clust_jac)), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  arrange(cluster) %>% 
+  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  kbl(caption = "Clusters using Jaccard") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>% 
+  scroll_box(height = "10%")
 
+```
+
+From the clustering, we extract the ten words that are the most used. 
+
+```{r Jaccard clust words, echo=F, message=F, warning=F}
 # Extract most frequent terms from clusters
 clust_jac <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_jac == 1,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
@@ -348,7 +388,8 @@ clust_jac <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_jac == 
 kbl(clust_jac, 
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
+                full_width = NULL) %>%
+  scroll_box(height = "5%")
 
 ```
 Using jaccard we still have two cluster that have terms the same previous previous clustering using euclidean distance : transport and medical, but the cluster 3 is different with top terms related to disaster or war, rather than top terms related to cars.  
@@ -367,15 +408,31 @@ plot(data.hc_cos)
 
 ```
 
-From the clustering, we extract the ten words that are the most used. 
+ 
 
 ```{r cosine cutree, echo=F, message=F, warning=F}
 
 # Creates three clusters
 data.clust_cos <- cutree(data.hc_cos, 
                          k = 6)
-data.clust_cos
+data.clust_cos %>% 
+  as.tibble() %>% 
+  mutate(document = as.factor(names(data.clust_jac)), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  arrange(cluster) %>% 
+  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  kbl(caption = "Clusters using Cosine") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>% 
+  scroll_box(height = "10%")
 
+```
+
+
+From the clustering, we extract the ten words that are the most used.
+
+```{r cosine clust words, echo=F, message=F, warning=F}
 # Extract most frequent terms from clusters
 clust_cos <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_cos == 1,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
@@ -392,7 +449,8 @@ clust_cos <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_cos == 
 kbl(clust_cos, 
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
+                full_width = NULL) %>% 
+  scroll_box(height = "10%")  
 
 ```
 Here we have cluster top terms similar than using euclidean distance.  
@@ -417,8 +475,22 @@ From the clustering, we extract the ten words that are the most used.
 # Creates three clusters
 data.clust_eu <- cutree(data.hc_eu, 
                         k = 6)
-data.clust_eu 
+data.clust_eu %>% 
+  as.tibble() %>% 
+  mutate(document = as.factor(names(data.clust_jac)), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  arrange(cluster) %>% 
+  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  kbl(caption = "Clusters using Euclidiean distance") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>% 
+  scroll_box(height = "10%")
+```
 
+From the clustering, we extract the ten words that are the most used. 
+
+```{r Euclidean-based clust words, echo=F, message=F, warning=F}
 # Extract most frequent terms from clusters
 clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
@@ -436,7 +508,8 @@ clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,
 kbl(clust_eu, 
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
+                full_width = NULL) %>% 
+  scroll_box(height = "10%") 
 
 ```
 It is interesting to observe that cluster one seems more to have words about transport and work, cluster two about car, and cluster 3 about medical.  
@@ -445,14 +518,26 @@ It is interesting to observe that cluster one seems more to have words about tra
 
 K-means is applied on the features (i.e. terms?) using TF-IDF. 
 
-##### Euclidean-Based
 
 ```{r Euclidean-based km, echo=F, message=F, warning=F}
 
 # Creates three clusters
 data.km <- kmeans(data.tfidf,
                      centers = 6)
-data.km$cluster
+data.km$cluster %>% 
+  as.tibble() %>% 
+  mutate(document = as.factor(names(data.clust_jac)), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  arrange(cluster) %>% 
+  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  kbl(caption = "Clusters using Euclidiean distance") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>% 
+  scroll_box(height = "10%")
+```
+
+```{r km clust words, echo=F, message=F, warning=F}
 
 # Extract most frequent terms from clusters
 clust_km <- data.frame(   Clust.1 = names(sort(apply(data.tfidf[data.km$cluster == 1,], 2, sum), 
@@ -471,7 +556,8 @@ clust_km <- data.frame(   Clust.1 = names(sort(apply(data.tfidf[data.km$cluster 
 kbl(clust_km, 
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)  
+                full_width = NULL) %>% 
+  scroll_box(height = "10%")
 
 ```
 Using kmean we have the cluster 2 that is different from other method, with top terms related to politics.
@@ -490,7 +576,7 @@ What words are similar ? It means they are used in similar proportion through do
 data.feat <- textstat_frequency(data.dfm) %>% 
   filter(rank <= 40)
 
-data.feat$feature
+#?????????? à enlever non ? data.feat$feature
 
 data.cos <- textstat_simil(data.dfm[, data.feat$feature], 
                            method = "cosine", 
@@ -614,9 +700,10 @@ doc.freq <- ntoken(data.tk2)
 data.frame(doc.freq, 
            dim1 = data.lsa$docs[,1]) %>% 
   ggplot(aes(doc.freq, dim1)) +
-  geom_point() + 
+  geom_point(fill = "dodgerblue3", alpha = 0.5) + 
   xlab("Number of tokens") + 
-  ylab("LSA dim. 1")
+  ylab("LSA dim. 1") +
+  theme_minimal()
 
 ```
 
@@ -647,7 +734,7 @@ w.order <- sort(data.lsa$features[,4], #
 w.top4 <- c(w.order[1:n.terms], 
             rev(rev(w.order)[1:n.terms]))
 
-w.top4
+w.top4 #?????? KABLE
 
 ```
 
@@ -662,7 +749,7 @@ w.order <- sort(data.lsa$features[,5],
 w.top5 <- c(w.order[1:n.terms], 
             rev(rev(w.order)[1:n.terms]))
 
-w.top5 
+w.top5 #?????? KABLE
 
 ```
 
@@ -699,6 +786,7 @@ set.seed(1234)
 data.lda <- textmodel_lda(data.dfm, 
                           k = 10)    # sets the number of topics at 10
 
+#?????? KABLE
 ```
 
 The following output displays the ten most frequent terms per topic and the ten most frequent topics per document.
@@ -713,7 +801,7 @@ terms(data.lda, 10)
 ```{r top topics, echo=F, message=F, warning=F}
 
 # Top topics per document
-topics(data.lda)
+topics(data.lda) #??? Nécessaire ??? 
 
 ```
 
@@ -738,12 +826,15 @@ phi.long %>%
   top_n(10, Phi) %>%
   ggplot(aes(reorder_within(Term, Phi, 
                             Topic), Phi)) +
-  geom_col(show.legend = FALSE) +
+  geom_col(show.legend = FALSE, fill = "dodgerblue3", alpha = 0.5) +
   coord_flip()+
   facet_wrap(~ Topic, 
              scales = "free_y") +
   scale_x_reordered() + 
-  xlab("Term")
+  xlab("Term") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20))
+
 
 ```
 #### Topic-Document Analysis
@@ -759,7 +850,7 @@ To dive a little bit deeper, we then look at the ten six longest chapters (i.e. 
 # Longest six documents
 doc.list <- names(sort(ntoken(data.tk2), 
                        decreasing = TRUE)[1:6])
-doc.list
+doc.list #???KABLE
 
 ```
 
@@ -805,6 +896,8 @@ colSums(data.lda$theta)/sum(data.lda$theta)
 
 # here, the document length is not taken into account (each document has the same length)
 # sum(data.lda$theta) = number of documents
+
+#??KABLE 
 
 ```
 
@@ -856,7 +949,7 @@ for (k in 1:10){
 } }
 }
 
-Coh
+Coh # ?!?!? KABLE 
 
 ```
 
@@ -901,7 +994,7 @@ for (k in 1:10){
   excl[k] <- excl[k] / length(term.mat[,k])
 }
 
-excl
+excl # ?!?!? KABLE 
 
 ```
 
@@ -978,7 +1071,7 @@ We now plot the vectors of the 50 most used words (50 largest frequencies).
 # Words with the 50 largest frequencies
 index2 <- textstat_frequency(dfm(data.tk5))[1:20,]$feature
 
-index2 
+index2 # ?? Nécessaire ? ?
 
 
 ```
@@ -1003,7 +1096,7 @@ To build the document embedding we compute the centroids of the documents. First
 ```{r words extraction, echo=F, message=F, warning=F}
 
 # Words in Document 1
-head(data.tk5[[1]])
+head(data.tk5[[1]]) # ??? Nécessaire on les voit juste après 
 
 ```
 
@@ -1022,6 +1115,8 @@ Finally, we average all these vectors.
 
 # Averages all these vectors => Document 1 vector
 apply(data.we[data.tk5[[1]],], 2, mean) 
+
+#POtentiellement faire un élément pour mettre ça et le truc précédent dans un kable 
 
 ```
 
