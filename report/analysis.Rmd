@@ -11,9 +11,9 @@ The subsequent analysis is as follows. We first study the sentiment of the corpu
 
 ## Sentiment Analysis 
 
-Now that the content of the corpus is cleaned and that we have explored its content, we proceed to its sentiment analysis (i.e. opinion mining) which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses values (i.e. value-based).  
+Now that the content of the corpus is cleaned and that we explored its content, we proceed to its further analysis with first its sentiment analysis (i.e. opinion mining) which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses numerical values (i.e. value-based).  
 
-When analyzing the sentiment emerging from a document, we do not use the data in which stop words are removed since they might be in the sentiment dictionary and provide useful insight. 
+When analyzing the sentiment emerging from a document, we care to not remove stop words since they might be in the sentiment dictionary and provide useful insight. 
 
 ```{r data.tk4, echo=F, message=F, warning=F}
 
@@ -34,11 +34,9 @@ data.tk4 <- data.tk1 %>%
 
 ### Dictionary-Based 
 
-The dictionary-based sentiment analysis matches tokens from each document to a reference dictionary with token values and then, look for word polarity. The sentiment is the average over token values of the document. 
+The dictionary-based sentiment analysis matches tokens from each document to a reference dictionary with token values and look for word polarity (i.e. association to a sentiment). The dictionary matches terms to a **positive**, **negative**, **neg_positive** or **neg_negative** sentiment. For simplicity purposes, we only consider the **positive** and **negative** sentiment in the rest of this analysis. Note that the sentiment is the average over token values of the document. 
 
-The disadvantage of the dictionary-based sentiment analysis is that the negative forms are not taken into consideration. For example, in the sentence *I don't enjoy the show*, the sentence will be considered positive because it will not consider the contraction *don't* but only the word *enjoy*.
-
-The following non-exhaustive table shows the number of terms matched with a **positive**, **negative**, **neg_positive** or **neg_negative** sentiment for each document (i.e. chapter). For example, in chapter one, 142 terms are matched with a negative sentiment and 167 are found matched with a positive sentiment. 
+The disadvantage of the dictionary-based sentiment analysis is that the negative forms of words are not taken into consideration. For example, in the sentence *I don't enjoy the show*, the sentence will be considered positive because it will not consider the contraction *don't* but only the word *enjoy*.
 
 ```{r dictionary-based analysis, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -61,30 +59,33 @@ kbl(data.sent,
 
 ```
 
-The below graph is a representation of the previous table. For each chapter of the book, we see the proportion of terms matched with a positive, negative, negative positive or negative negative sentiment. 
+The below interactive graph shows for each chapter of the book the proportion of terms matched with a positive and negative sentiment. For example, chapter two *Gender Neutral With Urinals* is found to have 177 terms matched with a positive sentiment and 408 with a negative one. 
 
-Overall, positive and negative sentiments are found in all 16 chapters of the book. Although, more terms are recognized as negative (3,596) than as positive (2,661) indicating that the frequency of negative terms is higher than the one of positive terms. 
+Overall, positive and negative sentiments are found in all 16 chapters of the book although more terms are recognized as negative (3,596) than as positive (2,661) indicating that the frequency of negative terms is higher than the one of positive terms. 
 ```{r dictionary-based analysis plot2, echo=F, message=F, warning=F}
 
 data.sent <- tokens_lookup(data.tk4, 
                            dictionary = data_dictionary_LSD2015) %>% 
              dfm() %>%     # creates a dtm matrix
              tidy() %>%
-            filter(term != "neg_positive" & term != "neg_negative")
+             filter(term != "neg_positive" & term != "neg_negative")
 
 # Plots the above tibble
 ggplotly(ggplot(data.sent,
-       aes(x = reorder(document, count), 
-           y = count, 
-           fill = term, 
-           text = paste('</br><b>Chapter:</b> ', document,
-                              '</br><b>Count:</b> ', count))) + 
-  geom_bar(stat = "identity") + 
-  coord_flip() + 
-  labs(title = "Dictionary-Based Sentiment Analysis",
-       x = "Chapter (i.e. document)",
-       y = "Count",
-       fill = "Sentiment"),tooltip = "text")
+                aes(x = reorder(document, count), 
+                    y = count, 
+                    fill = term, 
+                    text = paste('</br><b>Chapter:</b> ', document,
+                                 '</br><b>Count:</b> ', count))) + 
+         geom_bar(stat = "identity", alpha = 0.5) + 
+         coord_flip() + 
+         theme_minimal() +
+         scale_fill_manual(values = c("firebrick3", "forestgreen")) +
+         labs(title = "Dictionary-Based Sentiment Analysis",
+              x = "Chapter",
+              y = "Count",
+              fill = "Sentiment"),
+         tooltip = "text") 
 
 neg <- data.sent %>%
        filter(term == "negative")
@@ -96,12 +97,11 @@ pos <- data.sent %>%
 
 pos_count <- sum(pos$count) # 2,661
 
-
 ```
 
 ### Valence Shifters {.tabset}
 
-The valence shifters approach uses positive/negative sentiment scores (i.e. value-based) to extract the sentiment of a document. Here, we use two dictionaries, a polarized words dictionary where we find a list of terms communicating a positive or negative attitude and a valence-shifters dictionary which provides terms that alter or intensify the meaning of the polarized words. 
+The valence shifters approach uses positive and negative sentiment scores (i.e. value-based) to extract the sentiment of a document. Here, we use two dictionaries, a polarized words dictionary where we find a list of terms communicating a positive or negative attitude and a valence-shifters dictionary which provides terms that alter or intensify the meaning of the polarized words. 
 
 #### Polarized words dictionary
 
