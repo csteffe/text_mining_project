@@ -1,20 +1,9 @@
 
-
-
-
 ```{r setup, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
 ```
 
 # 1. Data Gathering
-
-The book *Invisible Women* under study is directly downloaded from [source: https://yes-pdf.com/book/113#google_vignette] in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from pdf files.
-One of its advantages, is that is it easy to upload. On the cons side, the cleaning can sometimes be quite long and tedious.
-
-```{r load data, echo = FALSE, message = FALSE}
-#load the data
-text <- pdf_text("https://yes-pdf.com/electronic-book/33")
-```
 
 Here are the book's characteristics:
 
@@ -22,11 +11,20 @@ Here are the book's characteristics:
 |:---|:---|:---|:---|:---|:---|
 | Invisible Women | Caroline Perez Criado | 2019 | 6 | 16 | 399 |
 
+The book *Invisible Women* under study is directly downloaded from an online source https://yes-pdf.com/book/113#google_vignette in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from PDF files. The advantage of uploading the book from a website link is that it is easy to obtain but on the other side, it requires a tedious preparation in order to be able to get started with the cleaning. Here, we first need to manipulate the PDF version to keep only the chapters of the book and remove other useless parts for our analysis such as blank pages, the title page etc.. 
+
+```{r load data, echo = FALSE, message = FALSE}
+#load the data
+text <- pdf_text("https://yes-pdf.com/electronic-book/33")
+```
+
 # 2. Data Structuring and Cleaning
 
 ## Corpus
 
-*The preface* of the book starts on page 11 and *the introduction* on page 15.  
+First of all, we need to gather the parts of the book useful to our analysis (i.e. chapters) in a *corpus* object. Since the book contains extra information such as a title page, Preface, Content page and others, we first need to proceed to some cleaning of the PDF version in order to remain only with the text of each chapter associated with their titles. Therefore, after indicating exactly where the text under study starts and ends and, after extracting the chapter titles and organizing the text by chapters, we obtain the usable data in a corpus to further analyze *Invisible Women*'s content. 
+
+The below output shows the beginning of the first five chapters of the book. Each chapter is referred as a **document** and their content as a **text**. We also notice that chapters are organized in six parts.
 
 ```{r start and stop, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -67,14 +65,10 @@ document <- trimws(document)
 
 ```
 
-After indicating where exactly the text under study starts and ends, and after extracting the chapter titles and organizing the text by chapters, we obtain the usable data to further analyze *Invisible Women*'s content. 
-
 ```{r corpus, echo = FALSE, message = FALSE}
 # Creates a corpus object
 data <- corpus_frame(document, text) 
 ```
-
-The below output shows the beginning of the first five chapters of the book.
 
 ```{r title wrangling, echo = FALSE, message = FALSE}
 
@@ -116,9 +110,13 @@ kable(data[1:5,],
 
 ```
 
-```{r}
+## Tokenization
 
-#supervised learning data cleaning
+Tokenization is the method used to split a text into tokens. Here, we tokenize the chapters (i.e. document) by space. To do so, we proceed to remove numbers, punctuation, symbols and separators because we believe that it will not affect our analysis. Note that our unit of analysis is word.
+
+```{r cleaning for supervised analysis, echo=F, message=F, warning=F}
+
+# Data cleaning for the supervised learning analysis 
 
 # count the total number of pages additioning all the pages
 totalpages <- 0
@@ -156,6 +154,7 @@ for (i in 1:nrow(data)){
     rowindex <- rowindex+1
   }
 }
+
 # remove small text ( like name part)
 supervised_data <- supervised_data %>% filter(nchar(pagetext)>40)
 
@@ -180,10 +179,6 @@ supervised_tk <- supervised_cp %>%
 
 
 ```
-
-## Tokenization
-
-Tokenization is the method used to split a text into tokens. Our unit of analysis are words. Here, we tokenize the chapters (i.e. document) by space. To do so, we proceed to remove numbers, punctuation, symbols and separators because we believe that it will not affect our analysis and keeping them [KEEPING WHAT?] will not bring more insight.
 
 ### Quanteda
 
@@ -230,7 +225,7 @@ data.tk2 <- data.tk1 %>%
 
 ## Lemmatization
                                                     
-Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Consequently, the set of types in a corpus is shortened [THE NUMBER OF TOKEN TYPES IS REDUCED?]. For example, "started" and "starts" are reduced to "start" and have thus "start" as a lemma. 
+Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Consequently, the set of token types in a corpus is sreduced. For example, "started" and "starts" are reduced to "start" and have thus "start" as a lemma. 
 
 The below output displays for each chapter the lemmas of the first tokens as well as the total number of different lemmas by chapter. For example, chapter (i.e. text) one contains 2,413 different lemmas. 
 
@@ -244,9 +239,7 @@ head(data.tk2)
 
 ## Stemming 
 
-Stemming also simplifies tokens by reducing a word to its stem with simple rule based algorithm usig the *token_wordstem()* function. As lemmatization, stemming reduces the size of a vocabulary but in an inconsistent way. [EXPLAIN WHY IN AN INCONSISTENT WAY]
-
-Since the interpretation of the tokens matter, we decide not to use the stemming in the rest of our analysis and only apply it here to demonstrate its purpose, since reducing a word to its stem does not guarantee meaningful tokens (e.g official is reduced to offici).
+Stemming also simplifies tokens by reducing a word to its stem with simple rule-based algorithm usig the *token_wordstem()* function. As lemmatization, stemming reduces the size of a vocabulary but in an inconsistent way. Indeed, reducing a word to its stem does not guarantee meaningful tokens (e.g official is reduced to offici). This is why, since the interpretation of the tokens matter, we decide not to use the stemming in the rest of our analysis and only apply it here to demonstrate its purpose.
 
 The below output displays the first twelve tokens reduced to their steam for each document. For example, "snow-clearing" was reduced to "snow-clear". 
 
