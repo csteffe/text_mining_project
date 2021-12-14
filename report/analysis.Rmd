@@ -1,4 +1,3 @@
-
 # 4. Analysis
 
 This section dives deeper into the analysis of the content of the corpus in which each part is supported by well-designed relevant charts and graphs using the **ggplot2**, **sentimentr**, **reshape2**, **quanteda.textmodels**, **seededlda** and **text2vec** packages.
@@ -369,8 +368,7 @@ data.clust_jac %>%
 
 ```
 
-For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, chapters 1, 2, 3, 7, 12, 14 share terms regarding public transport or spaces (cluster 1), chapters 4, 5, 6, 9, 10 and 11 are about medical or technological trials (cluster 2) and chapter 8, 13, 15 and 16 belong to their own clusters.
-
+For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 groups terms about public transports or spaces, cluster 2 about medical or technological trials and clusters three to six are composed of only one chapter and therefore group terms according to their respective chapters' vocabulary. 
 ```{r Jaccard clust words, echo=F, message=F, warning=F}
 
 # Extract most frequent terms from clusters
@@ -426,7 +424,7 @@ data.clust_cos %>%
 
 ```
 
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, chapters 1, 2, 15 and 16 share terms regarding public transport or spaces and violence (cluster 1), chapters 3, 12 and 13 are using terms regarding households, families and economics (cluster 2), chapters 4 and 14 seem to share a political vocabulary (cluster 3), chapters 5, 6, 8, 9 use technical terms (cluster 4), chapter 7 has its own cluster about agriculture (cluster 6) and chapters 10 and 11 use a medical vocabulary (cluster 6).
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1's chapters share terms specific to public transport or spaces and violence, cluster 2's chapters use terms regarding households, families and economics, cluster 3 reveals a political vocabulary, cluster 4 shows terms related to technology, cluster 6 displays terms about agriculture and finally, cluster 6 indicates a medical vocabulary.
 
 ```{r cosine clust words, echo=F, message=F, warning=F}
 
@@ -480,10 +478,9 @@ data.clust_eu %>%
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) 
 
-
 ```
 
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. Here, clusters 1 and 3 
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally, cluster 6 shows politics-related terms. 
 
 ```{r Euclidean-based clust words, echo=F, message=F, warning=F}
 
