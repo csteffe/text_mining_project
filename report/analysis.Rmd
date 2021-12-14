@@ -369,6 +369,7 @@ data.clust_jac %>%
 ```
 
 For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 groups terms about public transports or spaces, cluster 2 about medical or technological trials and clusters three to six are composed of only one chapter and therefore group terms according to their respective chapters' vocabulary. 
+
 ```{r Jaccard clust words, echo=F, message=F, warning=F}
 
 # Extract most frequent terms from clusters
@@ -481,6 +482,7 @@ data.clust_eu %>%
 ```
 
 For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally and finally, cluster 6 shows politics-related terms. 
+
 ```{r Euclidean-based clust words, echo=F, message=F, warning=F}
 
 # Extract most frequent terms from clusters
@@ -634,8 +636,13 @@ ggplot(data = data.cos.mat2,
 
 [TO DO !!]
 
+### Clustering of Words {.tabset}
 
-### Clustering With Co-occurrences [à revoir]
+To avoid redundancy, we decide not to proceed to the same clustering methods (hierarchical and K-means) as in the *Clustering of Documents* and to use instead the co-occurrence similarity measure to cluster the 40 most frequent terms in the corpus that we studied above in **Similarities Between Words**. 
+
+#### Clustering With Co-occurrence 
+
+Co-occurrence is also a similarity measure for which two words are considered similar if they are often used closely in a similar context, in any part of the corpus. Since co-occurrence similarity is dependent on the token's context (i.e. document or window). Here, we consider the context as being a window of terms around a target (i.e. central word or center). The subtelty of the co-occurrence clustering is that by considering the context of a word, we are computing similarities beyond literal resemblance and consider as well the meaning of words. this measure is different than the Jaccard, Cosine or Euclidean similarity measures which do not depend on the context of a word. 
 
 Using co-occurrences to cluster features requires transforming co-occurrences into dissimilarities. Object needs to be the tokens because co-occurrences needs the token order and thus cannot be computed on a BOW object. 
 
