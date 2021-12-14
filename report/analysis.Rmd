@@ -1,3 +1,7 @@
+```{r setup, echo = FALSE, message = FALSE}
+source(here::here("scripts/setup.R"))
+```
+
 # 4. Analysis
 
 This section dives deeper into the analysis of the content of the corpus in which each part is supported by well-designed relevant charts and graphs using the **ggplot2**, **sentimentr**, **reshape2**, **quanteda.textmodels**, **seededlda** and **text2vec** packages.
@@ -105,7 +109,7 @@ The valence shifters approach uses positive and negative sentiment scores (i.e. 
 
 #### Polarized words dictionary
 
-The next table shows the first ten words of the polarized words dictionary and their numerical score.
+The next table shows the first five words of the polarized words dictionary and their respective numerical scores.
 
 ```{r polarized words dictionary, echo=F, message=F, warning=F}
 
@@ -121,7 +125,7 @@ hash_sentiment_jockers_rinker %>%
 
 #### Valence-shifters dictionary
 
-The next table shows the first ten words of the valence-shifters dictionary and their numerical score.
+The next table shows the first five words of the valence-shifters dictionary and their respective numerical scores.
 
 ```{r valence-shifters dictionary, echo=F, message=F, warning=F}
 
@@ -135,9 +139,9 @@ hash_valence_shifters %>%
 
 ```
 
-To proceed to the valance-shifters sentiment analysis, we extract the sentences from the text and we compute the sentiment value for each sentence. Because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted. Moreover, we do not assign weights to certain types of sentences (e.g. questions) since we believe that the sentence type does not have a particular influence in our analysis.
+To proceed to the valance-shifters sentiment analysis, we first extract the sentences from the text and compute their sentiment value. Here, we do not assign weights to certain types of sentences (e.g. questions) since we believe that the sentence type does not have a particular influence on our analysis. 
 
-The below output displays the sentiment value of the first ten sentences of the corpus and indicates the number of terms for each. Anything below -0.05 is considered negative and anything above 0.05 is considered positive. Anything in between is considered neutral. For example, the first sentence is negative (-0.408), the seventh sentence is neutral (0) and the eigth sentence is positive (0.332). 
+The below output displays the sentiment values of the first five sentences of the corpus, respectively of chapter one, and indicates for each the sentiment emerging from the terms of the sentences. Anything numerical value below 0.05 is considered negative and any value above 0.05 is considered positive. Anything in between is considered neutral. Thus, the first, fourth and fifth sentences are negative (respectively -0.408, -0.296 and -0.535) and the second and third ones are positive (respectively 0.245 and 0.096). Note that because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted.  
 
 ```{r sentiment analysis, echo=F, message=F, warning=F}
 
@@ -148,8 +152,8 @@ text_sentences <- get_sentences(text)
 sent_bysent <- sentiment(text_sentences) %>%   # assigns a polarity scores
                filter(word_count != "NA") %>% 
                mutate(document = paste("Chapter", element_id, sep = " ")) %>% 
-  relocate(document, .before = element_id) %>% 
-  select(!(element_id))
+               relocate(document, .before = element_id) %>% 
+               select(!(element_id))
 
 kbl(head(sent_bysent, 5), 
     caption = "Sentiment Values by Sentence") %>% 
@@ -158,35 +162,26 @@ kbl(head(sent_bysent, 5),
 
 ```
 
-After taking a look at the sentiment score for each sentence, we zoom out to look into the sentiment score by chapter of the book. The *ave_sentiment* column gives the average sentiment (i.e) score by chapter. 
+Since sentiment changes as sentences change, we zoom out to look at the sentiment score by chapter of the book. The *ave_sentiment* column gives the average sentiment score by chapter. 
 
-The below table displays the average sentiment scores by chapter in a decreasing fashion. According to the table, chapter 4 *The Myth of Meritocracy* has the greatest positive average. In total, five chapters have a positive sentiment (i.e. scores above 0.05), four have a negative sentiment (i.e. scores below -0.05) and seven chapters have a neutral sentiment (i.e. scores between -0.05 and 0.05).  -> CORRECT ONCE PROBLEM FIXED 
-
-[PROBLEM IL NY A PAS TOUS LES CHAPITRES ET LES CHAPITRES APPARAIISSENT PLUSIEURS FOIS]
-
-[J'ai mis un tooltip avec toutes les infos dans le prochain plot pour pouvoir potentiellement enlever ce tableau]
-
-```{r sentiment analysis by document, echo=F, message=FALSE, warning=FALSE}
+```{r sentiment analysis by document, echo=F, message=FALSE, warning=FALSE, include=F}
 
 # Computes the sentiment score for each chapter
 sent_bychap <- sentiment_by(text) %>%
                arrange(element_id) %>%
                mutate(document = paste("Chapter", element_id, sep = " ")) %>% 
-  relocate(document, .before = element_id) %>% 
-  select(!(element_id))
+               relocate(document, .before = element_id) %>% 
+               select(!(element_id))
 
-sent_bychap %>% arrange(desc(ave_sentiment))  %>% 
-    kbl(caption = "Sentiment Values by Chapter") %>% 
+sent_bychap %>% 
+  arrange(desc(ave_sentiment))  %>% 
+  kbl(caption = "Sentiment Values by Chapter") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) 
 
 ```
 
-Sentiment changes as sentences change. Thus, in order to better track the evolution of the sentiment, we plot the sentiment scores' evolution by chapter of the book (i.e. by document). 
-
-The below plot shows the range of sentiment scores by chapter indicating how much sentiment evolves throughout the sentences.
-
-PROBLEM NOT ALL CHAPTERS ARE ON THE PLOT 
+The next interactive graph displays the average sentiment scores by chapter in a decreasing fashion. According to it, chapter 4 *The Myth of Meritocracy* has the greatest positive average (0.118) and chapter 16 *It's Not The Disaster That Kills You* has the the most negative average sentiment. In total, five chapters have a positive sentiment (i.e. above 0.05), four have a negative sentiment (i.e. below -0.05) and seven chapters have a neutral sentiment (i.e. between -0.05 and 0.05). 
 
 ```{r sentiment analysis by document plot, echo=F, message=F, warning=F}
 
