@@ -812,21 +812,19 @@ data.lda <- textmodel_lda(data.dfm,
 
 ```
 
-The following output displays the ten most frequent terms per topic and the ten most frequent topics per document.
+After building the LDA object, we look at the top three terms per topic and the top three topics per document. The following output shows that *public*, *sexual* and *toilet* are the top three words of topic 1 and that [CAN YOU HELP ME INTERPRET ???]. 
 
-```{r top terms, message=FALSE, warning=FALSE, include=FALSE}
+```{r top terms and topics, message=FALSE, warning=FALSE}
 
 # Top terms per topic
-terms(data.lda, 10)
-
-```
-
-```{r top topics, message=FALSE, warning=FALSE, include=FALSE}
+terms(data.lda, 3)
 
 # Top topics per document
-topics(data.lda) #??? Nécessaire ??? 
+topics(data.lda) %>% table()
 
 ```
+
+
 
 #### Term-Topic Analysis
 
