@@ -141,7 +141,7 @@ hash_valence_shifters %>%
 
 To proceed to the valance-shifters sentiment analysis, we first extract the sentences from the text and compute their sentiment value. Here, we do not assign weights to certain types of sentences (e.g. questions) since we believe that the sentence type does not have a particular influence on our analysis. 
 
-The below output displays the sentiment values of the first five sentences of the corpus, respectively of chapter one, and indicates for each the sentiment emerging from the terms of the sentences. Anything numerical value below 0.05 is considered negative and any value above 0.05 is considered positive. Anything in between is considered neutral. Thus, the first, fourth and fifth sentences are negative (respectively -0.408, -0.296 and -0.535) and the second and third ones are positive (respectively 0.245 and 0.096). Note that because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted.  
+The below output displays the sentiment values of the first five sentences of the corpus, respectively of chapter one, and indicates for each the sentiment emerging from the terms of the sentences. Anything numerical value below 0.05 is considered negative and any value above 0.05 is considered positive. Anything in between is considered neutral. Thus, the first, fourth and fifth sentences are negative (respectively -0.408, -0.296 and -0.535Because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted.  ) and the second and third ones are positive (respectively 0.245 and 0.096). Note that because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted.  
 
 ```{r sentiment analysis, echo=F, message=F, warning=F}
 
@@ -207,7 +207,7 @@ ggplotly(
 
 ```
 
-## Similarities and Clustering
+## Unsupervised Learning: Similarities and Clustering
 
 Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
 
@@ -330,19 +330,19 @@ ggplot(data = data.euc.mat,
 
 ```
 
-### Clustering of Documents
+### Clustering of Documents {.tabset}
 
-To proceed to clustering documents, we need to build the dissimilarities and/or vector space model (VSM) on which we can apply the clustering methods. There are two approaches to clustering. One is based on distances (i.e. hierarchical clustering) and the other one is based on features co-occurrences? (i.e. partitioning). 
+To proceed to clustering documents, we need to build the dissimilarities and/or Vector Space Model (VSM) on which we can apply the clustering methods, hierarchical clustering based on distances and K-mean partitioning based on features. 
 
-Clusters are difficult to interpret. This is why we can look at the most frequent terms in each cluster to understand better what they are grouping.
+Clusters are difficult to interpret. This is why we will look at the largest term frequencies of clusters to better understand what is the common denominator for the grouping.
 
 #### Hierarchical Clustering {.tabset}
 
-Hierarchical clustering is based on distances and applied on the dissimilarities.
+Hierarchical clustering is based on distances and applied on the dissimilarities using the function **hclust()**. The hierarchical approach assigns each document to its own cluster and then at each iteration the two most similar chapters are grouped together in one cluster. The iteration continues until all chapters belong to a cluster. 
 
 ##### Inverted Jaccard Dissimilarity Matrix
 
-The inverted Jaccard dissimilarity matrix seems to show that there are two clusters. One grouping chapter 15 *Who Will Rebuild* and the other one grouping the rest of the book. 
+The inverted Jaccard dissimilarity matrix shows that there are two clusters main clusters. One cluster groups chapter 15 *Who Will Rebuild* and chapter 16 *It's Not The Disaster That Kills You* and the other one groups the rest of the book. Moreover, inside the second larger cluster, we see that there are two sub-clusters.
 
 ```{r Jaccard inverted, echo=F, message=F, warning=F}
 
@@ -352,6 +352,8 @@ data.hc_jac <- hclust(as.dist(1 - data.jac)) # inverted similarity matrix
 plot(data.hc_jac)
 
 ```
+
+The following table indicates to which cluster a chapter belongs.
 
 ```{r Jaccard cutree, echo=F, message=F, warning=F}
 
@@ -372,9 +374,10 @@ data.clust_jac %>%
 
 ```
 
-From the clustering, we extract the ten words that are the most used. 
+For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, chapters 1, 2, 3, 7, 12, 14 share terms regarding public transport or spaces (cluster 1), chapters 4, 5, 6, 9, 10 and 11 are about medical or technological trials (cluster 2) and chapter 8, 13, 15 and 16 belong to their own clusters.
 
 ```{r Jaccard clust words, echo=F, message=F, warning=F}
+
 # Extract most frequent terms from clusters
 clust_jac <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_jac == 1,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
@@ -397,11 +400,9 @@ kbl(clust_jac,
 
 ```
 
-Using jaccard we still have two cluster that have terms the same previous previous clustering using euclidean distance : transport and medical, but the cluster 3 is different with top terms related to disaster or war, rather than top terms related to cars.  
-
 ##### Inverted Cosine Dissimilarity Matrix
 
-The inverted cosine dissimilarity matrix seems to show that there are two clusters. One grouping chapters 4, 14, 5, 6, 10, 11 and 8, 9 and the other one grouping chapters 1, 2, 15, 16, 7, 13, 3 and 12.
+The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each two smaller sub-clusters. One cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14.
 
 ```{r cosine inverted, echo=F, message=F, warning=F}
 
@@ -431,9 +432,10 @@ data.clust_cos %>%
 
 ```
 
-From the clustering, we extract the ten words that are the most used.
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, chapters 1, 2, 15 and 16 share terms regarding public transport or spaces and violence (cluster 1), chapters 3, 12 and 13 are using terms regarding households, families and economics (cluster 2), chapters 4 and 14 seem to share a political vocabulary (cluster 3), chapters 5, 6, 8, 9 use technical terms (cluster 4), chapter 7 has its own cluster about agriculture (cluster 6) and chapters 10 and 11 use a medical vocabulary (cluster 6).
 
 ```{r cosine clust words, echo=F, message=F, warning=F}
+
 # Extract most frequent terms from clusters
 clust_cos <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_cos == 1,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
@@ -454,11 +456,10 @@ kbl(clust_cos,
   scroll_box(height = "10%")  
 
 ```
-Here we have cluster top terms similar than using euclidean distance.  
 
 ##### Euclidean-based Dissimilarity Matrix
 
-The Euclidean dissimilarity matrix seems to show that there are three clusters. One grouping chapter 10 *The Drugs Don't Work*, one chapter 9 *A Sea Of Dudes* and the other one the rest of the book. 
+The Euclidean dissimilarity matrix seems to show that there is sequence of clusters which is a completely different clustering pattern compared to the other two distance measures. This pattern seems to indicate that each chapter is rather independent from the others and do not share a lot of similarities accross chapters of the book.
 
 ```{r Euclidean-based, echo=F, message=F, warning=F}
 
@@ -469,7 +470,6 @@ plot(data.hc_eu)
 
 ```
 
-From the clustering, we extract the ten words that are the most used. 
 
 ```{r Euclidean-based cutree, echo=F, message=F, warning=F}
 
@@ -487,11 +487,13 @@ data.clust_eu %>%
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) %>% 
   scroll_box(height = "10%")
+
 ```
 
-From the clustering, we extract the ten words that are the most used. It is interesting to observe that cluster one seems more to have words about transport and work, cluster two about car, and cluster 3 about medical. 
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. Here, clusters 1 and 3 
 
 ```{r Euclidean-based clust words, echo=F, message=F, warning=F}
+
 # Extract most frequent terms from clusters
 clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,], 2, sum), 
                                             decreasing = TRUE)[1:10]),
