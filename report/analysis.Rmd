@@ -900,7 +900,9 @@ theta.long %>%
 
 ##### Prevalence
 
-The prevalence is the the topic distribution (proportion) in a corpus and it is given by the sum of all the $\theta$ for a topic, divided by the sum of all $\theta$. Note that th formula does not consider the chapter's length.
+The prevalence is the the topic distribution (proportion) in a corpus: 
+
+$Prev(topic\ k) =  (\frac{1}{M})\Sigma_{m=1}^M \theta (k,m)$
 
 The following output displays the prevalence scores for each topic. We see that topic 10 is the most prevalent topic in the corpus (6.264) and that topic 8 is the least prevalent (0.616).
 
@@ -916,13 +918,16 @@ colSums(data.lda$theta)/sum(data.lda$theta) %>% table()
 
 ##### Coherence
 
-Topic modeling allows to organize, understand and summarize large corpora (plural of corpus). Yet, topic modeling has limitations especially regarding its interpretation of its outcomes. Therefore, some measures provide a way to extract more insight from it. 
+Topic modeling allows to organize, understand and summarize large corpora. Yet, topic modeling has limitations especially regarding the interpretation of its outcomes. In fact, other measures provide a way to extract further insight. 
 
-#### Coherence
+The measure of coherence allows to assess the quality of a topic (i.e. good versus bad):
 
-The measure of coherence allows to assess the quality of a topic (i.e. good versus bad). 
+$C = \Sigma_{t=2}^t \Sigma_{t'=1}^{t-1}log(\frac{D(v_t,v'_t) + 1}{D(v'_t)})$
 
 The below output gives the coherence for each ten topic. The most coherent topic is topic 5 with a coherence of 0.428 and the least coherent topic is topic 9 with a coherence of -8.934. 
+
+For a coherent topic, the terms associated to this topic (large theta) are used in the same documents.
+Indeed, suppose that the documents where the top term W appears never contain all the other top terms. Then, this top term W is not belonging to the topic. The topic is not coherent.
 
 ```{r coherence LSA, echo=F, message=F, warning=F}
 
