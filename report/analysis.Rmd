@@ -691,7 +691,7 @@ plot(data.hc)
 
 ```
 
-## Topic Modeling
+## Topic Modeling {.tabset}
 
 From the above clustering of documents, we understand that clusters are formed by grouping chapters with *similar* terms or vocabularies and that by looking at the most frequent terms in each cluster we can get an idea of what groups of chapters talk about. This is referred at the **topic** of a document. Note that one document can treat several topics. Topics are associated to both documents and terms. Indeed, a topic is associated to documents that use similar terms related to this topic and a topic is associated to terms that appear in documents treating this topic. 
 
@@ -699,7 +699,7 @@ Topic modeling is a type of statistical modeling for discovering the abstract *t
 
 Both models can be applied on DTM or TF-IDF matrix and here we decide to proceed to the topic modeling on the DTM.
 
-### Latent Semantic Analysis (LSA) {.tabset}
+### Latent Semantic Analysis (LSA) 
 
 LSA is a dimension reduction method that decomposes the DTM in three sub-matrices around a pre-determined number of topics. $\Sigma$ represents the strength of each topic, $U$ expresses the documents-topic similarity (i.e. links between documents and each topic) and $V$ expresses the terms-topic similarity (i.e. the links between the terms and each topic). 
 
@@ -742,6 +742,7 @@ data.frame(doc.freq,
        y = "Dimension 1")
   
 ```
+
 Then, to interpret the topics (i.e. dimensions) of the LSA, we look at the ten terms with the largest values and the ten terms with the lowest values. We decide randomly to take a look at dimension (i.e. topic) 4 and 5.
 
 According to the below output, topic 4 is positively associated to *public*, *transport*, *toilet*, *woman*, *space*, *bus*, *travel*, *sexual*, *report*, *girl* and negatively associated to *politician*, *party*, *government*, *country*, *candidate*, *leave*, *pay*, *bias*, *male*, *female*. Therefore, chapters that are associated with topic 4 use more the first ten terms and less the last ten terms. Consequently, chapters strongly associated with component 4 are likely to talk about female experience in public spaces. 
