@@ -1,3 +1,7 @@
+
+
+
+
 ```{r setup, echo = FALSE, message = FALSE}
 source(here::here("scripts/setup.R"))
 ```
@@ -152,6 +156,8 @@ for (i in 1:nrow(data)){
     rowindex <- rowindex+1
   }
 }
+# remove small text ( like name part)
+supervised_data <- supervised_data %>% filter(nchar(pagetext)>40)
 
 # Cleaning 
 
