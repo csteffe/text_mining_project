@@ -209,13 +209,19 @@ ggplotly(
 
 ## Similarities and Clustering
 
-Similarity is a proximity measure. Once can measure similarity between terms to see if they are used in the same context or similarity between documents and see whether a document uses the same tokens. 
+Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
+
+To compute similarities, we use three different measures namely the *Jaccard Index*, *Cosine Similarity* and *Euclidean Similarity* all three using the term-frequency inverse-document frequency.
 
 ### Similarities between Documents {.tabset}
 
+We first compute the similarity between chapters of the book to investigate whether they use the same token types. 
+
 #### Jaccard Index
 
-To study similarities between chapters (i.e. documents) of the book, we first compute the Jaccard index matrix displaying the relative number of common words using the TF-IDF matrix. 
+We first compute the Jaccard index matrix displaying the relative number of common words using the TF-IDF matrix. Note that the Jaccard coefficient considers only once each token type (i.e. set model). 
+
+From the Jaccard similarity matrix, where similarities are based on the Jaccard coefficient (i.e. relative number of common words) by document, we get the below heatmap in which chapters are likely to use similar terms. A red square indicates a strong similarity (e.g. 1) whereas a dark blue square indicates no similarity. Therefore, the heatmap shows that chapter 15 *Who Will Rebuild* is the text with the least similarity with other chapters. Also, we observe that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrome* seem to use the most similar terms.  
 
 ```{r Jaccard, echo=F, message=F, warning=F}
 
@@ -244,11 +250,15 @@ ggplot(data = data.jac.mat,
        y = "Chapter")+
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 22))
+
 ```
 
-#### Cosine
+#### Cosine Similarity
 
-Then, we compute the cosine similarity matrix. 
+Then, we compute the cosine similarity matrix which computes the similarity between two vectors of an inner product space. Note here that the similarity is independent of the vector length and that only the cosine angle between two weighted term-frequency vectors is determinant.
+
+Compared to the heat map generated using the Jaccard index, the next heatmap displays
+much more no similarity (darker blue squares) between terms used in different chapters than the previous one. However, chapter 10 and 11 still are shown as being the ones with the greatest similarity. 
 
 ```{r Cosine, echo=F, message=F, warning=F}
 
