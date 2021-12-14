@@ -1,7 +1,3 @@
-```{r, echo=F, message=F}
-source(here::here("scripts/setup.R"))
-
-```
 
 # 3. Exploratory Data Analysis (EDA)
 
