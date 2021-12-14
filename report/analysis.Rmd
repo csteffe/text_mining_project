@@ -221,7 +221,7 @@ We first compute the similarity between chapters of the book to investigate whet
 
 We first compute the Jaccard index matrix displaying the relative number of common words using the TF-IDF matrix. Note that the Jaccard coefficient considers only once each token type (i.e. set model). 
 
-From the Jaccard similarity matrix, where similarities are based on the Jaccard coefficient (i.e. relative number of common words) by document, we get the below heatmap in which chapters are likely to use similar terms. A red square indicates a strong similarity (e.g. 1) whereas a dark blue square indicates no similarity. Therefore, the heatmap shows that chapter 15 *Who Will Rebuild* is the text with the least similarity with other chapters. Also, we observe that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrome* seem to use the most similar terms.  
+From the Jaccard similarity matrix, where similarities are based on the Jaccard coefficient (i.e. relative number of common words) by document, we get the below heatmap in which chapters are likely to use similar terms. A red square indicates a strong similarity (e.g. 1) whereas a dark blue square indicates no similarity. Therefore, the heatmap shows that chapter 15 *Who Will Rebuild* is the text with the least similarity with other chapters (score closer to 0). Also, we observe that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrome* seem to use a bit more similar terms.  
 
 ```{r Jaccard, echo=F, message=F, warning=F}
 
@@ -253,12 +253,12 @@ ggplot(data = data.jac.mat,
 
 ```
 
-#### Cosine Similarity
+#### Cosine Distance
 
 Then, we compute the cosine similarity matrix which computes the similarity between two vectors of an inner product space. Note here that the similarity is independent of the vector length and that only the cosine angle between two weighted term-frequency vectors is determinant.
 
 Compared to the heat map generated using the Jaccard index, the next heatmap displays
-much more no similarity (darker blue squares) between terms used in different chapters than the previous one. However, chapter 10 and 11 still are shown as being the ones with the greatest similarity. 
+much more no similarity (darker blue squares) between terms used in different chapters than the previous one. However, chapter 10 and 11 are still shown as sharing less similarity.
 
 ```{r Cosine, echo=F, message=F, warning=F}
 
@@ -290,10 +290,10 @@ ggplot(data = data.cos.mat,
 
 ```
 
-#### Euclidean similarity 
+#### Euclidean Distance
 
-Finally, we compute the Euclidean-based similarity matrix. Is there a clearer separation between documents ? compare with above heatmaps ! Which documents are similar ? Are their groups ? 
- 
+Finally, we compute the Euclidean-based similarity matrix using the Euclidean distance. The below heatmap shows again a different output. Indeed, less documents are shown as having no similarity and more chapter similarities stand in a middle in which we cannot infere on similarity. For example, chapter 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* do not seem to either show similarity or dissimilarity. On the contrary, chapters 12 *A Costless Resource To Exploit* and 15 *Who Will Rebuild* are slightly more using similar terms.
+
 ```{r Euclidean, echo=F, message=F, warning=F}
 
 # Euclidean
