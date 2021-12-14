@@ -705,25 +705,48 @@ LSA is a dimension reduction method that decomposes the DTM in three sub-matrice
 
 Here, the advantages or goals of LSA is to find and interpret topics within chapters of *Invisible Women* and to reduce the dimension of the DTM object by removing sparsity which does not allow us to infer on terms association with chapters of the book. On the other hand, its disadvantage is the difficulty to interpret its results. 
 
-```{r LSA on, echo=F, message=F, warning=F}
+To build the LSA object, we use the **textmodel_lsa** function of the **quanteda.textmodels** package and we specify the number of dimensions to be included to be ten. Then, we proceed to the LSA decomposition into the three sub-matrices extracted from the DTM. The below output shows the documents-topic matrix $U$, the terms-topic matrix $V$ and finally the topics' strength $\Sigma$ in decreasing order. 
+
+```{r LSA on DTM, echo=F, message=F, warning=F}
 
 # Latent Semantic Analysis on DTM matrix
-data.lsa <- textmodel_lsa(data.tfidf, 
-                          nd = 10)          # number of dimensions/topics included in the output
+data.lsa <- textmodel_lsa(data.dfm, 
+                          nd = 10) # number of dimensions/topics included in the output
+
+head(data.lsa$docs)
+head(data.lsa$features)
+head(data.lsa$sk)
 
 ```
 
-##### Topics and Documents
+Before delving into the topic modeling analysis, we start by looking at the first dimension of the LSA since it is often correlated with the length of the document. The following plot shows that there is a negative linear relationship between the first component and the document length (i.e. total number of tokens in a document) indicating that the lenghtier is a document (i.e. chapter), the less it will be associated to dimension 1. For this specific reason, we ignore the first component of LSA i the further topic analysis.
+
+```{r first component LSA, echo=F, warning=F, message=F}
+
+# Number of tokens per text = row-sum of the DTM 
+doc.freq <- ntoken(data.tk2) # counts the number of tokens
+
+# Scatter plot
+data.frame(doc.freq, 
+           dim1 = data.lsa$docs[,1]) %>% 
+  ggplot(aes(doc.freq, dim1)) +
+  geom_point(color = "dodgerblue3", 
+             alpha = 0.5) + 
+  theme_minimal() +
+  labs(title = "LSA: dimension 1",
+       subtitle = "Negative linear correlation",
+       caption = "source: Invisible Women.pdf",
+       x = "Number of tokens",
+       y = "Dimension 1")
+  
+```
+
+
 
 The below output shows the association between the first six chapters and the ten topics. For example, text1 is associated the most with dimension (i.e. topic) 4 and the least associated with dimension (i.e. topic) 6. 
 The first dimension of LSA is associated with the document lengths (i.e. sum of lines of DTM) this is why it is often ignored. 
 
-```{r LSA topics with documents, echo=F, message=F, warning=F, out.width = "100%", fig.align = "center"}
 
-# Extract matrices from LSA decomposition for documents
-data.lsa$docs
-
-```
 
 To verify if the first dimension is associated with the document length we look at the below scatter-plot. We see that dimension 1 is negatively correlated with the number ok tokens, which confirms that the first dimension is associated with the document lenght.
 
@@ -731,17 +754,7 @@ To verify if the first dimension is associated with the document length we look 
 
 ```{r first dimension, echo=F, message=F, warning=F}
 
-# Number of tokens per text = row-sum of the DTM 
-doc.freq <- ntoken(data.tk2) 
 
-# Scatter plot
-data.frame(doc.freq, 
-           dim1 = data.lsa$docs[,1]) %>% 
-  ggplot(aes(doc.freq, dim1)) +
-  geom_point(color = "dodgerblue3", alpha = 0.5) + 
-  xlab("Number of tokens") + 
-  ylab("LSA dim. 1") +
-  theme_minimal()
 
 ```
 
