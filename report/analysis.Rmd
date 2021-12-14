@@ -969,7 +969,7 @@ Coh
 
 ```
 
-To verify the above statements, we take a look at the co-document frequencies. Below, we compare the term-frequency matrices of topics 8 (least coherent) and 10 (most coherent). Comparing the two below term-frequency matrices for topic 9 and 4, it is obvious that the top five terms in topic 5 are co-occurring more often in the same document than the top five terms in topic 9.
+To verify the above statements, we take a look at the co-document frequencies. Below, we compare the term-frequency matrices of topics 8 (least coherent) and 10 (most coherent). The matrices for topic 8 (top) and 10 (bottom) show that it is obvious that the top five terms in topic 10 are co-occurring more often in the same document than the top five terms in topic 8.
 
 ```{r feature matrix for topics 8 and 10, echo=F, message=F, warning=F}
 
@@ -985,9 +985,11 @@ as.matrix(data.codo[term.mat[,10],
 
 ##### Exclusivity 
 
-A topic is exclusive if it is associated with terms that are not associated to another topic. 
+A topic is considered exclusive if it is associated with terms that are not associated to another topic:
 
-The output below shows that the most exclusive topic (i.e. topic which as the more terms not associated with another topic) is topic 1 with an exclusivity measure of 0.65252, meaning that its five top terms are more specific to it, and the least exclusive one is topic 4 with 0.00280. 
+$Excl(topic\ k) = \Sigma_{t=1}^T(\frac{\theta(v,k)}{\Sigma_{k'=1}^K \theta(v,k')})$
+
+The next output shows that the most exclusive topic, which has the more terms not associated with another topic, is topic 10 (0.693663) meaning that its five top terms are more specific to it. The least exclusive topic is topic 1 (0.000309). 
 
 ```{r exclusivity LSA, echo=F, message=F, warning=F}
 
@@ -1001,12 +1003,13 @@ for (k in 1:10){
     term.phi <- filter(phi.long, 
                        Term == term.mat[i,k])
     
-    excl[k] <- excl[k] + filter(term.phi, Topic == "topic1")$Phi / sum(term.phi$Phi)
+    excl[k] <- excl[k] + filter(term.phi, Topic == "topic10")$Phi / sum(term.phi$Phi)
 }
   excl[k] <- excl[k] / length(term.mat[,k])
 }
 
-names(excl) <- c("topic1", "topic2", "topic3", "topic4", "topic5",                    "topic6", "topic7", "topic8", "topic9", "topic10")
+names(excl) <- c("topic1", "topic2", "topic3", "topic4", "topic5", "topic6", "topic7", "topic8", "topic9", "topic10")
+
 excl 
 
 ```
