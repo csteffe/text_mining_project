@@ -1014,9 +1014,9 @@ excl
 
 ```
 
-## Unsupervised learning: Embedding
+## Unsupervised Learning: Embedding
 
-Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM).
+Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM). From previous sections, we saw that tokens and documents are embedded in DT and TF-IDF matrices. The difference here is that we aim at representing document and term embedding and apply it to non-BoW models and instead use terms co-occurrences (i.e. order is important).
 
 ### Word Embedding Based on Co-occurences and GloVe
 
@@ -1196,7 +1196,7 @@ text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 
 ```
 
-## Supervised Analysis
+## Supervised Learning
 
 The goal of the supervised analysis is to re-classify its documents (i.e. chapters) using the features (i.e. terms) analyzed previously [add where maybe] [is that a good reformulation of the aim?]. To do so, we proceed to a machine learning approach consisting of splitting the corpus (*data* object) into a training and a test sets. Then, we train the classifiers on the training set and finally the best classifiers are selected on the test set. 
 
