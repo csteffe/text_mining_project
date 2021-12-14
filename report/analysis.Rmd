@@ -777,21 +777,18 @@ w.top5
 
 ```
 
-##### Topics and Documents and Features
+Now, to connect the topics and the documents and the topics and the terms, we generate a biplot that associates the position of the words and the position of the chapters in the LSA space, for dimensions 4 and 5 detailed above. To avoid readability issues due to the large number of terms, we display only words that are the most associated to these dimensions.
 
-The following biplot associates the positions of the terms (points) and the positions of the document (arrows) in the LSA space for topics 4 and 5 computed above.
-
-Here, we see that topic (i.e. dimension) 4 is positively associated with *tech*, *body*, *data*, *politicians*, *female*, and anti-associated with *transport*, *leave*, *sexy*. 
+Here, we see that topic 4 is associated with chapters 1, 2, 11, 15, 16 and terms *woman*, *report*, *sexual*, *travel*, *bus*, *space*, *toilet*, *transport*, *public* and anti-associated with chapters 3, 4, 12, 13, 14 and terms *male*, *pay*, *leave*, *politicians*, *bias*, *country*, *politicians* etc... Topic 5 is associated with chapters 5, 6, 7, 8, 15, 19 and terms *test*, *dummy*, *body*, *car*, *crash*, *tech*, *datum* and anti-associated with chapter 10 and terms *trial*, *drug*, *sex*. 
 
 ```{r biplot2, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
-w.subset <- data.lsa$features[c(unique(c(names(w.top4), 
-                                         names(w.top5)))),
-                              4:5]
+w.subset <- data.lsa$features[c(unique(c(names(w.top4), names(w.top5)))), 4:5]
 
 biplot(y = data.lsa$docs[,4:5],
        x = w.subset, 
        col = c("black","purple"),
+       main = "Biplot: dimensions 4 and 5",
        xlab = "Dim 4", 
        ylab="Dim 5")
 
