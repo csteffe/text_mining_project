@@ -795,9 +795,9 @@ biplot(y = data.lsa$docs[,4:5],
 
 ```
 
-### Latent Dirichlet Allocation (LDA)
+### Latent Dirichlet Allocation (LDA) {.tabset}
 
-The Latent Dirichlet Allocation is a generative model (i.e. Bayesian/probabilistic model) meaning that it generates documents (i.e. BoW) where the number of topics are pre-defined, as with LSA. The model works as follows. Random proportions of topics are drawn in a document and for each word of the document, a topic is selected at random. Then, given this randomly selected topic, a word in its vocabulary is also selected at random. Note that the main disadvantage of LDA is the difficulty to interpret its results. To be able to interpret its results, the model is represented as being a set of conditional probabilities defined by a set of parameters fitted to the DTM using a maximum likelihood approach. 
+The Latent Dirichlet Allocation is a generative model (i.e. Bayesian/probabilistic model) meaning that it generates documents (i.e. BoW) where the number of topics are pre-defined, as with LSA. The model works as follows. Random proportions of topics are drawn in a document and for each word of the document, a topic is selected at random. Then, given this randomly selected topic, a word in its vocabulary is also selected at random. Note that the main disadvantage of LDA is the difficulty to interpret its results and that its advantage is that we obtain probabilities in addition to the term-topic assignment. To be able to interpret its results, the model is represented as being a set of conditional probabilities defined by a set of parameters fitted to the DTM using a maximum likelihood approach. 
 
 To build the LDA object, we use the **textmodel_lda** function of the **seededlda** package and we specify the number of dimensions to be included to be ten.
 
@@ -824,17 +824,13 @@ topics(data.lda) %>% table()
 
 ```
 
+#### Term-topic Analysis
 
+The term-topic analysis computes the conditional probability $\phi$ to find a term knowing that it is assigned to a given topic. Then, for a given topic, the largest conditional probabilities give the terms that are the most associated with this topic. 
 
-#### Term-Topic Analysis
+The below output shows for each topic the terms with the highest conditional probabilities $\phi$. For example, the conditional probability of finding *woman* knowing that this term is assigned to topic 10 is almost 1 which indicates that *woman* is very strongly associated with topic 10 and consequently, that any document associated with topic 10 will have the term *woman* in it. Moreover, we also see that some topics are better defined than others. For example, topic 10 is the best defined topic whereas and topics 2 is not well defined at all.
 
-The term-topic analysis computes the conditional probability for a term to be found given that it is assigned to a given topic. Then, for a given topic, the largest conditional probabilities give the terms that are the most associated with this topic.The advantage of LDA is that we obtain the probabilities in addition to the term-topic assignment. 
-
-The below output shows for each ten topics, the terms with the highest conditional probabilities. For example, this conditional probability for the term *women* is almost 1, indicating that *women* is very strongly associated with topic 5 and so that any document associated with topic 5 will have the term *women* in it. We also see that some topics are better defined than others. For example, topic 5 is the most well defined and topics 6, 7, 8 and 9 are not well defined. 
-
-To sum up, the tables below give the probabilities to select a term w given that the term comes form topic k.
-
-```{r term-topic, echo=F, message=F, warning=F, out.height = "100%", out.width = "100%", fig.align = "center"}
+```{r term-topic analysis, echo=F, message=F, warning=F, out.height = "100%", out.width = "100%", fig.align = "center"}
 
 # Creates the topic-term probabilities => to describe a topic we look at the largest phis
 phi.long <- melt(data.lda$phi,             
