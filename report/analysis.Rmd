@@ -699,7 +699,7 @@ Topic modeling is a type of statistical modeling for discovering the abstract *t
 
 Both models can be applied on DTM or TF-IDF matrix and here we decide to proceed to the topic modeling on the DTM.
 
-### Latent Semantic Analysis (LSA)
+### Latent Semantic Analysis (LSA) {.tabset}
 
 LSA is a dimension reduction method that decomposes the DTM in three sub-matrices around a pre-determined number of topics. $\Sigma$ represents the strength of each topic, $U$ expresses the documents-topic similarity (i.e. links between documents and each topic) and $V$ expresses the terms-topic similarity (i.e. the links between the terms and each topic). 
 
@@ -742,21 +742,9 @@ data.frame(doc.freq,
        y = "Dimension 1")
   
 ```
+Then, to interpret the topics (i.e. dimensions) of the LSA, we look at the ten terms with the largest values and the ten terms with the lowest values. We decide randomly to take a look at dimension (i.e. topic) 4 and 5.
 
-##### Topics and Features
-
-The below output shoes the association between the first six most frequent words and the ten topics. For example, the term *sexist* is associated the most with topic 10. 
-
-```{r LSA topics with terms, echo=F, message=F, warning=F, out.width = "100%", fig.align = "center"}
-
-# Extract matrices from LSA decomposition for features
-head(data.lsa$features, n = 10)
-
-```
-
-To actually be able to interpret the topics (i.e. dimensions) of the LSA, we look at the ten terms with the largest values and the ten terms with the lowest values. We take a look at dimension 4 and 5.
-
-According to the below output, topic 4 is positively associated to *public*, *transport*, *sexual*, *girls*, *bus*, *spaces*, *data*, *toilets*, *harassment*, *toilet* and negatively associated to *maternity*, *drug*, *heart*, *pay*, *trials*, *paid*, *hours*, *sex*, *unpaid*, *leave*. Therefore, documents that have a large dimension 4 use more these first terms and less these last terms. 
+According to the below output, topic 4 is positively associated to *public*, *transport*, *toilet*, *woman*, *space*, *bus*, *travel*, *sexual*, *report*, *girl* and negatively associated to *politician*, *party*, *government*, *country*, *candidate*, *leave*, *pay*, *bias*, *male*, *female*. Therefore, chapters that are associated with topic 4 use more the first ten terms and less the last ten terms. Consequently, chapters strongly associated with component 4 are likely to talk about female experience in public spaces. 
 
 ```{r interpretaion topics-features dim 4, echo=F, message=F, warning=F}
 
@@ -774,7 +762,7 @@ w.top4
 
 ```
 
-According to the below output, topic 5 is positively associated to *female*, *public*, *trials*, *politicians*, *found*, *representation*, *party*, *government*, *political*, *study* and negatively associated to *boler*, *male*, *motion*, *seat*, *vr*, *dummy*, *car*, *body*, *tech*, *data*.Therefore, documents that have a large dimension 5 use more these first terms and less these last terms. 
+According to the below output, topic 5 is positively associated to *test*, *dummy*, *body*, *car*, *crash*, *tech*, *datum*, *seat*, *vr*, *design* and negatively associated to *tax*, *government*, *transport*, *trial*, *find*, *female*, *drug*, *sex*, *gender*, *public*.Therefore, documents that are associated with topic 4 use more the first ten terms and less the last ten terms. Consequently, chapters strongly associated with component 5 are likely to talk about technology. 
 
 ```{r interpretaion topics-features dim 5, echo=F, message=F, warning=F}
 
@@ -785,7 +773,7 @@ w.order <- sort(data.lsa$features[,5],
 w.top5 <- c(w.order[1:n.terms], 
             rev(rev(w.order)[1:n.terms]))
 
-w.top5 #?????? KABLE
+w.top5 
 
 ```
 
