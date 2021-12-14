@@ -924,10 +924,7 @@ The measure of coherence allows to assess the quality of a topic (i.e. good vers
 
 $C = \Sigma_{t=2}^t \Sigma_{t'=1}^{t-1}log(\frac{D(v_t,v'_t) + 1}{D(v'_t)})$
 
-The below output gives the coherence for each ten topic. The most coherent topic is topic 5 with a coherence of 0.428 and the least coherent topic is topic 9 with a coherence of -8.934. 
-
-For a coherent topic, the terms associated to this topic (large theta) are used in the same documents.
-Indeed, suppose that the documents where the top term W appears never contain all the other top terms. Then, this top term W is not belonging to the topic. The topic is not coherent.
+The below output gives the coherence for each ten topic. We see that the most coherent topic is topic 10 (0.557) and the least coherent topic is topic 8 (-9.174). Therefore, the words associated with topic 10 (large $\theta$) are used in the same documents.
 
 ```{r coherence LSA, echo=F, message=F, warning=F}
 
@@ -966,30 +963,27 @@ for (k in 1:10){
       Coh[k] <- Coh[k] + log((D.mat[vm, vl] + 1) / filter(D.vec, feature == vl)$docfreq)
 } }
 }
-names(Coh) <- c("topic1", "topic2", "topic3", "topic4", "topic5",                    "topic6", "topic7", "topic8", "topic9", "topic10")
+names(Coh) <- c("topic1", "topic2", "topic3", "topic4", "topic5","topic6", "topic7", "topic8", "topic9", "topic10")
+
 Coh 
 
 ```
 
-To verify we take a look at the co-document frequencies. Comparing the two below term-frequency matrices for topic 9 and 4, it is obvious that the top five terms in topic 5 are co-occurring more often in the same document than the top five terms in topic 9.
+To verify the above statements, we take a look at the co-document frequencies. Below, we compare the term-frequency matrices of topics 8 (least coherent) and 10 (most coherent). Comparing the two below term-frequency matrices for topic 9 and 4, it is obvious that the top five terms in topic 5 are co-occurring more often in the same document than the top five terms in topic 9.
 
-```{r feature matrix for topic 5, echo=F, message=F, warning=F}
+```{r feature matrix for topics 8 and 10, echo=F, message=F, warning=F}
 
-# Feature matrix for topic 5
-as.matrix(data.codo[term.mat[,5], 
-                    term.mat[,5]])
+# Feature matrix for topic 8
+as.matrix(data.codo[term.mat[,8], 
+                    term.mat[,8]])
 
-```
-
-```{r feature matrix for topic 9, echo=F, message=F, warning=F}
-
-# Feature matrix for topic 9
-as.matrix(data.codo[term.mat[,9], 
-                    term.mat[,9]])
+# Feature matrix for topic 10
+as.matrix(data.codo[term.mat[,10], 
+                    term.mat[,10]])
 
 ```
 
-#### Exclusivity 
+##### Exclusivity 
 
 A topic is exclusive if it is associated with terms that are not associated to another topic. 
 
