@@ -1,6 +1,3 @@
-```{r setup, echo = FALSE, message = FALSE}
-source(here::here("scripts/setup.R"))
-```
 
 # 4. Analysis
 
@@ -66,7 +63,7 @@ kbl(data.sent,
 The below interactive graph shows for each chapter of the book the proportion of terms matched with a positive and negative sentiment. For example, chapter two *Gender Neutral With Urinals* is found to have 177 terms matched with a positive sentiment and 408 with a negative one. 
 
 Overall, positive and negative sentiments are found in all 16 chapters of the book although more terms are recognized as negative (3,596) than as positive (2,661) indicating that the frequency of negative terms is higher than the one of positive terms. 
-```{r dictionary-based analysis plot2, echo=F, message=F, warning=F}
+```{r dictionary-based analysis plot2, echo=F, message=F, warning=F, fig.height = 3, fig.width = 3, fig.align = "center"}
 
 data.sent <- tokens_lookup(data.tk4, 
                            dictionary = data_dictionary_LSD2015) %>% 
@@ -362,15 +359,13 @@ data.clust_jac <- cutree(data.hc_jac,
                          k = 6)
 data.clust_jac %>% 
   as.tibble() %>% 
-  mutate(document = as.factor(names(data.clust_jac)), 
+  mutate(document = names(data.clust_jac), 
          cluster = value) %>% 
   select(!(value)) %>% 
-  arrange(cluster) %>% 
-  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
   kbl(caption = "Clusters using Jaccard") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>% 
-  scroll_box(height = "10%")
+                full_width = NULL) 
 
 ```
 
@@ -396,7 +391,7 @@ kbl(clust_jac,
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) %>%
-  scroll_box(height = "5%")
+  scroll_box(height = "300px")
 
 ```
 
@@ -420,15 +415,14 @@ data.clust_cos <- cutree(data.hc_cos,
                          k = 6)
 data.clust_cos %>% 
   as.tibble() %>% 
-  mutate(document = as.factor(names(data.clust_jac)), 
+  mutate(document = names(data.clust_cos), 
          cluster = value) %>% 
   select(!(value)) %>% 
-  arrange(cluster) %>% 
-  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
   kbl(caption = "Clusters using Cosine") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>% 
-  scroll_box(height = "10%")
+                full_width = NULL) #%>% 
+  #scroll_box(height = "300px")
 
 ```
 
@@ -453,7 +447,7 @@ kbl(clust_cos,
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) %>% 
-  scroll_box(height = "10%")  
+  scroll_box(height = "300px")  
 
 ```
 
@@ -478,15 +472,14 @@ data.clust_eu <- cutree(data.hc_eu,
                         k = 6)
 data.clust_eu %>% 
   as.tibble() %>% 
-  mutate(document = as.factor(names(data.clust_jac)), 
+  mutate(document = names(data.clust_eu), 
          cluster = value) %>% 
   select(!(value)) %>% 
-  arrange(cluster) %>% 
-  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
   kbl(caption = "Clusters using Euclidiean distance") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>% 
-  scroll_box(height = "10%")
+                full_width = NULL) 
+
 
 ```
 
@@ -512,7 +505,7 @@ kbl(clust_eu,
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) %>% 
-  scroll_box(height = "10%") 
+  scroll_box(height = "300px") 
 
 ```
 
@@ -520,22 +513,21 @@ kbl(clust_eu,
 
 K-means is applied on the features (i.e. terms?) using TF-IDF. 
 
-```{r Euclidean-based km, echo=F, message=F, warning=F}
-
+```{r K-means, echo=F, message=F, warning=F}
+set.seed(253)
 # Creates three clusters
 data.km <- kmeans(data.tfidf,
                      centers = 6)
 data.km$cluster %>% 
   as.tibble() %>% 
-  mutate(document = as.factor(names(data.clust_jac)), 
+  mutate(document = names(data.km$cluster), 
          cluster = value) %>% 
   select(!(value)) %>% 
   arrange(cluster) %>% 
-  #pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
   kbl(caption = "Clusters using Euclidiean distance") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>% 
-  scroll_box(height = "10%")
+                full_width = NULL)
 ```
 
 Using kmean we have the cluster 2 that is different from other method, with top terms related to politics.
@@ -560,7 +552,7 @@ kbl(clust_km,
     caption = "Ten Most Frequent Terms By Cluster") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL) %>% 
-  scroll_box(height = "10%")
+  scroll_box(height = "300px")
 
 ```
 
@@ -572,7 +564,7 @@ Now we analyze similarities between words through chapters (i.e. documents). Bec
 
 What words are similar ? It means they are used in similar proportion through documents.
 
-```{r euclidean similarities btwn words, echo=F, message=F, warning=F}
+```{r euclidean similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
 
 # Extracts the features
 data.feat <- textstat_frequency(data.dfm) %>% 
@@ -599,7 +591,7 @@ ggplot(data = data.cos.mat,
                        limit = c(0,1), 
                        name = "Cosine") +
   geom_tile() + 
-  theme(axis.text.x = element_text(angle = 45, 
+  theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1))
 
 
@@ -612,7 +604,7 @@ Using co-occurrences to cluster features requires transforming co-occurrences in
 
 Are terms co-occurring ? if yes, a lot ? 
 
-```{r clustering with co-occurrences, echo=F, message=F, warning=F}
+```{r clustering with co-occurrences, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
 
 # Makes a co-occurrence on a (half-)window of 3
 data.fcm <- fcm(data.tk2, 
@@ -641,7 +633,7 @@ ggplot(data = data.fcm.mat,
                        limit = c(0,280), 
                        name = "Co-occurrence") +
   geom_tile() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
 
@@ -682,7 +674,7 @@ data.lsa <- textmodel_lsa(data.tfidf,
 
 The below output shows the association between the first six chapters and the ten topics. For example, text1 is associated the most with dimension (i.e. topic) 4 and the least associated with dimension (i.e. topic) 6. 
 
-```{r LSA topics with documents, echo=F, message=F, warning=F}
+```{r LSA topics with documents, echo=F, message=F, warning=F, out.width = "100%", fig.align = "center"}
 
 # Extract matrices from LSA decomposition for documents
 data.lsa$docs
@@ -702,7 +694,7 @@ doc.freq <- ntoken(data.tk2)
 data.frame(doc.freq, 
            dim1 = data.lsa$docs[,1]) %>% 
   ggplot(aes(doc.freq, dim1)) +
-  geom_point(fill = "dodgerblue3", alpha = 0.5) + 
+  geom_point(color = "dodgerblue3", alpha = 0.5) + 
   xlab("Number of tokens") + 
   ylab("LSA dim. 1") +
   theme_minimal()
@@ -713,7 +705,7 @@ data.frame(doc.freq,
 
 The below output shoes the association between the first six most frequent words and the ten topics. For example, the term *sexist* is associated the most with topic 10. 
 
-```{r LSA topics with terms, echo=F, message=F, warning=F}
+```{r LSA topics with terms, echo=F, message=F, warning=F, out.width = "100%", fig.align = "center"}
 
 # Extract matrices from LSA decomposition for features
 head(data.lsa$features, n = 10)
@@ -736,7 +728,7 @@ w.order <- sort(data.lsa$features[,4], #
 w.top4 <- c(w.order[1:n.terms], 
             rev(rev(w.order)[1:n.terms]))
 
-w.top4 #?????? KABLE
+w.top4 
 
 ```
 
@@ -761,7 +753,7 @@ The following biplot associates the positions of the terms (points) and the posi
 
 Here, we see that topic (i.e. dimension) 4 is positively associated with *tech*, *body*, *data*, *politicians*, *female*, and anti-associated with *transport*, *leave*, *sexy*. 
 
-```{r biplot2, echo=F, message=F, warning=F}
+```{r biplot2, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
 w.subset <- data.lsa$features[c(unique(c(names(w.top4), 
                                          names(w.top5)))),
@@ -793,14 +785,14 @@ data.lda <- textmodel_lda(data.dfm,
 
 The following output displays the ten most frequent terms per topic and the ten most frequent topics per document.
 
-```{r top terms, echo=F, message=F, warning=F}
+```{r top terms, message=FALSE, warning=FALSE, include=FALSE}
 
 # Top terms per topic
 terms(data.lda, 10)
 
 ```
 
-```{r top topics, echo=F, message=F, warning=F}
+```{r top topics, message=FALSE, warning=FALSE, include=FALSE}
 
 # Top topics per document
 topics(data.lda) #??? Nécessaire ??? 
@@ -815,7 +807,7 @@ The below output shows for each ten topics, the terms with the highest condition
 
 To sum up, the tables below give the probabilities to select a term w given that the term comes form topic k.
 
-```{r term-topic, echo=F, message=F, warning=F}
+```{r term-topic, echo=F, message=F, warning=F, out.height = "100%", out.width = "100%", fig.align = "center"}
 
 # Creates the topic-term probabilities => to describe a topic we look at the largest phis
 phi.long <- melt(data.lda$phi,             
@@ -835,10 +827,12 @@ phi.long %>%
   scale_x_reordered() + 
   xlab("Term") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 20))
+  theme(axis.text.x = element_text(angle = 90),
+        axis.text=element_text(size=9))
 
 
 ```
+
 #### Topic-Document Analysis
 
 The topic-document analysis provided the probabilities for a topic to be found in a document. 
@@ -847,7 +841,7 @@ The below output shows that more than 60% of topics 2 is about text 13 and more 
 
 To dive a little bit deeper, we then look at the ten six longest chapters (i.e. documents).
 
-```{r longest document, echo=F, message=F, warning=F}
+```{r longest document, message=FALSE, warning=FALSE, include=FALSE}
 
 # Longest six documents
 doc.list <- names(sort(ntoken(data.tk2), 
@@ -870,9 +864,10 @@ theta.long %>%
   filter(Doc %in% doc.list) %>%                # selects the selected documents above
   ggplot(aes(reorder_within(Topic, 
                             Theta, 
-                            Doc,), 
-             Theta, fill = "dodgerblue3", alpha = 0.5)) +
-  geom_col(show.legend = FALSE) +
+                            Doc,),
+                            Theta)) +
+  geom_col(show.legend = FALSE, 
+           fill = "dodgerblue3", alpha = 0.5) +
   coord_flip()+
   facet_wrap(~ Doc, 
              scales = "free_y") +
@@ -950,8 +945,8 @@ for (k in 1:10){
       Coh[k] <- Coh[k] + log((D.mat[vm, vl] + 1) / filter(D.vec, feature == vl)$docfreq)
 } }
 }
-
-Coh # ?!?!? KABLE 
+names(Coh) <- c("topic1", "topic2", "topic3", "topic4", "topic5",                    "topic6", "topic7", "topic8", "topic9", "topic10")
+Coh 
 
 ```
 
@@ -996,7 +991,8 @@ for (k in 1:10){
   excl[k] <- excl[k] / length(term.mat[,k])
 }
 
-excl # ?!?!? KABLE 
+names(excl) <- c("topic1", "topic2", "topic3", "topic4", "topic5",                    "topic6", "topic7", "topic8", "topic9", "topic10")
+excl 
 
 ```
 
@@ -1010,7 +1006,7 @@ The idea behind word embedding based on co-occurrences is to reflect co-occurren
 
 To start with, we compute a feature co-occurrence symmetric matrix with a window of five. The matrix is very large (8,640x8,640) and displays the number of times terms (i.e. features) appear together in a window of five words. 
 
-```{r fcm, echo=F, message=F, warning=F}
+```{r fcm, echo= FALSE, message=FALSE, warning=FALSE}
 
 # Makes a co-occurrence on a (half-)window of 5
 data.tk5 <- tokens(data.cp,
@@ -1032,13 +1028,12 @@ data.coo <- fcm(data.tk5,
                 window = 5, 
                 tri=FALSE)
 
-head(data.coo)
 
 ```
 
 From the feature co-occurrences matrix we compute two vector representations for a given word (i.e. feature). One representation for a word being the central term and the other one  for a word being in the context. To then have a unique representation for a given word, we compute the average of the two representations.
 
-```{r two representations, echo=F, message=F, warning=F}
+```{r two representations, message=FALSE, warning=FALSE, include=FALSE}
 
 # Sets a seed for reproducibility 
 set.seed(123)
@@ -1057,7 +1052,7 @@ data.weC <- data.glove$fit_transform(data.coo)
 
 The following output displays the unique representations of the vectors?.
 
-```{r vectors, echo=F, message=F, warning=F}
+```{r vectors, message=FALSE, warning=FALSE, include=FALSE}
 
 # unique representation
 data.we <- t(data.glove$components) + data.weC 
@@ -1066,19 +1061,19 @@ head(data.we, 10)
 
 ```
 
-We now plot the vectors of the 50 most used words (50 largest frequencies).
+We now plot the vectors of the 20 most used words.
 
-```{r unique reprensentaion, echo=F, message=F, warning=F}
+```{r unique reprensentaion, message=FALSE, warning=FALSE, include=FALSE}
 
 # Words with the 50 largest frequencies
 index2 <- textstat_frequency(dfm(data.tk5))[1:20,]$feature
 
-index2 # ?? Nécessaire ? ?
+index2 
 
 
 ```
 
-```{r plot, echo=F, message=F, warning=F}
+```{r plot, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
 # Plots
 plot(data.we[index2, ], 
@@ -1095,16 +1090,15 @@ title(main = "20 most used words", sub = "source: Invisible Women.pdf")
 
 To build the document embedding we compute the centroids of the documents. First, we need to extract the words in each document. 
 
-```{r words extraction, echo=F, message=F, warning=F}
+```{r words extraction, message=FALSE, warning=FALSE, include=FALSE}
 
 # Words in Document 1
-head(data.tk5[[1]]) # ??? Nécessaire on les voit juste après 
-
+head(data.tk5[[1]]) 
 ```
 
 Then, for these words we extract the word vectors and make a matrix.
 
-```{r word vectors, echo=F, message=F, warning=F}
+```{r word vectors, message=FALSE, warning=FALSE, include=FALSE}
 
 # Word vectors
 head(data.we[data.tk5[[1]],])
@@ -1113,7 +1107,7 @@ head(data.we[data.tk5[[1]],])
 
 Finally, we average all these vectors.
 
-```{r average, echo=F, message=F, warning=F}
+```{r average, message=FALSE, warning=FALSE, include=FALSE}
 
 # Averages all these vectors => Document 1 vector
 apply(data.we[data.tk5[[1]],], 2, mean) 
@@ -1124,7 +1118,7 @@ apply(data.we[data.tk5[[1]],], 2, mean)
 
 Now we make the loop to apply the previous steps on all documents.
 
-```{r loop over documents, echo=F, message=F, warning=F}
+```{r loop over documents, message=FALSE, warning=FALSE, include=FALSE}
 
 # Number of documents
 nd <- length(data.tk5) 
@@ -1151,7 +1145,7 @@ head(data.de) ## document vectors
 ```
  
 #### Centroids using DTM 
-```{r plot-texts, echo=F, message=F, warning=F}
+```{r plot-texts, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
 # Plots
 plot(data.de, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids")
@@ -1160,7 +1154,7 @@ title(sub = "source: Invisible Women.pdf")
 ```
 
 #### Centroids using TF-IDF
-```{r centroid plot tfidf, echo=F, message=F, warning=F}
+```{r centroid plot tfidf, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
 data_tfidf <- dfm_tfidf(dfm(data.tk5))
 
@@ -1189,6 +1183,8 @@ text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 The goal of the supervised analysis is to re-classify its documents (i.e. chapters) using the features (i.e. terms) analyzed previously [add where maybe] [is that a good reformulation of the aim?]. To do so, we proceed to a machine learning approach consisting of splitting the corpus (*data* object) into a training and a test sets. Then, we train the classifiers on the training set and finally the best classifiers are selected on the test set. 
 
 To be able to proceed to the classification method described above, the corpus must be cleaned in order for the features (i.e. terms) to be usable. The cleaning process is achieved in the *Data Structuring and Cleaning* of the **Data** section and consists in sequential steps from the tokenization, removing useless words (i.e. stop words), lemmatization (i.e. tokens simplification) to stemming (i.e. reduce words to their stems). 
+
+### Random Forest
 
 ```{r test, echo=F, message=F, warning=F}
 # create dfm object
@@ -1219,19 +1215,24 @@ pred.te <- predict(data.fit, df.te)
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 ```
 
-```{r, echo=FALSE}
+
+```{r eval=FALSE, include=FALSE}
+### Random Forest with bootstraping
 set.seed(999)
 trctrl <- trainControl(method = "boot")
 
 # trctrl <- trainControl(method = "cv", number = 20)
 
-train(Class~., 
+test <- train(Class~., 
       data=df.tr, 
       method = 'ranger', 
       trControl=trctrl, 
       preProcess = c("center","scale"), 
       tuneLength = 10)
 
+ldaClasses <- predict(test)
+ confusionMatrix(data = ldaClasses, )
+F1_score(cm$table, "lda")
 ```
 
 
