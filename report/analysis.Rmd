@@ -858,24 +858,18 @@ phi.long %>%
 
 #### Topic-document Analysis
 
-The topic-document analysis provided the probabilities for a topic to be found in a document. 
+The topic-document analysis computes the conditional probability $\theta$ to find a word in a topic knowing that it is assigned to a specific document. Then, for a given document, the largest conditional probabilities give the terms that are the most associated with this document. 
 
-The below output shows that more than 60% of topics 2 is about text 13 and more than 60% of topic 3 is about text 14. 
+The below output shows, for the six longest chapters, the highest conditional probabilities $\theta$ for each topic. For example, chapter 2 *Gender Neutral With Urinals* mainly talks about topic 1 and 10 (not in the same proportion though).
 
-To dive a little bit deeper, we then look at the ten six longest chapters (i.e. documents).
 
-```{r longest document, message=FALSE, warning=FALSE, include=FALSE}
+```{r topic-document analysis, message=FALSE, warning=FALSE, include=F}
 
 # Longest six documents
 doc.list <- names(sort(ntoken(data.tk2), 
                        decreasing = TRUE)[1:6])
-doc.list #???KABLE
 
 ```
-
-[Improve layout: can we add chapter name instead of text ?]
-
-Below we see that chapter 14 *Women's Rights Are Human Rights* mainly talks about topic 3. 
 
 ```{r longest document plot, echo=F, message=F, warning=F}
 
@@ -895,9 +889,9 @@ theta.long %>%
   facet_wrap(~ Doc, 
              scales = "free_y") +
   scale_x_reordered() + 
-    labs(title = "Topic analysis by Chapter",
-                   x = "Document",
-                   caption = "source: Invisible Women.pdf") +
+  labs(title = "Topic analysis by Chapter",
+       x = "Document",
+       caption = "source: Invisible Women.pdf") +
   theme_minimal()
 
 
