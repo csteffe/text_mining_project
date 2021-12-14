@@ -638,27 +638,23 @@ ggplot(data = data.cos.mat2,
 
 ### Clustering of Words {.tabset}
 
-To avoid redundancy, we decide not to proceed to the same clustering methods (hierarchical and K-means) as in the *Clustering of Documents* and to use instead the co-occurrence similarity measure to cluster the 40 most frequent terms in the corpus that we studied above in **Similarities Between Words**. 
+To avoid redundancy, we decide not to use the same similarity measures for the clustering methods (Jaccard index, Cosine distance, Euclidean distance) as in the *Clustering of Documents* and to use instead the co-occurrence similarity measure to cluster the 40 most frequent terms in the corpus that we studied above in **Similarities Between Words**. 
 
-#### Clustering With Co-occurrence 
+#### Clustering With Co-occurrence (Hierarchical Clustering)
 
-Co-occurrence is also a similarity measure for which two words are considered similar if they are often used closely in a similar context, in any part of the corpus. Since co-occurrence similarity is dependent on the token's context (i.e. document or window). Here, we consider the context as being a window of terms around a target (i.e. central word or center). The subtelty of the co-occurrence clustering is that by considering the context of a word, we are computing similarities beyond literal resemblance and consider as well the meaning of words. this measure is different than the Jaccard, Cosine or Euclidean similarity measures which do not depend on the context of a word. 
+Co-occurrence is also a similarity measure for which two words are considered similar if they are often used closely in a similar context, in any part of the corpus. Therefore, co-occurrence similarity is dependent on the token's context (i.e. document or window). Here, we consider the context as being a window of terms around a target (i.e. central word or center). The subtlety of the co-occurrence clustering is that by considering the context of a word, we are computing similarities beyond literal resemblance and, consider as well the meaning of words. Thus, this measure is different than the Jaccard, Cosine or Euclidean similarity measures which do not depend on the context of a word. Note that since the context is important, the tokens ordered must kept when computing the co-occurrence matrix (i.e. Bag of Word object cannot be used here). 
 
-Using co-occurrences to cluster features requires transforming co-occurrences into dissimilarities. Object needs to be the tokens because co-occurrences needs the token order and thus cannot be computed on a BOW object. 
-
-Are terms co-occurring ? if yes, a lot ? 
+To proceed to the clustering, we first compute a symmetrical co-occurrence matrix on a window of 80 terms around a target used as a similarity matrix. The below heatmap shows the similarities of the most frequent terms [ASK PROFESSOR BOLDI WHY WE HAVE GREY SQUARES: IS IT BECAUSE TERMS DON'T CO OCCUR ?]
 
 ```{r clustering with co-occurrences, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
 
-# Makes a co-occurrence on a (half-)window of 3
+# Makes a co-occurrence on a window of 80
 data.fcm <- fcm(data.tk2, 
                 window = 80, 
                 tri = FALSE)
 
 # Makes the co-occurrence matrix symmetrical
 data.fcm <- (data.fcm + t(data.fcm))/2
-
-data.feat <- textstat_frequency(dfm(data.tk2)) %>% filter(rank <= 40) 
 
 # Makes a matrix
 data.fcm.mat <- melt(as.matrix(data.fcm[data.feat$feature, 
@@ -680,12 +676,15 @@ ggplot(data = data.fcm.mat,
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
+Then, we transform the co-occurrence matrix into a dissimilarity matrix (*maximum co-occurrence - similarity matrix*) from which we derive the co-occurrence distance-based clustering (i.e. hierarchical clustering). The next dendogram displays the clustering of the most frequent terms co-occurring [IS IT RIGHT TO CONCLUDE THIS?]
 
 ```{r clustering analysis, echo=F, message=F, warning=F}
 
+# Dissimilarity matrix 
 data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature, 
                                          data.feat$feature]) # 280 is the max co-occurrence here
 
+# Cluster
 data.hc <- hclust(as.dist(data.inv_occ))
 
 plot(data.hc)
