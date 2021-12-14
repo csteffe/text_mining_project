@@ -705,9 +705,9 @@ LSA is a dimension reduction method that decomposes the DTM in three sub-matrice
 
 Here, the advantages or goals of LSA is to find and interpret topics within chapters of *Invisible Women* and to reduce the dimension of the DTM object by removing sparsity which does not allow us to infer on terms association with chapters of the book. On the other hand, its disadvantage is the difficulty to interpret its results. 
 
-To build the LSA object, we use the **textmodel_lsa** function of the **quanteda.textmodels** package and we specify the number of dimensions to be included to be ten. Then, we proceed to the LSA decomposition into the three sub-matrices extracted from the DTM. The below output shows the documents-topic matrix $U$, the terms-topic matrix $V$ and finally the topics' strength $\Sigma$ in decreasing order. 
+To build the LSA object, we use the **textmodel_lsa** function of the **quanteda.textmodels** package and we specify the number of dimensions to be included to be ten. Then, we proceed to the LSA decomposition into the three sub-matrices extracted from the DTM. The below output shows the documents-topic matrix $U$ for the first six chapters, the terms-topic matrix $V$ for the ten most frequent terms [IS THAT CORRECT?????] and finally the topics' strength $\Sigma$ in decreasing order. 
 
-[CAN WE ADD HOW TO READ THESE MATRICES?INTERPRET?]
+The first matrix $U$ shows that chapter 1 *Can Snow-Clearing be Sexist?* is the most positively associated to topic 8 and the most negatively associated to topic 6. The second matrix $V$ indicates that *sexist* is the most positively associated to topic 8 and the most negatively associated to topic 3.
 
 ```{r LSA on DTM, echo=F, message=F, warning=F}
 
@@ -716,12 +716,12 @@ data.lsa <- textmodel_lsa(data.dfm,
                           nd = 10) # number of dimensions/topics included in the output
 
 head(data.lsa$docs)
-head(data.lsa$features)
-head(data.lsa$sk)
+head(data.lsa$features, n = 10)
+data.lsa$sk
 
 ```
 
-Before delving into the topic modeling analysis, we start by looking at the first dimension of the LSA since it is often correlated with the length of the document. The following plot shows that there is a negative linear relationship between the first component and the document length (i.e. total number of tokens in a document) indicating that the lenghtier is a document (i.e. chapter), the less it will be associated to dimension 1. For this specific reason, we ignore the first component of LSA i the further topic analysis.
+Before delving into the topic modeling analysis, we start by looking at the first dimension of the LSA since it is often correlated with the length of the document. The following plot shows that there is a negative linear relationship between the first component and the document length (i.e. total number of tokens in a document) indicating that the lengthier is a document (i.e. chapter), the less it will be associated to dimension 1. For this specific reason, we ignore the first component of LSA i the further topic analysis.
 
 ```{r first component LSA, echo=F, warning=F, message=F}
 
