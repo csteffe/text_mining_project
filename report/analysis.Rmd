@@ -480,8 +480,7 @@ data.clust_eu %>%
 
 ```
 
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally, cluster 6 shows politics-related terms. 
-
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally and finally, cluster 6 shows politics-related terms. 
 ```{r Euclidean-based clust words, echo=F, message=F, warning=F}
 
 # Extract most frequent terms from clusters
@@ -506,28 +505,34 @@ kbl(clust_eu,
 
 ```
 
-#### K-Means
+#### K-Means Clustering 
 
-K-means is applied on the features (i.e. terms?) using TF-IDF. 
+K-means is a non-hierarchical partitioning method for clustering. In text analysis, K-means is based on feature frequencies. Here, we set the pre-defined number of clusters (i.e. respectively number of centroids) to six since there are six parts in the book. By doing so, we expect to see chapters being grouped following the parts division logic of the author. 
 
 ```{r K-means, echo=F, message=F, warning=F}
+
 set.seed(253)
-# Creates three clusters
+
+# Creates six clusters
 data.km <- kmeans(data.tfidf,
-                     centers = 6)
+                  centers = 6)
+
 data.km$cluster %>% 
   as.tibble() %>% 
   mutate(document = names(data.km$cluster), 
          cluster = value) %>% 
   select(!(value)) %>% 
   arrange(cluster) %>% 
-  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  pivot_wider(names_from = cluster, 
+              names_prefix = "cluster", 
+              values_from = document) %>% 
   kbl(caption = "Clusters using Euclidiean distance") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
                 full_width = NULL)
+
 ```
 
-Using kmean we have the cluster 2 that is different from other method, with top terms related to politics.
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to politics, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to transportation and travel, cluster 4 reveals terms about public spaces and violence, cluster 5 displays terms related to technology and finally, cluster 6 indicates a medical vocabulary. 
 
 ```{r km clust words, echo=F, message=F, warning=F}
 
@@ -553,31 +558,33 @@ kbl(clust_km,
 
 ```
 
-### Similarities Between Words
+### Similarities Between Words {.tabset}
 
-Now we analyze similarities between words through chapters (i.e. documents). Because of the large number of words, we focus on word frequency ranks smaller or equal to 40 (i.e. 40 most frequent words).
+Now, we analyze similarities between words through chapters (i.e. documents). A word is embedded in a Vector Space Model using its document frequencies (or weighted frequencies) this is why, we proceed to computing similarities between terms using the DTM matrix. To compute the similarities between words, we use the same three different measures as when computing the similarities between documents. Note that because of the large number of tokens, we focus on the highest word-frequencies respectively, the lowest word ranks (i.e. smaller or equal to 40). 
 
-#### Cosine
+```{r smaller ranks, echo=F, message=F, warning=F}
 
-What words are similar ? It means they are used in similar proportion through documents.
-
-```{r euclidean similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
-
-# Extracts the features
+# Extracts the features in the DTM
 data.feat <- textstat_frequency(data.dfm) %>% 
-  filter(rank <= 40)
+             filter(rank <= 40)
 
-#?????????? à enlever non ? data.feat$feature
+```
 
-data.cos <- textstat_simil(data.dfm[, data.feat$feature], 
-                           method = "cosine", 
-                           margin = "feature")
+#### Jaccard Index
+
+The below heatmap shows that according to the Jaccard index most words among the 40 most frequent ones are very similar or identical. Although, the Jaccard similarity indices of *tax* and all other 39 words are represented by a dark blue squares, indicating that the these words in each pair with *tax* are not used in similar proportion through documents and consequently are not considered similar through documents. Moreover, *worker* and *pay* are not considered similar nor dissimilar according to the Jaccard index since their indices are represented by white squares (similarity of 0.5).
+
+```{r Jaccard index similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
+
+data.jac2 <- textstat_simil(data.dfm[, data.feat$feature], 
+                            method = "jaccard", 
+                            margin = "feature")
 
 # Converts the object to matrix then to data frame
-data.cos.mat <- melt(as.matrix(data.cos)) 
+data.jac.mat2 <- melt(as.matrix(data.jac2)) 
 
 # Plots
-ggplot(data = data.cos.mat, 
+ggplot(data = data.jac.mat2, 
        aes(x = Var1, 
            y = Var2,  
            fill = value)) +
@@ -591,8 +598,41 @@ ggplot(data = data.cos.mat,
   theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1))
 
+```
+
+#### Cosine Distance
+
+The below heatmap shows that according to the Cosine similarity measure some words are very similar (but not exactly identical). For example, the Cosine similarity estimate of *explain* and *mean* or *find* and *study* are represented by a dark orange square, indicating that the two words in each pair are used in similar proportion through documents. On the contrary, *design* and *tax* are found to not be used in similar proportion through documents (dark blue square) which indicates that these two terms are not considered similar through documents.
+
+```{r cosine similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
+
+data.cos2 <- textstat_simil(data.dfm[, data.feat$feature], 
+                            method = "cosine", 
+                            margin = "feature")
+
+# Converts the object to matrix then to data frame
+data.cos.mat2 <- melt(as.matrix(data.cos2)) 
+
+# Plots
+ggplot(data = data.cos.mat2, 
+       aes(x = Var1, 
+           y = Var2,  
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name = "Cosine") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1))
 
 ```
+
+#### Euclidean Distance 
+
+[TO DO !!]
 
 
 ### Clustering With Co-occurrences [à revoir]

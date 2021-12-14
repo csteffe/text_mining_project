@@ -69,7 +69,6 @@ The below graph gives an overall graphical view of the previous table indicating
  
 Since we observe that *woman* has a very large term-frequency and is not document-specific, we decide to remove this term for the rest of our analysis because we believe it will hide some important and interesting insights as it will always appear as the top frequency in all documents. 
 
-[Can we use a nicer looking theme ?]
 ```{r TF vs DF, echo=F, message=F, warning=F}
 
 data.freq %>% 
