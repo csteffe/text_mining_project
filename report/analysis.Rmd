@@ -693,17 +693,17 @@ plot(data.hc)
 
 ## Topic Modeling
 
-Topic modeling is a type of statistical modeling for discovering the abstract “topics” that occur in a collection of documents. There are two approaches: Latent Semantic Analysis model and Latent Dirichlet Allocation model. 
+From the above clustering of documents, we understand that clusters are formed by grouping chapters with *similar* terms or vocabularies and that by looking at the most frequent terms in each cluster we can get an idea of what groups of chapters talk about. This is referred at the **topic** of a document. Note that one document can treat several topics. Topics are associated to both documents and terms. Indeed, a topic is associated to documents that use similar terms related to this topic and a topic is associated to terms that appear in documents treating this topic. 
 
-Both models can be applied on DTM or TF-IDF matrices. 
+Topic modeling is a type of statistical modeling for discovering the abstract *topics* that occur in a collection of documents. There are two approaches to the statistical modeling of topics, the Latent Semantic Analysis (LSA) model and the Latent Dirichlet Allocation (LDA) model. 
+
+Both models can be applied on DTM or TF-IDF matrix and here we decide to proceed to the topic modeling on the DTM.
 
 ### Latent Semantic Analysis (LSA)
 
-#### LSA on DTM
+LSA is a dimension reduction method that decomposes the DTM in three sub-matrices around a pre-determined number of topics. $\Sigma$ represents the strength of each topic, $U$ expresses the documents-topic similarity (i.e. links between documents and each topic) and $V$ expresses the terms-topic similarity (i.e. the links between the terms and each topic). 
 
-The Latent Semantic Analysis (LSA) is a dimension reduction method that decomposes the DTM or TF-IDF matrices in three sub-matrices around a pre-determined number of topics. Here, we proceed to LSA on the document-term (i.e. document-feature) matrix and then extract the matrices of the LSA decomposition. 
-
-The first dimension of LSA is associated with the document lengths (i.e. sum of lines of DTM) this is why it is often ignored. 
+Here, the advantages or goals of LSA is to find and interpret topics within chapters of *Invisible Women* and to reduce the dimension of the DTM object by removing sparsity which does not allow us to infer on terms association with chapters of the book. On the other hand, its disadvantage is the difficulty to interpret its results. 
 
 ```{r LSA on, echo=F, message=F, warning=F}
 
@@ -716,6 +716,7 @@ data.lsa <- textmodel_lsa(data.tfidf,
 ##### Topics and Documents
 
 The below output shows the association between the first six chapters and the ten topics. For example, text1 is associated the most with dimension (i.e. topic) 4 and the least associated with dimension (i.e. topic) 6. 
+The first dimension of LSA is associated with the document lengths (i.e. sum of lines of DTM) this is why it is often ignored. 
 
 ```{r LSA topics with documents, echo=F, message=F, warning=F, out.width = "100%", fig.align = "center"}
 
