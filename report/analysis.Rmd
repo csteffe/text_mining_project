@@ -797,7 +797,9 @@ biplot(y = data.lsa$docs[,4:5],
 
 ### Latent Dirichlet Allocation (LDA)
 
-The Latent Dirichlet Allocation is a generative model (i.e. Bayesian model) for topic modeling. LAD generates a Bag of Words model where the number of topics are pre-defined. 
+The Latent Dirichlet Allocation is a generative model (i.e. Bayesian/probabilistic model) meaning that it generates documents (i.e. BoW) where the number of topics are pre-defined, as with LSA. The model works as follows. Random proportions of topics are drawn in a document and for each word of the document, a topic is selected at random. Then, given this randomly selected topic, a word in its vocabulary is also selected at random. Note that the main disadvantage of LDA is the difficulty to interpret its results. To be able to interpret its results, the model is represented as being a set of conditional probabilities defined by a set of parameters fitted to the DTM using a maximum likelihood approach. 
+
+To build the LDA object, we use the **textmodel_lda** function of the **seededlda** package and we specify the number of dimensions to be included to be ten.
 
 ```{r LDA model, echo=F, message=F, warning=F}
 
@@ -806,9 +808,8 @@ set.seed(1234)
 
 # Semi-supervised LDA 
 data.lda <- textmodel_lda(data.dfm, 
-                          k = 10)    # sets the number of topics at 10
+                          k = 10)   # sets the number of topics at 10
 
-#?????? KABLE
 ```
 
 The following output displays the ten most frequent terms per topic and the ten most frequent topics per document.
