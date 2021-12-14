@@ -707,6 +707,8 @@ Here, the advantages or goals of LSA is to find and interpret topics within chap
 
 To build the LSA object, we use the **textmodel_lsa** function of the **quanteda.textmodels** package and we specify the number of dimensions to be included to be ten. Then, we proceed to the LSA decomposition into the three sub-matrices extracted from the DTM. The below output shows the documents-topic matrix $U$, the terms-topic matrix $V$ and finally the topics' strength $\Sigma$ in decreasing order. 
 
+[CAN WE ADD HOW TO READ THESE MATRICES?INTERPRET?]
+
 ```{r LSA on DTM, echo=F, message=F, warning=F}
 
 # Latent Semantic Analysis on DTM matrix
@@ -739,23 +741,6 @@ data.frame(doc.freq,
        x = "Number of tokens",
        y = "Dimension 1")
   
-```
-
-
-
-The below output shows the association between the first six chapters and the ten topics. For example, text1 is associated the most with dimension (i.e. topic) 4 and the least associated with dimension (i.e. topic) 6. 
-The first dimension of LSA is associated with the document lengths (i.e. sum of lines of DTM) this is why it is often ignored. 
-
-
-
-To verify if the first dimension is associated with the document length we look at the below scatter-plot. We see that dimension 1 is negatively correlated with the number ok tokens, which confirms that the first dimension is associated with the document lenght.
-
-[Improve plot: add a straight line showing the correlation]
-
-```{r first dimension, echo=F, message=F, warning=F}
-
-
-
 ```
 
 ##### Topics and Features
