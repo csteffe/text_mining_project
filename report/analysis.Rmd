@@ -828,7 +828,7 @@ topics(data.lda) %>% table()
 
 The term-topic analysis computes the conditional probability $\phi$ to find a term knowing that it is assigned to a given topic. Then, for a given topic, the largest conditional probabilities give the terms that are the most associated with this topic. 
 
-The below output shows for each topic the terms with the highest conditional probabilities $\phi$. For example, the conditional probability of finding *woman* knowing that this term is assigned to topic 10 is almost 1 which indicates that *woman* is very strongly associated with topic 10 and consequently, that any document associated with topic 10 will have the term *woman* in it. Moreover, we also see that some topics are better defined than others. For example, topic 10 is the best defined topic whereas and topics 2 is not well defined at all.
+The below output shows for each topic the terms with the highest conditional probabilities $\phi$. For example, the conditional probability of finding *woman* knowing that this term is assigned to topic 10 is almost 1 which indicates that *woman* is very strongly associated with topic 10 and consequently, that any document associated with topic 10 will have the term *woman* in it. Moreover, we also see that some topics are better defined than others and that some topics can overlap. For example, topic 10 is the best defined topic whereas and topics 2 is not well defined at all. The reason for overlapping is probably linked to the cleaning process of the corpus. 
 
 ```{r term-topic analysis, echo=F, message=F, warning=F, out.height = "100%", out.width = "100%", fig.align = "center"}
 
@@ -856,7 +856,7 @@ phi.long %>%
 
 ```
 
-#### Topic-Document Analysis
+#### Topic-document Analysis
 
 The topic-document analysis provided the probabilities for a topic to be found in a document. 
 
