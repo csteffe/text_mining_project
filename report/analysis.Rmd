@@ -177,9 +177,9 @@ sent_bychap %>%
 
 ```
 
-The next interactive graph displays the average sentiment scores by chapter in a decreasing fashion. According to it, chapter 4 *The Myth of Meritocracy* has the greatest positive average (0.118) and chapter 16 *It's Not The Disaster That Kills You* has the the most negative average sentiment. In total, five chapters have a positive sentiment (i.e. above 0.05), four have a negative sentiment (i.e. below -0.05) and seven chapters have a neutral sentiment (i.e. between -0.05 and 0.05). 
+The next interactive graph displays the average sentiment scores by chapter in a decreasing fashion. According to it, chapter 4 *The Myth of Meritocracy* has the greatest positive average (0.323) and chapter 16 *It's Not The Disaster That Kills You* has the the most negative average sentiment. In total, five chapters have a positive sentiment (i.e. above 0.05), four have a negative sentiment (i.e. below -0.05) and seven chapters have a neutral sentiment (i.e. between -0.05 and 0.05). 
 
-```{r sentiment analysis by document plot, echo=F, message=F, warning=F}
+```{r sentiment analysis by document plot, echo=F, message=F, warning=F,  fig.height = 3, fig.width = 3, fig.align = "center"}
 
 # Plots the sentiment curve by document
 #sent_bychap %>% 
@@ -207,7 +207,7 @@ ggplotly(
 
 Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
 
-To compute similarities, we use three different measures namely the *Jaccard Index*, *Cosine Similarity* and *Euclidean Similarity* all three using the term-frequency inverse-document frequency.
+To compute similarities, we use three different measures namely the *Jaccard Index*, *Cosine Similarity* and *Euclidean Distance* all three using the term-frequency inverse-document frequency.
 
 ### Similarities between Documents {.tabset}
 
@@ -249,7 +249,7 @@ ggplot(data = data.jac.mat,
 
 ```
 
-#### Cosine Distance
+#### Cosine Similarity
 
 Then, we compute the cosine similarity matrix which computes the similarity between two vectors of an inner product space. Note here that the similarity is independent of the vector length and that only the cosine angle between two weighted term-frequency vectors is determinant.
 
