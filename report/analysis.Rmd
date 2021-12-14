@@ -254,7 +254,7 @@ ggplot(data = data.jac.mat,
 Then, we compute the cosine similarity matrix which computes the similarity between two vectors of an inner product space. Note here that the similarity is independent of the vector length and that only the cosine angle between two weighted term-frequency vectors is determinant.
 
 Compared to the heat map generated using the Jaccard index, the next heatmap displays
-much more no similarity (darker blue squares) between terms used in different chapters than the previous one. However, chapter 10 and 11 are still shown as sharing less similarity.
+much more no similarity (darker blue squares) between terms used in different chapters than the previous one. However, chapter 10 and 11 are still shown as sharing more similarities.
 
 ```{r Cosine, echo=F, message=F, warning=F}
 
@@ -425,7 +425,7 @@ data.clust_cos %>%
 
 ```
 
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1's chapters share terms specific to public transport or spaces and violence, cluster 2's chapters use terms regarding households, families and economics, cluster 3 reveals a political vocabulary, cluster 4 shows terms related to technology, cluster 6 displays terms about agriculture and finally, cluster 6 indicates a medical vocabulary.
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1's chapters share terms specific to public transport or spaces and violence, cluster 2's chapters use terms regarding households, families and economics, cluster 3 reveals a political vocabulary, cluster 4 shows terms related to technology, cluster 5 displays terms about agriculture and finally, cluster 6 indicates a medical vocabulary.
 
 ```{r cosine clust words, echo=F, message=F, warning=F}
 
@@ -481,7 +481,7 @@ data.clust_eu %>%
 
 ```
 
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally and finally, cluster 6 shows politics-related terms. 
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally, cluster 6 shows politics-related terms. 
 
 ```{r Euclidean-based clust words, echo=F, message=F, warning=F}
 
