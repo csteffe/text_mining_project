@@ -896,25 +896,25 @@ theta.long %>%
 
 ```
 
-#### LDA Diagnosis
+#### LDA diagnostics {.tabset}
 
-The topic distribution (i.e. proportion) in a corpus is called the topic prevalence. 
+##### Prevalence
 
-The following output displays the prevalence scores for each topic using the thetas (i.e. topic-document probabilities). Here, there are 16 documents. We see that the most prevalent topic is topic 5 with 0.3722. 
+The prevalence is the the topic distribution (proportion) in a corpus and it is given by the sum of all the $\theta$ for a topic, divided by the sum of all $\theta$. Note that th formula does not consider the chapter's length.
+
+The following output displays the prevalence scores for each topic. We see that topic 10 is the most prevalent topic in the corpus (6.264) and that topic 8 is the least prevalent (0.616).
 
 ```{r prevalence, echo=F, message=F, warning=F}
 
 # Topic Prevalence
-colSums(data.lda$theta)/sum(data.lda$theta)
+colSums(data.lda$theta)/sum(data.lda$theta) %>% table()
 
 # here, the document length is not taken into account (each document has the same length)
 # sum(data.lda$theta) = number of documents
 
-#??KABLE 
-
 ```
 
-### Topic Modeling Measures
+##### Coherence
 
 Topic modeling allows to organize, understand and summarize large corpora (plural of corpus). Yet, topic modeling has limitations especially regarding its interpretation of its outcomes. Therefore, some measures provide a way to extract more insight from it. 
 
