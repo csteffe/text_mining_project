@@ -211,7 +211,6 @@ To continue the cleaning process, we remove useless words that bring very to no 
 
 The advantage of removing stop words is that it reduces the dimension of the number of features/terms to analyze so that the focus of the analysis is on terms that bring relevant information. In this aim, we remove the word "chapter" which does not provide any value. 
 
-### Quanteda
 
 ```{r cleaning, echo = FALSE, message = FALSE}
 
@@ -225,16 +224,16 @@ data.tk2 <- data.tk1 %>%
 
 ## Lemmatization
                                                     
-Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Consequently, the set of token types in a corpus is sreduced. For example, "started" and "starts" are reduced to "start" and have thus "start" as a lemma. 
+Lemmatization simplifies tokens by generating tokens from a dictionary and reduces the vocabulary to its simplest and meaningful essence. Consequently, the set of token types in a corpus is reduced. For example, "started" and "starts" are reduced to "start" and have thus "start" as a lemma. 
 
-The below output displays for each chapter the lemmas of the first tokens as well as the total number of different lemmas by chapter. For example, chapter (i.e. text) one contains 2,413 different lemmas. 
+The below output displays for each chapter the lemmas of the first tokens as well as the total number of different lemmas by chapter. For example, chapter one contains 2,413 different lemmas. 
 
 ```{r lemmatization, echo = FALSE, message = FALSE}
 
 # Lemmatization
 data.tk2 <- data.tk2  %>%  tokens_replace(pattern = hash_lemmas$token, 
                                           replacement = hash_lemmas$lemma)
-head(data.tk2)
+head(data.tk2,3)
 ```
 
 ## Stemming 
@@ -246,14 +245,14 @@ The below output displays the first twelve tokens reduced to their steam for eac
 ```{r stemming, echo = FALSE, message = FALSE}
 # Stemming
 data_stem <- data.tk2 %>% tokens_wordstem()
-head(data_stem)
+head(data_stem, 3)
 ```
 
 ## Document-Term Matrix (DTM)
 
 Now, without considering the stemming, we compute the **Document-Term-Matrix** that will be useful throughout the analysis.
 
-The below snapshot of the matrix indicates that after cleaning and lemmatizing, there are 5,742 features to be analyzed and that the DTM is sparse at 83.76% (i.e. contains mostly zeros). The matrix displays the frequency of features (i.e. terms or words here) by documents (i.e. texts or chapters here). For example, the first row indicates that the word *sexist* is found twice and the word *town* is found six times and, the first column indicates that the word *sexist* is found in chapter one, chapter four and chapter 6. 
+The below snapshot of the matrix indicates that after cleaning and lemmatizing, there are 5,742 features to be analyzed and that the DTM is sparse at 83.76% (i.e. contains mostly zeros). The matrix displays the frequency of features (i.e. terms or words here) by documents (i.e. texts or chapters here). For example, the first row indicates that the word *sexist* is found twice in chapter 1 and the first column indicates that the same word is found in chapter 1, chapter 4 and chapter 6. 
 
 ```{r DTM, echo = FALSE, message = FALSE}
 # Creates a document-feature matrix
