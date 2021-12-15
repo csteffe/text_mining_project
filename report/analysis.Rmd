@@ -1411,7 +1411,7 @@ As seen previously, pages are not well classified in parts IV and V are not (res
 set.seed(2345)
 
 ## May take a long time
-nd.vec <- c(2, 5, 25, 30, 50, 100, 1000, 2000)
+nd.vec <- c(2, 5, 25, 30, 50, 100, 1000)
 
 acc.vec <- numeric(length(nd.vec))
 
@@ -1430,7 +1430,7 @@ for (j in 1:length(nd.vec)){
 }
 
 ## Growing trees.. Progress: 82%. Estimated remaining time: 6 seconds.
-#acc.vec
+acc.vec
 
 ## [1] 0.7942547 0.8625776 0.8819876 0.8827640 0.8804348 0.8812112 0.8796584
 plot(acc.vec ~ nd.vec, type = 'b')
@@ -1466,7 +1466,7 @@ Here, we try to improve the classification of the model by adding more features 
 ```{r classification improvement, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 
 # Transform dtm into tfidf
-data.tfidf <- dfm_tfidf(data.dfm)
+data.tfidf <- dfm_tfidf(supervised_dfm)
 
 # LSA dimension reduction with 30 dimensions
 data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
@@ -1491,27 +1491,6 @@ pred.te <- predict(data.fit, df.te)
 # Confusion matrix
 confusionMatrix(data = pred.te$predictions, 
                 reference = df.te$Class)
-
-```
-
-```{r eval=FALSE, include=FALSE}
-
-### Random Forest with bootstraping
-set.seed(999)
-trctrl <- trainControl(method = "boot")
-
-# trctrl <- trainControl(method = "cv", number = 20)
-
-test <- train(Class~., 
-      data=df.tr, 
-      method = 'ranger', 
-      trControl=trctrl, 
-      preProcess = c("center","scale"), 
-      tuneLength = 10)
-
-ldaClasses <- predict(test)
-confusionMatrix(data = ldaClasses, )
-F1_score(cm$table, "lda")
 
 ```
 
