@@ -1516,8 +1516,28 @@ F1_score(cm$table, "lda")
 
 ### Classification with SVM 
 
-To assess the prediction quality of the random forest model, we proceed to the classification of the pages into parts of the book using the Support Vector Machine learner. To do so, we use the **svm** function of the **e1071** package with radial kernel and default parameter.  
+[ADD FEW LINES ON WHAT SVM DOES COMPARED TO RANDOM FOREST]
 
+To assess the prediction quality of the random forest model, we proceed to the classification of the pages into parts of the book using the Support Vector Machine learner. To do so, we use the **svm** function of the **e1071** package with radial kernel and default parameter. 
+
+The following results show that the SVM model has a much worse overall accuracy and so does not improve our classification of the pages into the six parts. We are better off with the random forest model. 
+
+```{r svm classifier, echo=F, message=F, warning=F}
+
+library(e1071)
+
+# SVM model
+svm.model <- svm(Class ~ ., data = df.tr, 
+                 kernel = "radial")
+
+# SVM predictions
+svm.pred  <- predict(svm.model, df.te)
+
+# Results
+confusionMatrix(data = svm.pred, 
+                reference = df.te$Class)
+
+```
 
 
 
