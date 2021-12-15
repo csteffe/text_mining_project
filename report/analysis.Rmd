@@ -1209,9 +1209,55 @@ The document embedding can be used for clustering (using K-Means) or for computi
 
 #### Distances
 
-Distances (i.e. similarities) between documents in the RWMD approach calculate how hard it is to transform words from one document into words from another document and vice versa. 
+Distances (i.e. similarities) between documents in the RWMD approach estimate how hard it is to transform words from one document into words from another document and vice versa. 
 
-#### Document Embedding
+To compute the RWMD, we use the **RelaxedWordMoversDistance** function from the **text2vec** package using DTM (word and document embedding). Note that the function provides similarities and distances which allows us to plot a dendogram displaying the clustering of chapters. 
+
+[ADD INTERPRETAION]
+
+```{r RWMD distances, echo=F, message=F, warning=F}
+
+# Preparation
+data.glove <- GlobalVectors$new(rank = 2, x_max = 10)
+
+data.weC <- data.glove$fit_transform(data.coo)
+
+data.we <- t(data.glove$components) + data.weC
+
+data.dtm <- dfm(data.tk5)
+
+# Build the model
+data.rwmd.model <- RelaxedWordMoversDistance$new(data.dfm, data.we)
+data.rwms <- data.rwmd.model$sim2(data.dfm)
+data.rwmd <- data.rwmd.model$dist2(data.dfm)
+## speech.rwmd ## check out
+
+# Plot the dendogram
+data.hc <- hclust(as.dist(data.rwmd))
+plot(data.hc, cex = 0.8)
+
+```
+
+#### Document Embedding using RWMD
+
+Since RWMD generates dissimilarities between documents, we can easily obtain a clustering of the RWMD document embedding. The positions of vectors here mirror the Relaxed Word Mover’s Distances. 
+
+```{r clustering from RWMD, echo=F, message=F, warning=F}
+
+# Preparation
+data.deC <- data.glove$fit_transform(data.rwms)
+data.derwms <- t(data.glove$components) + data.deC
+
+# Plot clustering
+plot(data.derwms, 
+     type = 'n',  
+     xlab = "Dim 1", 
+     ylab = "Dim 2", 
+     main = "Document embedding - RWMD+CMD")
+
+text(x = data.derwms, labels = rownames(data.derwms))
+
+```
 
 ## Supervised Learning
 
