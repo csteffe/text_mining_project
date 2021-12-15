@@ -5,7 +5,7 @@ To proceed to the Exploratory Data Analysis (EDA), we use the **quanteda package
 
 ## Cloud of Words
 
-To start the EDA, we proceed to visually assess which words are expected to be found the most regularly in the corpus. Thus, the CoW plot is a visual representation of term frequencies in which the size and position of terms are proportional to their frequencies. Nevertheless, this visualization is more graphic than informative since the only information we can extract from is that the terms with the largest font sizes are the most frequent in the corpus. Indeed, from the below plot, we see that *woman* is the most used (largest font size and centered position) term in the corpus, followed by *female*, *datum*, *male*, *find*, *time*, *gender* and *study*. 
+To start the EDA, we proceed to visually assess which words are expected to be found the most regularly in the corpus. Thus, the CoW plot is a visual representation of term frequencies in which the size and position of terms are proportional to their frequencies. Nevertheless, this visualization is more graphic than informative since the only information we can extract from is that the terms with the largest font sizes are the most frequent in the corpus. Indeed, from the below plot, we see that *woman* is the most used term in the corpus, followed by *female*, *datum*, *male*, *find*, *time*, *gender* and *study*. 
 
 To generate the CoW plot, we use the DTM that was obtained after cleaning and lemmatizing but without considering the stemming, see *Document-Term Matrix* in Section 2 **Data Structuring and Cleaning**.  
 
@@ -20,7 +20,7 @@ textplot_wordcloud(data.dfm)
 
 To assess more accurately the frequency of the terms in the corpus, we compute the global frequencies. The following graphical representation displays the ten most frequent terms in the corpus. As inferred previously from the CoW, we see that *woman* is the most frequent term overall followed by *female*, *datum*, *male*, *find*, *time*, *gender* and *study*. 
 
-Global frequencies indicate that *woman* is by far the most frequent term and that the frequency differences between the following nine terms are much less extreme (i.e. their ranks are less distinguishable). 
+Global frequencies indicate that *woman* is by far the most frequent term and that the frequency differences between the following nine terms are much less extreme. 
 
 In addition, we see that the term *data* was lemmatized into *datum*. 
 
@@ -46,11 +46,11 @@ tf_plot
 
 ```
 
-## Term-Frequency (TF)
+### Term-Frequency (TF)
 
-To deep dive into these frequencies, we then display a Term-Frequency (TF) table providing information on term frequencies, their rank and document frequencies. Indeed, the *feature* lists the lemmatized tokens, the *frequency* provides the number of times the term is found in the corpus (i.e. global frequency), the *rank* sorts the terms by decreasing frequencies (i.e. rank is inversely proportional to the frequency), the *docfreq* indicates the number of documents in which the token is found (i.e. document frequency). 
+To deep dive into these frequencies, we then display a Term-Frequency (TF) table providing information on term frequencies, their rank and document frequencies. Indeed, the *feature* lists the lemmatized tokens, the *frequency* provides the number of times the term is found in the corpus, the *rank* sorts the terms by decreasing frequencies, the *docfreq* indicates the number of documents in which the token is found. 
 
-The table below shows that *woman* appears 1594 times in the corpus and in all 16 documents (docfreq = 16) which means that it is not a document-specific term. Moreover, it appears four times more than the second most frequent term *female*.
+The table below shows that *woman* appears 1594 times in the corpus which is four times more than the second most frequent term *female*. Moreover, all the terms have a high document-frequency. 
 
 ```{r term frequency, echo = FALSE, message = FALSE}
 
@@ -65,9 +65,13 @@ kbl(head(data.freq[,1:4],
 
 ## Term-Frequency versus Document-Frequency 
 
-The below graph gives an overall graphical view of the previous table indicating 1) the term-frequency and 2) whether a word is specific to a document or not (i.e. document-frequency). As observed previously, we see that *woman* is the most frequent term in the corpus and that it is not document-specific since it is the most frequent term over all chapters of the book. On the contrary, the terms *trial* and *tax* are less frequent overall and also less frequent in documents meaning that they are more specific to some chapters (i.e. documents) of the book. 
+The below graph gives an overall graphical view of the previous table indicating:
+1) the term-frequency 
+2) document-frequency
+
+As observed previously, we see that *woman* is the most frequent term in the corpus and that it is not document-specific since it is the most frequent term over all chapters of the book. On the contrary, the terms *trial* and *tax* are less frequent overall and also less frequent in documents meaning that they are more specific to some chapters of the book. 
  
-Since we observe that *woman* has a very large term-frequency and is not document-specific, we decide to remove this term for the rest of our analysis because we believe it will hide some important and interesting insights as it will always appear as the top frequency in all documents. 
+For all the reasons mentioned until here, we decide to remove the term *woman* because we believe it can hide some important and interesting insights. For the rest of our analysis, it will be indicated if *woman* is integrated to our analysis again. 
 
 ```{r TF vs DF, echo=F, message=F, warning=F}
 
@@ -104,11 +108,18 @@ data.tfidf <- dfm_tfidf(data.dfm2)
 
 ## Term-Frequency by Document 
 
-The plot below shows the ten most frequent terms for chapters of the book [how are the chapters chosen?]. It would have been interesting to have the top frequencies of each document but there would have been an information overload as there are 16 chapters so we decided not to display it. 
 
-[I dont understand how these ten most frequent terms are chosen ? they are not the ten overall msot frequent ! it's confusing because they dont match the order of the ten msot frequent terms overall !!!]
+The plot below shows kind of the same information than the frequency plot but with a little twist. Here, we show the top 10 more frequent words associated with their chapter. It would have been interesting to have the top frequencies of each documents but there would have been an information overload as there are 16 chapters, so we decided not to display it.
 
-First, we see that Chapter 10 (i.e. text10), namely **The Drugs Don't Work**, is associated with *sex*, *drug* and *study*. In the previous plot (TF versus DF), we saw that *sex* and *study* are not document-specific but that *drug* is more document-specific. Therefore, we can assume that *drug* is more specific to chapter 10 then the two other terms. Nevertheless, we do not want to jump to conclusion right now and the document-specificity of terms will be explored deeper later. Second, chapter 13, *From Purse to Wallet* seems to only be associated to *tax* and as well as *drug*, *tax* is more document-specific. Third, chapter 14, *Women's Rights are Human Rights* is only associated to *female*. Fourth, chapter 3, *The Long Friday* is related to *pay*, *leave* and *time* and lastly, chapter 4, *Myth of Meritocracy* is equally associated to *female* and *male*. 
+Chapter 10, namely **The Drugs Don't Work**, is associated with *sex*, *drug* and *study*. In the previous plot (TF versus DF), we saw that *sex* and *study* are not document-specific but that *drug* is more document-specific. Therefore, we can assume that *drug* is more specific to chapter 10 then the two other terms. Nevertheless, we do not want to jump to conclusion right now and the document-specificity of terms will be explored deeper later. 
+
+Chapter 13, *From Purse to Wallet* seems to only be associated to *tax* and as well as *drug*, *tax* is more document-specific. 
+
+Chapter 14, *Women's Rights are Human Rights* is only associated to *female*. 
+
+Chapter 3, *The Long Friday* is related to *pay*, *leave* and *time* 
+
+Lastly chapter 4, *Myth of Meritocracy* is equally associated to *female* and *male*. 
 
 Even though some of those words are informative, others are much less insightful. Indeed, it is not enlightening to have *female* associated to one document as the whole book is about feminism.  
 
@@ -139,9 +150,9 @@ nowoman.10
 
 ## Zipf's Law
 
-The Zipf's law shows the distribution of words used in a corpus by plotting the term-frequencies against their ranks and, it says that the frequency of a token is inversely proportional to its rank. Therefore, the below plot (on a log-log scale) shows a negative linear relation (the original distribution (non log-log) is a negative exponential function). 
+The Zipf's Law shows the distribution of words used in a corpus compared to his rank in the frequency table. It says that the frequency of a token is inversely proportional to its rank. The below plot is on a log-log scale, the frequency versus rank gives a negative linear relation as the original distribution is a negative exponential function. 
 
-This plot shows that *female*, *datum*, *male*, *find* and *time* are the most frequent terms of the corpus probably indicating that they are not chapter-specific but frequent in all chapters of the book. Indeed, although the Zipf's Law do not provide precise information on document specificity, there is a very low probability that these terms are specific to one or few chapters that are sufficiently lengthy to make them appear as much. Therefore, according to the Zipf's law, these terms are very frequent in the overall corpus and consequently could hide some meaningful information as they are not considered stop words [can we explain this a bit better?]. The Zipf's law now leads us to move to look at weighted frequencies. 
+This plot shows that *female*, *datum*, *male*, *find* and *time* are the most frequent terms of the corpus probably indicating that they are not chapter-specific but are frequent in all chapters. Indeed, although Zipf's Law do not state about the specificity, there is a very low probability that those words are specific to a chapter that is sufficiently lengthy to make it as frequent. Therefore, according to the Zipf's Law, these terms are very frequent in the overall corpus and consequently could hide some meaningful information as they are not considered stop words. The Zipf's law now leads us to move to look at weighted frequencies. 
 
 ```{r Zipf law plot, echo = FALSE, message = FALSE}
 
@@ -163,9 +174,9 @@ ggplot(data.freq2,
 
 ## Term-Frequency and Inverse-Document Matrix (TF-IDF)
 
-The TF-IDF matrix is a weighted document-feature matrix displaying term frequency–inverse document frequency that shows how important a word is to a document. In other words, it is used to re-balance a term frequency with respect to its document-specificity.
+The TF-IDF matrix is a weighted document-feature matrix displaying term frequency–inverse document frequency. In other words, it is used to re-balance a term frequency with respect to its document-specificity.
 
-The below output is the document-feature matrix of 16 documents and 5'741 features which shows the weighted frequencies of each token by chapters of the book. The sparsity (83.77%) increases a bit [add the amount of the increase] compared to the DTM matrix when *women* is not removed. [explain why it induces an increase in sparsity]
+The below output shows, for the document-feature matrix of 16 documents and 5'741 features, the weighted frequency for each token by document. The sparsity has increased a bit in comparison to the DTM matrix as "women", a term occurring in all the document, has been removed.
 
 ```{r term frequency and inverse document matrix, echo=FALSE, message=FALSE}
 # Weighted document-feature matrix by tf-idf
@@ -173,7 +184,7 @@ data.tfidf2 <- dfm_tfidf(data.dfm2)
 data.tfidf2
 ```
 
-The following plot shows the twenty largest TF-IDF and their respective terms. Note that it is equal to the result of computing for each term the maximum TF-IDF over all chapters of the book. The output shows that *tax* has the largest TF-IDF (i.e. has the largest weighted frequency) in at least one chapter of the book and that *trial*, *drug* and *dummy* appear also quite often in the corpus and in few documents.
+The following plot shows the twenty largest TF-IDF and their respective terms. Note that it is equal to the result of computing for each term the maximum TF-IDF over all chapters of the book. The output shows that *tax* has the largest TF-IDF in at least one chapter of the book and that *trial*, *drug* and *dummy* appear also quite often in the corpus and in few documents.
 
 ```{r max tf-idf, echo=F, message=F, warning=F,fig.width=8}
 
@@ -190,7 +201,7 @@ data.tfidf2 %>%
              alpha = 0.5) + 
     coord_flip() +
     geom_text(aes(label = sprintf("%0.1f", round(count, digits = 1))),
-              hjust=1, 
+              hjust=1.2, 
               vjust=0.5, 
               color="white", 
               size=3.5)+
@@ -206,7 +217,9 @@ data.tfidf2 %>%
 
 ## TF-IDF by Document
 
-After looking at the overall largest TF-IDFs in the corpus, we look at the ten largest TF-IDFs by chapters of the book. The following plot shows that chapter 10, *The Drugs Don't Work*, is now associated with *trial* and *drug*, that *tax* is really frequent in chapter 13 *From Purse to Wallet* so we can now state that it is specific to this chapter and that chapter 14, *Women's Rights are Human Rights*, is in fact more specifically associated with the term *interrupt* than with the term *female* as shown in the *Term-Frequency by Document* section of the **Exploratory Data Analysis (EDA)**. 
+The following plot shows the 10 highest TF-IDF associated with their chapter. 
+Chapter 10, *The Drugs Don't Work*, is now associated with *trial* and *drug*
+To avoid redundancy, we will not comment each of the term-document. But for chapter 10, *The Drugs Don't Work*, we can see it is now associated with *trial* and *drug*. The term *tax* is still really frequent and we can now definitely state that it is specific to chapter 13, *From Purse to Wallet*. Chapter 14, *Women's Rights are Human Rights*, is in fact more specifically associated with the term *interrupt* than with the term *female* as shown in the *Term-Frequency by Document* section. 
 
 [what's the firm term ? vr ? ]
 
@@ -234,7 +247,7 @@ tfidf_plot
 
 ## Keyness
 
-The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. We illustrate the keyness by investigating why the vague term *interrupt* is associated to chapter 14 *Women’s Rights are Human Rights*. Thus, we compute its keyness and compare it to the other chapters (i.e. reference).
+The keyness measure is a chi-square test of independence indicating whether some terms are characteristic of a target compared to a reference. To illustrate that we select chapter 14, *Women’s Rights are Human Rights*, which has the vague specific term *interrupt* and compute its Keyness compare it to the other chapters (i.e. reference).
 
 The plot below allows us to see that this chapter is characterized by the terms *party*, *politician*, *election* or even *candidate* and to conclude at first glance that this chapter is more about political topics than the rest of the corpus.
 
@@ -249,7 +262,22 @@ print(textplot_keyness(data.keyness))
 
 Then, we compute for each chapter of the book the keyness of terms in order to better understand what each chapter is about. The following visualization is an animated illustration (in a gif format). Each chapter is then at some point the target and the reference. 
 
-Chapter 1 *Can Snow-Clearing be Sexist?* displays terms related to public transportation and cities' infrastructure, chapter 2 *Gender Neutral With Urinals* mentions terms in connection with public spaces and dangerous behaviors, chapter 3 *The Long Friday* seem to be about parental benefits in the workplace, chapter 4 *The Myth of Meritocracy* elaborates on success, chapter 5 *The Henry Higgins Effect* is a bit more difficult to grasp but uses terms related to chemicals and effect on health such as cancer, chapter 6 *Being Worth Less Than a Shoe* is also less specific to one vocabulary type but seems to be about profession and precariousness, chapter 7 *The Plough Hypothesis* uses terms related to agriculture, chapter 8 *One-Size-Fits-Men* seems to be about technologies like smartphones and data science, chapter 9 *A Sea of Dudes* uses vocabulary connected to automobiles, chapter 10 *The Drugs Don’t Work* is about clinical trials, chapter 11 *Yentl Syndrome* uses a medical vocabulary, chapter 12 *A Costless Resource to Exploit* seems to be about economics, chapter 13 *From Purse to Wallet* is connected to household consumption, chapter 14 *Women’s Rights are Human Rights* is about politics, chapter 15 *Who Will Rebuild?* implies a topic surrounding rebuilding a more peaceful world and chapter 16 *It’s Not the Disaster that Kills You* evolves around extreme poverty in the world.  
+Chapter 1 *Can Snow-Clearing be Sexist?* displays terms related to public transportation and cities' infrastructure.
+Chapter 2 *Gender Neutral With Urinals* mentions terms in connection with public spaces and dangerous behaviors.
+Chapter 3 *The Long Friday* seem to be about parental benefits in the workplace.
+Chapter 4 *The Myth of Meritocracy* elaborates on success.
+Chapter 5 *The Henry Higgins Effect* is a bit more difficult to grasp but uses terms related to chemicals and effect on health such as cancer.
+Chapter 6 *Being Worth Less Than a Shoe* is also less specific to one vocabulary type but seems to be about profession and precariousness.
+Chapter 7 *The Plough Hypothesis* uses terms related to agriculture.
+Chapter 8 *One-Size-Fits-Men* seems to be about technologies like smartphones and data science.
+Chapter 9 *A Sea of Dudes* uses vocabulary connected to automobiles.
+Chapter 10 *The Drugs Don’t Work* is about clinical trials.
+Chapter 11 *Yentl Syndrome* uses a medical vocabulary
+Chapter 12 *A Costless Resource to Exploit* seems to be about economics.
+Chapter 13 *From Purse to Wallet* is connected to household consumption.
+Chapter 14 *Women’s Rights are Human Rights* is about politics.
+Chapter 15 *Who Will Rebuild?* implies a topic surrounding rebuilding a more peaceful world.
+Chapter 16 *It’s Not the Disaster that Kills You* evolves around extreme poverty in the world.  
 
 ```{r keyness2, echo=F, message=F, warning=F, animation.hook = "gifski", , interval = 15}
 
@@ -267,7 +295,7 @@ for (i in 1:nrow(data)){
 
 Here, we look at how words co-occur and how inter-connected they are and to do so, we first compute the co-occurrences between terms. 
 
-The feature co-occurrence matrix is a 5,741 by 5,741 matrix (32,959,081 elements) in which is displayed the number of times two terms co-occur (i.e. co-occurrence frequency) in the corpus. Because of the large size of the matrix, we decide to reduce its size by keeping only co-occurrences greater than 110. The latter condition allows us to focus our attention on terms that appear the most together in the corpus, implying that they have a specific connection of interest in the context of the book. After applying this condition to the matrix, we get the following smaller feature co-occurrence matrix of dimensions 20 by 20 features (400 elements). 
+The feature co-occurrence matrix is a 5,741 by 5,741 matrix (32,959,081 elements) in which is displayed the number of times two terms co-occur in the corpus. Because of the large size of the matrix, we decide to reduce its size by keeping only co-occurrences greater than 110. The latter condition allows us to focus our attention on terms that appear the most together, implying that they have a specific connection of interest in the context of the book. After applying this condition to the matrix, we get the following smaller feature co-occurrence matrix of dimensions 20 by 20 features (400 elements). 
 
 ```{r co-occurrences, echo=F, message=F, warning=F}
 
@@ -339,7 +367,7 @@ textplot_xray(kwic(data.cp, pattern = c("female","male"))) +
                    caption ="source: Invisible Women.pdf")
 ```
 
-After exploring the movements of *female* and *male*, we look at the movements between *female* and *sex*. Note that here *sex* is reduced to its lemma so it could refer to the gender, the nature of a relation or any other terms related to sexuality. The below plot shows that the term *sex* is more specific to chapter 10 *The Drugs Don't Work* and that *female* and *sex* are not necessarily associated. 
+After exploring the movements of *female* and *male*, we look at the movements between *female* and *sex*. Note that here *sex* is reduced to its lemma so it could refer to the gender, the nature of a relation or any other terms related to sexuality. The below plot shows that the term *sex* appears more in chapter 10 *The Drugs Don't Work* and that *female* and *sex* are not necessarily associated. 
 
 ```{r xray-plot 2 patterns, echo=F, message=F, warning=F}
 
@@ -403,9 +431,9 @@ ttr %>%
 
 ### Moving-Average Token-Type Ratio (MATTR)
 
-The Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an algorithm using windows of the text to compute the TTR and repeating several times over different windows of the same size the TTR computation. The advantage of the MATTR is that it is less dependent on the length of the document than the TTR. Note that a too large window can produce an error since no local TTR can be computed and a too small window results in pointless values (always 1). MATTR is computed using ordered tokens.
+The Moving-Average Token-Type Ratio is an average of the Token-Type Ratio. It is an algorithm using windows of the text to compute the TTR and repeating several times over different windows of the same size the TTR computation. The advantage of the MATTR is that it is less dependent on the length of the document than the TTR. Note that a too large window can produce an error since no local TTR can be computed and a too small window results in pointless values (always 1). MATTR is computed using ordered tokens. 
 
-The below graph shows the the Moving-Average Token-Type Ratio and shows that the MATTR among chapters are very similar and that it ranges from 0.725 to 0.798  over all chapters of the book. According to the MATTR, chapter 15 *Who Will Rebuild?* still has the richest vocabulary with an MATTR of 0.798. 
+Considering the documents lenght, we decide to compute the MATTR with a window of 80 tokens. The below graph shows that the Moving-Average Token-Type Ratio among chapters are very similar and that it ranges from 0.725 to 0.798. According to the MATTR, chapter 15 *Who Will Rebuild?* still has the richest vocabulary with an MATTR of 0.798. 
 
 ```{r MATTR plot, echo=F, message=F, warning=F, fig.width=8}
 
