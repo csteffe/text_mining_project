@@ -69,7 +69,7 @@ The below graph gives an overall graphical view of the previous table indicating
 1) the term-frequency 
 2) document-frequency
 
-As observed previously, we see that *woman* is the most frequent term in the corpus and that it is not document-specific since it is the most frequent term over all chapters of the book. On the contrary, the terms *trial* and *tax* are less frequent overall and also less frequent in documents meaning that they are more specific to some chapters of the book. 
+As observed previously, we see that *woman* is the most frequent term in the corpus and that it is the most frequent term over all chapters of the book. On the contrary, the terms *trial* and *tax* are less frequent overall and also less frequent in documents. 
  
 For all the reasons mentioned until here, we decide to remove the term *woman* because we believe it can hide some important and interesting insights. For the rest of our analysis, it will be indicated if *woman* is integrated to our analysis again. 
 
@@ -176,7 +176,7 @@ ggplot(data.freq2,
 
 The TF-IDF matrix is a weighted document-feature matrix displaying term frequency–inverse document frequency. In other words, it is used to re-balance a term frequency with respect to its document-specificity.
 
-The below output shows, for the document-feature matrix of 16 documents and 5'741 features, the weighted frequency for each token by document. The sparsity has increased a bit in comparison to the DTM matrix as "women", a term occurring in all the document, has been removed.
+The below output shows, for the document-feature matrix of 16 documents and 5'741 features, the weighted frequency for each token by document. The sparsity has slightly increased in comparison to the DTM matrix as "women", a term occurring in all the document, has been removed.
 
 ```{r term frequency and inverse document matrix, echo=FALSE, message=FALSE}
 # Weighted document-feature matrix by tf-idf
@@ -184,7 +184,7 @@ data.tfidf2 <- dfm_tfidf(data.dfm2)
 data.tfidf2
 ```
 
-The following plot shows the twenty largest TF-IDF and their respective terms. Note that it is equal to the result of computing for each term the maximum TF-IDF over all chapters of the book. The output shows that *tax* has the largest TF-IDF in at least one chapter of the book and that *trial*, *drug* and *dummy* appear also quite often in the corpus and in few documents.
+The following plot shows the twenty largest TF-IDF and their respective terms. Note that it is equal to the result of computing for each term displayed the maximum TF-IDF over all chapters of the book. The output shows that *tax* has the largest TF-IDF in at least one chapter of the book and that *trial*, *drug* and *dummy* appear also quite often in the corpus and in few documents.
 
 ```{r max tf-idf, echo=F, message=F, warning=F,fig.width=8}
 
