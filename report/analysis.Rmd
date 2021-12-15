@@ -1103,15 +1103,16 @@ title(main = "Word Embedding: GloVe model",
 
 ### Document Embedding {.tabset}
 
-To build the document embedding we compute the centroids of the documents. First, we need to extract the words in each document. 
+Document embedding uses word embedding by translating the word representations into document representations. To build the document embedding, we compute the centroids of the documents. To do so, we use two methods, the centroids from averaging using DTM and weighted centroids using TF-IDF.
+
+Before generating the centroids, we extract words in each document and for these words, we extract the word vectors and make a matrix. Then, we average all these vectors.
 
 ```{r words extraction, message=FALSE, warning=FALSE, include=FALSE}
 
 # Words in Document 1
 head(data.tk5[[1]]) 
-```
 
-Then, for these words we extract the word vectors and make a matrix.
+```
 
 ```{r word vectors, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -1119,8 +1120,6 @@ Then, for these words we extract the word vectors and make a matrix.
 head(data.we[data.tk5[[1]],])
 
 ```
-
-Finally, we average all these vectors.
 
 ```{r average, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -1130,8 +1129,6 @@ apply(data.we[data.tk5[[1]],], 2, mean)
 #POtentiellement faire un élément pour mettre ça et le truc précédent dans un kable 
 
 ```
-
-Now we make the loop to apply the previous steps on all documents.
 
 ```{r loop over documents, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -1156,19 +1153,33 @@ row.names(data.de) <- names(data.tk5)
 
 head(data.de) ## document vectors
 
-
 ```
- 
-#### Centroids using DTM 
+
+#### Centroids (DTM)
+
+The centroid method averages the word representations over the number of documents:
+
+$vec(d) = \frac{1}{|d|} \Sigma vec(w)$
+
+[ADD INTERPRETATION]
+
 ```{r plot-texts, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
 # Plots
-plot(data.de, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids")
+plot(data.de, type='n',  xlab="Dim 1", ylab="Dim 2", main="Document Embedding: Centroids (averaging using DTM)")
 text(x=data.de, labels=rownames(data.de))
 title(sub = "source: Invisible Women.pdf")
+
 ```
 
-#### Centroids using TF-IDF
+#### Weighted Centroids (TF-IDF) 
+
+The weighted centroid method uses TF-IDF: 
+
+$vec(d) = \frac{\Sigma_{w \in d}tfidf(w,d)vec}{\Sigma_{w \in d}tfidf(w,d)}$
+
+[ADD INTERPRETATION]
+
 ```{r centroid plot tfidf, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
 data_tfidf <- dfm_tfidf(dfm(data.tk5))
@@ -1192,6 +1203,15 @@ plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids - TFID
 text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 
 ```
+### Relaxed Word Mover’s Distance (RWMD) {.tabset}
+
+The document embedding can be used for clustering (using K-Means) or for computing the similarity/dissimilarity (Jaccard, Cosine, Euclidean) matrices before clustering (hierarchical). An alternative approach is to use the Relaxed Word Mover’s Distance to compute document similarity using word embedding. RWMD can use DTM or TF-IDF. 
+
+#### Distances
+
+Distances (i.e. similarities) between documents in the RWMD approach calculate how hard it is to transform words from one document into words from another document and vice versa. 
+
+#### Document Embedding
 
 ## Supervised Learning
 
