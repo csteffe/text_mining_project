@@ -1203,6 +1203,7 @@ plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids - TFID
 text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 
 ```
+
 ### Relaxed Word Mover’s Distance (RWMD) {.tabset}
 
 The document embedding can be used for clustering (using K-Means) or for computing the similarity/dissimilarity (Jaccard, Cosine, Euclidean) matrices before clustering (hierarchical). An alternative approach is to use the Relaxed Word Mover’s Distance to compute document similarity using word embedding. RWMD can use DTM or TF-IDF. 
@@ -1216,9 +1217,9 @@ To compute the RWMD, we use the **RelaxedWordMoversDistance** function from the 
 [ADD INTERPRETAION]
 
 ```{r RWMD distances, echo=F, message=F, warning=F}
-
+set.seed(432)
 # Preparation
-data.glove <- GlobalVectors$new(rank = 2, x_max = 10)
+data.glove <- GlobalVectors$new(rank = 30, x_max = 10)
 
 data.weC <- data.glove$fit_transform(data.coo)
 
@@ -1227,9 +1228,9 @@ data.we <- t(data.glove$components) + data.weC
 data.dtm <- dfm(data.tk5)
 
 # Build the model
-data.rwmd.model <- RelaxedWordMoversDistance$new(data.dfm, data.we)
-data.rwms <- data.rwmd.model$sim2(data.dfm)
-data.rwmd <- data.rwmd.model$dist2(data.dfm)
+data.rwmd.model <- RelaxedWordMoversDistance$new(data.dtm, data.we)
+data.rwms <- data.rwmd.model$sim2(data.dtm)
+data.rwmd <- data.rwmd.model$dist2(data.dtm)
 ## speech.rwmd ## check out
 
 # Plot the dendogram
@@ -1245,6 +1246,7 @@ Since RWMD generates dissimilarities between documents, we can easily obtain a c
 ```{r clustering from RWMD, echo=F, message=F, warning=F}
 
 # Preparation
+data.glove <- GlobalVectors$new(rank = 2, x_max = 10)
 data.deC <- data.glove$fit_transform(data.rwms)
 data.derwms <- t(data.glove$components) + data.deC
 
