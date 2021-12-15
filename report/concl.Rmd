@@ -1,12 +1,15 @@
 # 6. Conclusion
 
-```{r, echo = FALSE, message = FALSE}
-source(here::here("scripts/setup.R"))
-```
+From our exploratory data analysis, ...
 
-Throughout 16 chapters, women's invisibility is raised from 16 different approaches revealing  ... 
-* Take home message
-* Limitations
-* Future work?
+The sentiment analysis shows that ...
 
-## 
+The topic modeling shows that ...
+
+To perform the unsupervised learning analysis (embedding), we represent documents and words in a vector space model VSM. -> add results: + est-ce que similarities et clustering results ca nirait pas la aussi ? 
+
+To perform the supervised learning analysis (classification task here), we split the corpus into a training and a test set and explore two classification models: random forest and support vector machine (SVM). We find that random forest model provides a much higher overall accuracy [ADD HERE THE HIGHEST OVERALL ACCURACY ONCE WE KNOW IT FOR SURE IN THE ANALYSIS] when classifying the pages of the book in their respective parts than the SVM. [ADD HERE IF WE OBSERVE IMPORVEMENT WHEN ADDING FEATURES].
+
+Thus, our final random forest model using [TFIDF OR DTM: WE FIRST NEED TO FINISH THIS PART IN ANALYSIS] is capable of identifying to which part of *Invisible Women*a page belongs using features with ?% of accuracy.
+
+To conclude, we find that chapters of the book can share a similar vocabulary and that chapters approach very different topics from medical to technological... + sentiment of the book ...
