@@ -1014,17 +1014,19 @@ excl
 
 ```
 
-## Unsupervised Learning: Embedding
+## Unsupervised Learning: Embedding {.tabset}
 
 Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM). From previous sections, we saw that tokens and documents are embedded in DT and TF-IDF matrices. The difference here is that we aim at representing document and term embedding and apply it to non-BoW models and instead use terms co-occurrences (i.e. order is important).
 
-### Word Embedding Based on Co-occurences and GloVe
+### Word Embedding (GloVe)
 
-The idea behind word embedding based on co-occurrences is to reflect co-occurrences and not only Bag of Words (BoW). 
+This section proceed to embed words based on co-occurrences using the GloVe model. The idea is to reflect co-occurrences and not only documents (BoW). Here, each term is assigned to a vector and we look if the word-vectors similarity matches their words co-occurrence. Two terms are considered close if their co-occurrence is large. 
 
-To start with, we compute a feature co-occurrence symmetric matrix with a window of five. The matrix is very large (8,640x8,640) and displays the number of times terms (i.e. features) appear together in a window of five words. 
+The GloVe model defines two vectorial representation for one word. One representation is for the contextualized word and the other one for the centralized term. Then, the representations are combined to form only one. To build the GloVe model, we use the **GlobalVectors** function of the **text2vec** package.
 
-```{r fcm, echo= FALSE, message=FALSE, warning=FALSE}
+To start with, we compute a feature co-occurrence symmetric matrix with a window of five (i.e. context window). The matrix is very large (8,640x8,640) and displays the terms co-occurrences in the pre-specified window. 
+
+```{r fcm 5, echo= FALSE, message=FALSE, warning=FALSE}
 
 # Makes a co-occurrence on a (half-)window of 5
 data.tk5 <- tokens(data.cp,
@@ -1039,8 +1041,6 @@ data.tk5 <- tokens(data.cp,
                    tokens_replace(pattern=hash_lemmas$token, 
                    replacement = hash_lemmas$lemma)
 
-
- 
 data.coo <- fcm(data.tk5, 
                 context = "window", 
                 window = 5, 
@@ -1049,7 +1049,7 @@ data.coo <- fcm(data.tk5,
 
 ```
 
-From the feature co-occurrences matrix we compute two vector representations for a given word (i.e. feature). One representation for a word being the central term and the other one  for a word being in the context. To then have a unique representation for a given word, we compute the average of the two representations.
+From the feature co-occurrences matrix we compute two vector representations for a given word, one being for the central term and the other one for its contextualization. To then have a unique representation for a given word, we compute the average of the two representations. Here we set a two-dimensional representation (rank=2) for readability and we plot the vectors of the 20 most frequent terms. The plot shows that dimension 2 is strongly associated to *woman* and anti-associated to *include* and dimension 1 associated to *pay*, *increase*, *design*, *country* and anti-associated to *datum*.
 
 ```{r two representations, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -1068,8 +1068,6 @@ data.weC <- data.glove$fit_transform(data.coo)
 
 ```
 
-The following output displays the unique representations of the vectors?.
-
 ```{r vectors, message=FALSE, warning=FALSE, include=FALSE}
 
 # unique representation
@@ -1079,15 +1077,12 @@ head(data.we, 10)
 
 ```
 
-We now plot the vectors of the 20 most used words.
-
 ```{r unique reprensentaion, message=FALSE, warning=FALSE, include=FALSE}
 
 # Words with the 50 largest frequencies
 index2 <- textstat_frequency(dfm(data.tk5))[1:20,]$feature
 
 index2 
-
 
 ```
 
@@ -1101,7 +1096,9 @@ plot(data.we[index2, ],
 
 text(x = data.we[index2, ], 
      labels = rownames(data.we[index2, ]))
-title(main = "20 most used words", sub = "source: Invisible Women.pdf")
+title(main = "Word Embedding: GloVe model", 
+      sub = "source: Invisible Women.pdf")
+
 ```
 
 ### Document Embedding {.tabset}
