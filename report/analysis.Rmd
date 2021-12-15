@@ -1340,7 +1340,7 @@ supervised_tk <- supervised_cp %>%
 
 #### Features: DTM and LSA
 
-First, to obtain a set of structured features, we generate a DTM of dimensions 245 by 5,738 with term frequencies. Since the DTM is relatively large, we reduce its dimension using the Latent Sementic Analysis (LSA) by targetting 30 dimensions. Note that we already remove the stop words in the cleaning and that we previously make sure that they are unimportant to our analysis.
+First, to obtain a set of structured features, we generate a DTM of dimensions 245 by 5,738 with term frequencies. Since the DTM is relatively large, we reduce its dimension using the Latent Semantic Analysis (LSA) by targeting 30 dimensions. Note that we already remove the stop words in the cleaning and that we previously make sure that they are unimportant to our analysis.
 
 In this case, LSA has the advantage of decreasing the number of features to be used while keeping relevant information for the analysis. 
 
@@ -1418,7 +1418,7 @@ acc.vec <- numeric(length(nd.vec))
 for (j in 1:length(nd.vec)){
   
   data.lsa <- textmodel_lsa(data.dfm, nd = nd.vec[j])
-  #df <- data.frame(Class = y, X = data.lsa$docs) 
+  df <- data.frame(Class = y, X = data.lsa$docs) 
   df.te <- df[-index.tr,]
   
   data.fit <- ranger(Class ~ .,
@@ -1436,7 +1436,65 @@ plot(acc.vec ~ nd.vec, type = 'b')
 
 ```
 
+Another method to verify whether the accuracy can be improved is to fit the model using the TF-IDF instead of the DTM. Here we reduce the dimension of the TF-IDF using the Latent Semantic Analysis (LSA) by targeting 30 dimensions as well.
+
+[ADD ACCURACY COMPARISON ONCE RESULTS ARE SHOWN WITH PREVIOUS RESULTS USING DTM-> IS THERE IMPORVEMENT OR NOT ? Conclude]
+
+```{r random forest using TF-IDF, echo=F, message=F, warning=F}
+
+# Random forest using TF-IDF
+data.tfidf <- dfm_tfidf(data.dfm)
+data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
+df <- data.frame(Class = y, X = data.lsa$docs)
+df.tr <- df[index.tr,]
+df.te <- df[-index.tr,]
+tweets.fit <- ranger(Class ~ .,
+                     data = df.tr)
+pred.te <- predict(data.fit, df.te)
+
+```
+
+#### Adding Features
+
+Here, we try to improve the classification of the model by adding more features [USUALLY THEY ARE DOCUMENT VARIABLES BUT HERE WE CLASSIFY PARTS SO DIFFERENT] to the [DTM OR TFIDF DEPENDING ON THE COMPARISON BETWEEN ACCURACY WITH DTM AND TFIDF ABOVE. IF BETTER ACCURACY WITH DTM THEN HERE WE USE DTM, IF OTHERWISE WE USE TFIDF HERE] DTM-LSA feature matrix or TF-IDF-LSA feature matrix [TO CHOOSE].
+
+[STILL THINKING OF FEATURES TO ADD: THEORY SLIDE 5 FOR IDEAS]
+
+[ADD COMMENT ON ACCURACY RESULT: IS THERE IMPORVMENT ? IF YES, THIS MEANS THERE WAS ROOM FOR IMPROVEMENT AND THAT ADDING X FEATURES REGARDING Y INCREASE ACCURACY BY ? + IF YES DO: sort(importance(data.fit), decreasing = TRUE) in a following chunk to see which of the features added are the most important = crucial in predicting in which part is a page, IF NOT THEN NO]
+
+```{r classification improvement, echo=F, message=F, warning=F}
+
+# Transform dtm into tfidf
+data.tfidf <- dfm_tfidf(data.dfm)
+
+# LSA dimension reduction with 30 dimensions
+data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
+
+df <- data.frame(Class = y, X = data.lsa$docs)
+
+# Adding features
+df <- cbind(df,
+            ,
+            )
+df.tr <- df[index.tr,]
+df.te <- df[-index.tr,]
+
+# Random forest when adding more features
+data.fit <- ranger(Class ~ .,
+                   data = df.tr, 
+                   importance = "impurity")
+
+# Make predictions
+pred.te <- predict(data.fit, df.te)
+
+# Confusion matrix
+confusionMatrix(data = pred.te$predictions, 
+                reference = df.te$Class)
+
+```
+
 ```{r eval=FALSE, include=FALSE}
+
 ### Random Forest with bootstraping
 set.seed(999)
 trctrl <- trainControl(method = "boot")
@@ -1451,11 +1509,14 @@ test <- train(Class~.,
       tuneLength = 10)
 
 ldaClasses <- predict(test)
- confusionMatrix(data = ldaClasses, )
+confusionMatrix(data = ldaClasses, )
 F1_score(cm$table, "lda")
+
 ```
 
+### Classification with SVM 
 
+To assess the prediction quality of the random forest model, we proceed to the classification of the pages into parts of the book using the Support Vector Machine learner. To do so, we use the **svm** function of the **e1071** package with radial kernel and default parameter.  
 
 
 
