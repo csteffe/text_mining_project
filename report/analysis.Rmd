@@ -1336,7 +1336,7 @@ supervised_tk <- supervised_cp %>%
 
 ### Classification with Random Forest {.tabset}
 
-[EXPLAIN THAT RANDOM FOREST CONSISTS OF]
+[EXPLAIN THAT RANDOM FOREST CONSISTS OF AND INSERT WHAT WE DO HERE IN THE EXPLANATIONS]
 
 #### Features: DTM and LSA
 
@@ -1364,7 +1364,9 @@ From the results of LSA, we proceed to fir the classifiers on the training set a
 
 The diagonal indicates the correct predictions of pages in their actual parts of the book [CORRECT ?] and around it we see the false predictions. For example, for part IV *Going to the Doctor*, 19 pages are correctly classified and four pages are incorrectly predicted.
 
-The overall statistics demonstrates an overall accuracy (i.e. proportion of correct predictions) of 71.4% and balanced accuracies for the classes over 70% as well, indicating that our model is good and that the prediction quality is well balanced. 
+The overall statistics demonstrates an overall accuracy (i.e. proportion of correct predictions) of 71.4% and balanced accuracy (i.e. average between sensitivity and specificity) for the classes over 70% as well, indicating that our model is good. The interesting fact here is that even after reducing the dimension to 30 of the DTM, we still obtain a high accuracy. 
+
+The specificity shows that the proportion of true negative is very good. Indeed, predictions of pages in the wrong parts are often well achieved. For example, in parts V and VI it reaches 100%. On the other hand, the sensitivity shows that the proportion of true positive in four parts out of six are high whereas in parts IV and V is quite low, indicating that the model is not as successful as classifying their pages using the terms in these parts of the book. 
 
 ```{r random forest echo=F, message=F, warning=F}
 
@@ -1398,6 +1400,41 @@ confusionMatrix(data = pred.te$predictions,
 
 ```
 
+#### Improving Features
+
+As seen previously, pages are not well classified in parts IV and V are not (respective sensitivity: 0.4333 and 0.5455) indicating that at some point in the previous steps something can be improved. It is possible that the splitting into the training and test sets divided the features in a manner that was not optimal for the classifier to better classify the pages in these two parts. Therefore, we proceed to improving the construction of the features.
+
+[NEED TO ASK U A Q: I SET A SEED OTHERWISE PLOT CHANGES ALL THE TIME AND SO I DONT KNOW HOW TO INTERPRET: IT IS SUPPOSED TO SHOW FOR A CHOSEN DIMENSION CHOICE(nd.vac) THE ACCURCAY]
+
+```{r feature improvement,echo=F, message=F, warning=F}
+
+set.seed(2345)
+
+## May take a long time
+nd.vec <- c(2, 5, 25, 30, 50, 100, 1000, 2000)
+
+acc.vec <- numeric(length(nd.vec))
+
+for (j in 1:length(nd.vec)){
+  
+  data.lsa <- textmodel_lsa(data.dfm, nd = nd.vec[j])
+  #df <- data.frame(Class = y, X = data.lsa$docs) 
+  df.te <- df[-index.tr,]
+  
+  data.fit <- ranger(Class ~ .,
+                     data = df.tr)
+  pred.te <- predict(data.fit, df.te)
+  
+  acc.vec[j] <- confusionMatrix(data = pred.te$predictions, reference = df.te$Class)$overall[1]
+}
+
+## Growing trees.. Progress: 82%. Estimated remaining time: 6 seconds.
+#acc.vec
+
+## [1] 0.7942547 0.8625776 0.8819876 0.8827640 0.8804348 0.8812112 0.8796584
+plot(acc.vec ~ nd.vec, type = 'b')
+
+```
 
 ```{r eval=FALSE, include=FALSE}
 ### Random Forest with bootstraping
