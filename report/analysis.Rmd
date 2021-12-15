@@ -1524,6 +1524,8 @@ To assess the prediction quality of the random forest model, we proceed to the c
 The following results show that the SVM model has a much worse overall accuracy and so does not improve our classification of the pages into the six parts. We are better off with the random forest model. 
 
 ```{r svm classifier, echo=F, message=F, warning=F}
+
+data.tfidf <- dfm_tfidf(supervised_dfm)
 data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
 
 df <- data.frame(Class = y, X = data.lsa$docs)
