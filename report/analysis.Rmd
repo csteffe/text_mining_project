@@ -1263,27 +1263,110 @@ text(x = data.derwms, labels = rownames(data.derwms))
 
 ```
 
-## Supervised Learning
+## Supervised Learning {.tabset}
 
-The goal of the supervised analysis is to re-classify the chapters of the book using the terms analyzed previously [add where maybe] [is that a good reformulation of the aim?]. To do so, we proceed to a machine learning approach consisting of splitting the corpus (*data* object) into a training and a test sets. Then, we train the classifiers on the training set and finally the best classifiers are selected on the test set. 
+The goal of the supervised analysis is to re-classify the chapters of the book using their terms. To do so, we proceed to a machine learning approach consisting of splitting the corpus into a training and a test sets. Then, we train the classifiers on the training set and finally, we select the best classifiers from the results on the test set.
 
-To be able to proceed to the classification method described above, the corpus must be cleaned in order for the features (i.e. terms) to be usable. The cleaning process is achieved in the *Data Structuring and Cleaning* of the **Data** section and consists in sequential steps from the tokenization, removing useless words (i.e. stop words), lemmatization (i.e. tokens simplification) to stemming (i.e. reduce words to their stems). 
+To be able to proceed to the classification method, the corpus must be cleaned in order for the features (i.e. terms) to be usable. Note that since terms must be usable (i.e. meaningful), we do not apply stemming on features. The appropriate cleaning process consists in sequential steps from the tokenization to removing useless words (i.e. stop words) and lemmatization (i.e. tokens simplification).
 
-### Random Forest
+```{r cleaning for supervised analysis, echo=F, message=F, warning=F}
 
-```{r test, echo=F, message=F, warning=F}
+# Data cleaning for the supervised learning analysis 
+
+# count the total number of pages additioning all the pages
+totalpages <- 0
+
+for ( i in 1 :nrow(data)){
+  # split the paragraph by pages
+  paragraphdata <- strsplit(data$text[[i]],"\n\n")
+  # count the number of pages for the chapter
+  NbPages <- length(paragraphdata[[1]])
+  # add the number of pages of the chapter to the total number of pages 
+  totalpages <- totalpages + NbPages
+  
+}
+
+# remove change the nb of pages because the chapter number and the name of the chapter are counted as a two pages
+totalpages_nochap <- totalpages - (16*2)
+
+# create emptydata frame with all the pages
+supervised_data <- data.frame(matrix(NA, ncol = 4, nrow = totalpages_nochap))
+colnames(supervised_data)<-c("document","part","page_nb","pagetext")
+
+rowindex <- 1
+
+for (i in 1:nrow(data)){
+  paragraphdata <- strsplit(data$text[[i]],"\n\n") # split the text to pages
+  paragraphdata <- paragraphdata[[1]][-c(1,2)] # remove first two elements ( chapter and chapter name )
+  
+  NbPages <- length(paragraphdata)# compute the number of pages
+  
+  for (j in 1:NbPages){
+    supervised_data$document[[rowindex]] <- data$document[[i]]
+    supervised_data$part[[rowindex]] <- data$part[[i]]
+    supervised_data$page_nb[[rowindex]] <- paste(i,j,sep=".")
+    supervised_data$pagetext[[rowindex]] <- paragraphdata[j]
+    rowindex <- rowindex+1
+  }
+}
+
+# remove small text ( like name part)
+supervised_data <- supervised_data %>% filter(nchar(pagetext)>40)
+
+# Cleaning 
+
+# transform data frame into copus object
+supervised_cp <- corpus(supervised_data,text_field = "pagetext")
+
+# data cleaning ans lemmatization
+supervised_tk <- supervised_cp %>% 
+                   tokens(remove_numbers = TRUE,
+                          remove_punct = TRUE,
+                          remove_symbols = TRUE,
+                          remove_separators = TRUE) %>%
+                   tokens_split(separator = "'") %>%
+                   tokens_split(separator = "-") %>%
+                   tokens_remove(stop_words$word) %>% 
+                   tokens_tolower() %>%  
+                   tokens_replace(pattern = hash_lemmas$token, 
+                                  replacement = hash_lemmas$lemma) %>%
+                   tokens_remove(c("chapter")) 
+
+```
+
+### Classification with Random Forest {.tabset}
+
+#### Features: DTM and LSA
+
+First, to obtain a set of structured features, we generate a DTM of dimensions 245 by 5,738 with term frequencies. Since the DTM is relatively large, we reduce its dimension using the Latent Sementic Analysis (LSA) by targetting 30 dimensions. Note that we already remove the stop words in the cleaning and that we previously make sure that they are unimportant to our analysis.
+
+In this case, LSA has the advantage of decreasing the number of features to be used while keeping relevant information for the analysis. 
+
+```{r DTM supervised, echo=F, message=F, warning=F}
+
 # create dfm object
 supervied_dfm <- dfm(supervised_tk)
 
-# dimension reduction with LSA 
-# reduce feature to 30 dimensions
-data.lsa <- textmodel_lsa(supervied_dfm, nd = 30) 
+#dim(supervied_dfm)
 
-# set the response to predict (parts of the book as factor)
+```
+
+```{r dimension reduction with LSA, echo=F, message=F, warning=F}
+
+# Dimension reduction with LSA 
+data.lsa <- textmodel_lsa(supervied_dfm, nd = 30) # reduce feature to 30 dimensions
+
+```
+
+From the results of LSA, we proceed to training the classifiers. 
+
+```{r echo=F, message=F, warning=F}
+
+# Sets the response to predict: chapters (as factor)
 y <- as.factor(supervised_data$part)
 
 # transform to data frame
-df <- data.frame(Class=y, X=data.lsa$docs)  
+df <- data.frame(Class = y, X = data.lsa$docs)  
 
 set.seed(245)
 # split training set 80% and test set 20%

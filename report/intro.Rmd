@@ -10,9 +10,9 @@ This report outlines the results of a text mining analysis of the best-seller no
 
 # Introduction
 
-The goal of the analysis is to study textual data and extract some specific characteristics of feminist texts on gender bias in data. 
+The goal of the text mining analysis is to study textual data and extract some specific characteristics of feminist texts on gender bias in data by transforming unstructured texts into a set of structured features. 
 
-The upcoming analysis is a comprehensive text mining exploration of *Invisible Women* following a four-part structure:
+The upcoming analysis is a comprehensive text mining exploration of *Invisible Women* following a four-part structure: [TO UPDATE]
 
 - Data gathering 
 - Cleaning and exploratory data analysis 
@@ -26,7 +26,7 @@ The upcoming analysis is a comprehensive text mining exploration of *Invisible W
 - Unsupervised analysis [ADD SUBSECTIONS]
 - Supervised learning [ADD SUBSECTIONS]
 
-Our research questions are the following:
+Our research questions are the following: [TO UPDATE]
 
 - 
 -
