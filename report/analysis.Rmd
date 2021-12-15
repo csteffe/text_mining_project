@@ -1396,12 +1396,10 @@ From the results of LSA, we proceed to fir the classifiers on the training set a
 
 The diagonal indicates the correct predictions of pages in their actual parts of the book and around it we see the false predictions. For example, for part IV *Going to the Doctor*, 21 pages are correctly classified and 3 pages are incorrectly predicted.
 
-The overall statistics demonstrates an overall accuracy (i.e. proportion of correct predictions) of 81.2% and balanced accuracy (i.e. average between sensitivity and specificity) for the classes over 76.8% as well, indicating that our model is good. The interesting fact here is that even after reducing the dimension to 30 of the DTM, we still obtain a high accuracy. 
-
-The specificity shows that the proportion of true negative is very good. Indeed, predictions of pages in the wrong parts are often well achieved. For example, in parts V and VI it reaches 100%. On the other hand, the sensitivity shows that the proportion of true positive in four parts out of six are high whereas in parts IV and V is quite low, indicating that the model is not as successful as classifying their pages using the terms in these parts of the book. 
+The overall statistics demonstrates an overall accuracy (i.e. proportion of correct predictions) of 83.1% and balanced accuracy (i.e. average between sensitivity and specificity) for the classes over 76.7% as well, indicating that our model is good. The interesting fact here is that even after reducing the dimension to 30 of the DTM, we still obtain a high accuracy. 
 
 ```{r random forest, echo=F, message=F, warning=F}
-
+set.seed(235) # for reproducibility of the results
 # Set the response to predict: chapters (as factor)
 y <- as.factor(supervised_data$part)
 
@@ -1409,7 +1407,7 @@ y <- as.factor(supervised_data$part)
 df <- data.frame(Class = y, 
                  X = data.lsa$docs)  
 
-set.seed(245) # for reproducibility of the results
+
 
 # Split training set 40% and test set 60%
 index.tr <- sample(size = round(0.4*length(y)), 
@@ -1432,15 +1430,14 @@ confusionMatrix(data = pred.te$predictions,
 
 ```
 
-#### Improving Features
+#### Improving the features
 
-As seen previously, pages are not well classified in parts IV and V are not (respective sensitivity: 0.4333 and 0.5455) indicating that at some point in the previous steps something can be improved. It is possible that the splitting into the training and test sets divided the features in a manner that was not optimal for the classifier to better classify the pages in these two parts. Therefore, we proceed to improving the construction of the features.
-
-[NEED TO ASK U A Q: I SET A SEED OTHERWISE PLOT CHANGES ALL THE TIME AND SO I DONT KNOW HOW TO INTERPRET: IT IS SUPPOSED TO SHOW FOR A CHOSEN DIMENSION CHOICE(nd.vac) THE ACCURCAY]
+Now, we can consider to tune the elements that compose the features. For this propose we reconsider the previous LSA dimensions and select this number based on the best accuracy.
+[revoir]
 
 ```{r feature improvement,echo=F, message=F, warning=F}
 
-set.seed(2345)
+set.seed(2345) # for reproducibility of the results
 
 ## May take a long time
 nd.vec <- c(2, 5, 25, 30, 50, 100, 1000)
@@ -1469,12 +1466,14 @@ plot(acc.vec ~ nd.vec, type = 'b')
 
 ```
 
-Another method to verify whether the accuracy can be improved is to fit the model using the TF-IDF instead of the DTM. Here we reduce the dimension of the TF-IDF using the Latent Semantic Analysis (LSA) by targeting 30 dimensions as well.
+The below plot shows us that the greatest accuracy is when we set 25 dimensions for the LSA.
 
-[ADD ACCURACY COMPARISON ONCE RESULTS ARE SHOWN WITH PREVIOUS RESULTS USING DTM-> IS THERE IMPORVEMENT OR NOT ? Conclude]
+Another method to verify whether the accuracy can be improved is to fit the model using the TF-IDF instead of the DTM. Here we reduce the dimension of the TF-IDF using the Latent Semantic Analysis (LSA) by now targeting 25 dimensions.
+
+
 
 ```{r random forest using TF-IDF, echo=F, message=F, warning=F}
-
+set.seed(255) # for reproducibility of the results
 # Random forest using TF-IDF
 data.tfidf <- dfm_tfidf(supervised_dfm)
 data.lsa <- textmodel_lsa(data.tfidf, nd = 25)
@@ -1487,7 +1486,9 @@ pred.te <- predict(data.fit, df.te)
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 ```
 
-#### Adding Features
+As expected using the TF-IDF and an optimized number of dimension, we increase the accuracy from 81.2% to 83.1%. Additionally, the balance accuracy also increase from 76.7% to 79.1% so the tuning slightly improved the classification.
+
+#### Adding Variable [ à enlever a nos avis ]
 
 Here, we try to improve the classification of the model by adding more features [USUALLY THEY ARE DOCUMENT VARIABLES BUT HERE WE CLASSIFY PARTS SO DIFFERENT] to the [DTM OR TFIDF DEPENDING ON THE COMPARISON BETWEEN ACCURACY WITH DTM AND TFIDF ABOVE. IF BETTER ACCURACY WITH DTM THEN HERE WE USE DTM, IF OTHERWISE WE USE TFIDF HERE] DTM-LSA feature matrix or TF-IDF-LSA feature matrix [TO CHOOSE].
 
@@ -1496,7 +1497,7 @@ Here, we try to improve the classification of the model by adding more features 
 [ADD COMMENT ON ACCURACY RESULT: IS THERE IMPORVMENT ? IF YES, THIS MEANS THERE WAS ROOM FOR IMPROVEMENT AND THAT ADDING X FEATURES REGARDING Y INCREASE ACCURACY BY ? + IF YES DO: sort(importance(data.fit), decreasing = TRUE) in a following chunk to see which of the features added are the most important = crucial in predicting in which part is a page, IF NOT THEN NO]
 
 ```{r classification improvement, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-
+set.seed(245) # for reproducibility of the results
 # Transform dtm into tfidf
 data.tfidf <- dfm_tfidf(supervised_dfm)
 
@@ -1535,9 +1536,9 @@ To assess the prediction quality of the random forest model, we proceed to the c
 The following results show that the SVM model has a much worse overall accuracy and so does not improve our classification of the pages into the six parts. We are better off with the random forest model. 
 
 ```{r svm classifier, echo=F, message=F, warning=F}
-
+#set.seed(245) # for reproducibility of the results
 data.tfidf <- dfm_tfidf(supervised_dfm)
-data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
+data.lsa <- textmodel_lsa(data.tfidf, nd = 25)
 
 df <- data.frame(Class = y, X = data.lsa$docs)
 
