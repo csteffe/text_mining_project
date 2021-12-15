@@ -1336,6 +1336,8 @@ supervised_tk <- supervised_cp %>%
 
 ### Classification with Random Forest {.tabset}
 
+[EXPLAIN THAT RANDOM FOREST CONSISTS OF]
+
 #### Features: DTM and LSA
 
 First, to obtain a set of structured features, we generate a DTM of dimensions 245 by 5,738 with term frequencies. Since the DTM is relatively large, we reduce its dimension using the Latent Sementic Analysis (LSA) by targetting 30 dimensions. Note that we already remove the stop words in the cleaning and that we previously make sure that they are unimportant to our analysis.
@@ -1358,29 +1360,38 @@ data.lsa <- textmodel_lsa(supervied_dfm, nd = 30) # reduce feature to 30 dimensi
 
 ```
 
-From the results of LSA, we proceed to training the classifiers. 
+From the results of LSA, we proceed to fir the classifiers on the training set and predict the results on the test set. The below results show first the overall quality of the predictions of the random forest classifier on the confusion matrix. We observe that 
 
-```{r echo=F, message=F, warning=F}
+```{r random forest echo=F, message=F, warning=F}
 
-# Sets the response to predict: chapters (as factor)
+# Set the response to predict: chapters (as factor)
 y <- as.factor(supervised_data$part)
 
-# transform to data frame
-df <- data.frame(Class = y, X = data.lsa$docs)  
+# Transform into data frame
+df <- data.frame(Class = y, 
+                 X = data.lsa$docs)  
 
-set.seed(245)
-# split training set 80% and test set 20%
-index.tr <- sample(size=round(0.4*length(y)), x=c(1:length(y)), replace=FALSE)
-df.tr <- df[index.tr,]
+set.seed(245) # for reproducibility of the results
+
+# Split training set 40% and test set 20%
+index.tr <- sample(size = round(0.4*length(y)), 
+                   x = c(1:length(y)), 
+                   replace = FALSE)
+
+# Assign features to training and test sets
+df.tr <- df[index.tr,] 
 df.te <- df[-index.tr,]
 
-# train the classifier (random forest)
-data.fit <- ranger(Class ~ ., 
-                     data = df.tr)
+# Fit on the training set using random forest
+data.fit <- ranger(Class ~ ., data = df.tr)
+
+# Make predictions on the test set
 pred.te <- predict(data.fit, df.te)
 
+# Prediction results in confusion matrix
+confusionMatrix(data = pred.te$predictions, 
+                reference = df.te$Class) 
 
-confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 ```
 
 
