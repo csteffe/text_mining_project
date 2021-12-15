@@ -1419,6 +1419,7 @@ for (j in 1:length(nd.vec)){
   
   data.lsa <- textmodel_lsa(data.dfm, nd = nd.vec[j])
   df <- data.frame(Class = y, X = data.lsa$docs) 
+  df.tr <- df[index.tr,]
   df.te <- df[-index.tr,]
   
   data.fit <- ranger(Class ~ .,
@@ -1462,7 +1463,7 @@ Here, we try to improve the classification of the model by adding more features 
 
 [ADD COMMENT ON ACCURACY RESULT: IS THERE IMPORVMENT ? IF YES, THIS MEANS THERE WAS ROOM FOR IMPROVEMENT AND THAT ADDING X FEATURES REGARDING Y INCREASE ACCURACY BY ? + IF YES DO: sort(importance(data.fit), decreasing = TRUE) in a following chunk to see which of the features added are the most important = crucial in predicting in which part is a page, IF NOT THEN NO]
 
-```{r classification improvement, echo=F, message=F, warning=F}
+```{r classification improvement, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 
 # Transform dtm into tfidf
 data.tfidf <- dfm_tfidf(data.dfm)
@@ -1473,9 +1474,9 @@ data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
 df <- data.frame(Class = y, X = data.lsa$docs)
 
 # Adding features
-df <- cbind(df,
-            ,
-            )
+df <- cbind(df, 
+            length = log(sapply(supervised_tk, length)))
+            
 df.tr <- df[index.tr,]
 df.te <- df[-index.tr,]
 
@@ -1523,8 +1524,12 @@ To assess the prediction quality of the random forest model, we proceed to the c
 The following results show that the SVM model has a much worse overall accuracy and so does not improve our classification of the pages into the six parts. We are better off with the random forest model. 
 
 ```{r svm classifier, echo=F, message=F, warning=F}
+data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
 
-library(e1071)
+df <- data.frame(Class = y, X = data.lsa$docs)
+
+df.tr <- df[index.tr,]
+df.te <- df[-index.tr,]
 
 # SVM model
 svm.model <- svm(Class ~ ., data = df.tr, 
@@ -1538,3 +1543,4 @@ confusionMatrix(data = svm.pred,
                 reference = df.te$Class)
 
 ```
+
