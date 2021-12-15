@@ -1347,7 +1347,7 @@ In this case, LSA has the advantage of decreasing the number of features to be u
 ```{r DTM supervised, echo=F, message=F, warning=F}
 
 # create dfm object
-supervied_dfm <- dfm(supervised_tk)
+supervised_dfm <- dfm(supervised_tk)
 
 #dim(supervied_dfm)
 
@@ -1356,7 +1356,7 @@ supervied_dfm <- dfm(supervised_tk)
 ```{r dimension reduction with LSA, echo=F, message=F, warning=F}
 
 # Dimension reduction with LSA 
-data.lsa <- textmodel_lsa(supervied_dfm, nd = 30) # reduce feature to 30 dimensions
+data.lsa <- textmodel_lsa(supervised_dfm, nd = 30) # reduce feature to 30 dimensions
 
 ```
 
@@ -1368,7 +1368,7 @@ The overall statistics demonstrates an overall accuracy (i.e. proportion of corr
 
 The specificity shows that the proportion of true negative is very good. Indeed, predictions of pages in the wrong parts are often well achieved. For example, in parts V and VI it reaches 100%. On the other hand, the sensitivity shows that the proportion of true positive in four parts out of six are high whereas in parts IV and V is quite low, indicating that the model is not as successful as classifying their pages using the terms in these parts of the book. 
 
-```{r random forest echo=F, message=F, warning=F}
+```{r random forest, echo=F, message=F, warning=F}
 
 # Set the response to predict: chapters (as factor)
 y <- as.factor(supervised_data$part)
@@ -1417,7 +1417,7 @@ acc.vec <- numeric(length(nd.vec))
 
 for (j in 1:length(nd.vec)){
   
-  data.lsa <- textmodel_lsa(data.dfm, nd = nd.vec[j])
+  data.lsa <- textmodel_lsa(supervised_dfm, nd = nd.vec[j])
   df <- data.frame(Class = y, X = data.lsa$docs) 
   df.tr <- df[index.tr,]
   df.te <- df[-index.tr,]
@@ -1444,15 +1444,15 @@ Another method to verify whether the accuracy can be improved is to fit the mode
 ```{r random forest using TF-IDF, echo=F, message=F, warning=F}
 
 # Random forest using TF-IDF
-data.tfidf <- dfm_tfidf(data.dfm)
+data.tfidf <- dfm_tfidf(supervised_dfm)
 data.lsa <- textmodel_lsa(data.tfidf, nd = 30)
 df <- data.frame(Class = y, X = data.lsa$docs)
 df.tr <- df[index.tr,]
 df.te <- df[-index.tr,]
-tweets.fit <- ranger(Class ~ .,
+data.fit <- ranger(Class ~ .,
                      data = df.tr)
 pred.te <- predict(data.fit, df.te)
-
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 ```
 
 #### Adding Features
