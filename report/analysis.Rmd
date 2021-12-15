@@ -338,7 +338,7 @@ Hierarchical clustering is based on distances and applied on the dissimilarities
 
 ##### Inverted Jaccard Dissimilarity Matrix
 
-The inverted Jaccard dissimilarity matrix shows that there are two clusters main clusters. One cluster groups chapter 15 *Who Will Rebuild* and chapter 16 *It's Not The Disaster That Kills You* and the other one groups the rest of the book. Moreover, inside the second larger cluster, we see that there are two sub-clusters.
+The inverted Jaccard dissimilarity matrix shows that there are two main clusters. One cluster groups chapters 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* and the other one groups the rest of the book. Moreover, inside the second larger cluster, we see that there are two sub-clusters. From the dendogram, we understand that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.76). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
 
 ```{r Jaccard inverted, echo=F, message=F, warning=F}
 
@@ -396,7 +396,7 @@ kbl(clust_jac,
 
 ##### Inverted Cosine Dissimilarity Matrix
 
-The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each two smaller sub-clusters. One cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14.
+The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each we observe two smaller sub-clusters. One main cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14. The dendogram generated from the inverted cosine dissimilarity matrix indicates that again chapter 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.70). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
 
 ```{r cosine inverted, echo=F, message=F, warning=F}
 
@@ -452,7 +452,7 @@ kbl(clust_cos,
 
 ##### Euclidean-based Dissimilarity Matrix
 
-The Euclidean dissimilarity matrix seems to show that there is sequence of clusters which is a completely different clustering pattern compared to the other two distance measures. This pattern seems to indicate that each chapter is rather independent from the others and do not share a lot of similarities accross chapters of the book.
+The Euclidean dissimilarity matrix seems to show that there is sequence of clusters which is a completely different clustering pattern compared to the other two distance measures. This pattern seems to indicate that each chapter is rather independent from the others and do not share a lot of similarities across chapters of the book. According to Euclidean-based dissimilarity matrix, we see that chapters 12 *A Costless Resource to Exploit* and 15 *Who Will Rebuild?* share the smallest distance indicating that they are the most similar. This finding is different than the ones using the two other distance measures. On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
 
 ```{r Euclidean-based, echo=F, message=F, warning=F}
 
@@ -676,7 +676,9 @@ ggplot(data = data.fcm.mat,
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
-Then, we transform the co-occurrence matrix into a dissimilarity matrix (*maximum co-occurrence - similarity matrix*) from which we derive the co-occurrence distance-based clustering (i.e. hierarchical clustering). The next dendogram displays the clustering of the most frequent terms co-occurring [IS IT RIGHT TO CONCLUDE THIS?]
+Then, we transform the co-occurrence matrix into a dissimilarity matrix (*maximum co-occurrence - similarity matrix*) from which we derive the co-occurrence distance-based clustering (i.e. hierarchical clustering). 
+
+[ADD INTERPRETAION: KEEP IN MIND THAT THE CO-OCCURRENCE MATRIX IS TURNED INTO A DISSIMILARITY MATRIX -> PROVIDE EXAMPLE WITH FEMAL-WOMAN]
 
 ```{r clustering analysis, echo=F, message=F, warning=F}
 
@@ -1161,7 +1163,7 @@ The centroid method averages the word representations over the number of documen
 
 $vec(d) = \frac{1}{|d|} \Sigma vec(w)$
 
-[ADD INTERPRETATION]
+[INTERPRET]
 
 ```{r plot-texts, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
@@ -1214,8 +1216,7 @@ Distances (i.e. similarities) between documents in the RWMD approach estimate ho
 
 To compute the RWMD, we use the **RelaxedWordMoversDistance** function from the **text2vec** package using DTM (word and document embedding). Note that the function provides similarities and distances which allows us to plot a dendogram displaying the clustering of chapters. 
 
-[ADD INTERPRETAION]
-
+The following dendogram shows that chapter 10 *The Drugs Don’t Work* and chapter 11 *Yentl Syndrome* from part IV *Going to the Doctor* are the most similar since the height at which they are joined (~0.14) is the smallest. Considering the RWMD, this means that the cost from converting the words of chapter 10 into the words of chapter 11 is the smallest because the distance of their word embeddings distances is the smallest. 
 ```{r RWMD distances, echo=F, message=F, warning=F}
 set.seed(432)
 # Preparation
@@ -1231,7 +1232,6 @@ data.dtm <- dfm(data.tk5)
 data.rwmd.model <- RelaxedWordMoversDistance$new(data.dtm, data.we)
 data.rwms <- data.rwmd.model$sim2(data.dtm)
 data.rwmd <- data.rwmd.model$dist2(data.dtm)
-## speech.rwmd ## check out
 
 # Plot the dendogram
 data.hc <- hclust(as.dist(data.rwmd))
@@ -1242,6 +1242,8 @@ plot(data.hc, cex = 0.8)
 #### Document Embedding using RWMD
 
 Since RWMD generates dissimilarities between documents, we can easily obtain a clustering of the RWMD document embedding. The positions of vectors here mirror the Relaxed Word Mover’s Distances. 
+
+[ADD INTERPRETAION]
 
 ```{r clustering from RWMD, echo=F, message=F, warning=F}
 
@@ -1255,7 +1257,7 @@ plot(data.derwms,
      type = 'n',  
      xlab = "Dim 1", 
      ylab = "Dim 2", 
-     main = "Document embedding - RWMD+CMD")
+     main = "Document embedding (RWMD)")
 
 text(x = data.derwms, labels = rownames(data.derwms))
 
