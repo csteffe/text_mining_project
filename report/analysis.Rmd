@@ -4,14 +4,14 @@ This section dives deeper into the analysis of the content of the corpus in whic
 
 The previous exploratory data analysis sheds light on overall and document-specific findings related to terms and vocabulary used throughout the book. Indeed, following a top-down approach, we examine terms specific to the general corpus which unsurprisingly reveal a gender-centric vocabulary and then look more closely at the focus of each chapter on the gender discrimination issue on which *Invisible Women* devotes all its attention. 
 
-Looking at the complexity of the book, *Invisible Women* is built of 16 chapters divided in six parts and tells its story over 280 pages. For the purpose of the following analysis, we take care of  talk about the complexity of the book: specify the length of the text before and after the cleaning ? assess the difference (big or small)  and interpret (if big, most words are bringing no information, if small, most terms are insightful) ? [DO YOU HAVE ANY OTHER IDEAS THAT COULD ASSESS THE COMPLEXITY OF THE TEXT ?]
+Looking at the complexity of the book, *Invisible Women* is built of 16 chapters divided in six parts and tells its story over 280 pages. For the purpose of the following analysis, we take care of talk about the complexity of the book: [not sure about the point of this sentence??] The lenght of the document without any cleaning is 97'382. With the cleaning process we keep less than 40% of the tokens present in the document with a lenght of 36'160. The vast majority of the words bringing little to no information, we can consider that the the book is not so complex [can we really say that ??] [DO YOU HAVE ANY OTHER IDEAS THAT COULD ASSESS THE COMPLEXITY OF THE TEXT ?]
 -> talk about the uniqueness of the data : [NOT SURE WHAT TO MENTION HERE BUT MUST BE MENTIONNED]
 
 The subsequent analysis is as follows. We first study the sentiment of the corpus by extracting for each chapter its average sentiment using a qualitative and a quantitative approach. Then, we focus our attention on the similarity between terms to study their context and between chapters to better understand their associated topics of interest. From clustering of term similarities, we continue through topic modelling using two approaches. Finally, we end with an unsupervised and supervised learning methods to represent terms and documents in dimensions. 
 
 ## Sentiment Analysis 
 
-Now that the content of the corpus is cleaned and that we explored its content, we proceed to its further analysis with first its sentiment analysis (i.e. opinion mining) which qualifies or quantifies the sentiment emerging from one text (i.e. chapter). To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses numerical values (i.e. value-based).  
+Now that the content of the corpus is cleaned and that we explored its content, we proceed to its further analysis with first its sentiment analysis (i.e. opinion mining) which qualifies or quantifies the sentiment emerging from one text. To proceed to the sentiment analysis, we use two approaches. The first one uses qualifiers (i.e. dictionary-based) and the second one uses numerical values (i.e. value-based).  
 
 When analyzing the sentiment emerging from a document, we care to not remove stop words since they might be in the sentiment dictionary and provide useful insight. 
 
@@ -138,6 +138,7 @@ The next table shows the first five words of the polarized words dictionary and 
 # Polarized words dictionary
 hash_sentiment_jockers_rinker %>% 
   rename(token = x, value = y) %>% 
+  filter(token !="acute" & token!="acutely") %>% 
   head(5) %>% 
   kbl(caption = "Polarized Words Dictionary") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"), 
@@ -163,7 +164,7 @@ hash_valence_shifters %>%
 
 To proceed to the valance-shifters sentiment analysis, we first extract the sentences from the text and compute their sentiment value. Here, we do not assign weights to certain types of sentences (e.g. questions) since we believe that the sentence type does not have a particular influence on our analysis. 
 
-The below output displays the sentiment values of the first five sentences of the corpus, respectively of chapter one, and indicates for each the sentiment emerging from the terms of the sentences. Anything numerical value below 0.05 is considered negative and any value above 0.05 is considered positive. Anything in between is considered neutral. Thus, the first, fourth and fifth sentences are negative (respectively -0.408, -0.296 and -0.535Because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted.  ) and the second and third ones are positive (respectively 0.245 and 0.096). Note that because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted.  
+The below output displays the sentiment values of the first five sentences of the corpus, respectively of chapter one, and indicates for each the sentiment emerging from the terms of the sentences. Anything numerical value below 0.05 is considered negative and any value above 0.05 is considered positive. Anything in between is considered neutral. Thus, the first, fourth and fifth sentences are negative, respectively -0.408, -0.296 and -0.535, and the second and third ones are positive, respectively 0.245 and 0.096. Note that because the column *word_count* had NAs, we remove rows that have no available information since no sentiment can be extracted.
 
 ```{r sentiment analysis, echo=F, message=F, warning=F}
 
@@ -218,6 +219,10 @@ ggplotly(
                           '</br><b>Std. deviation:</b> ', sd)
              )) + 
   geom_bar(stat = "identity", fill = "dodgerblue3", alpha = 0.5) + 
+  geom_hline(yintercept = 0.05, linetype="dotted", 
+             color = "darkred", size=0.5) +
+  geom_hline(yintercept = - 0.05, linetype="dotted", 
+               color = "darkred", size=0.5) +
   coord_flip() +
   labs(title = "Sentiment Score by Chapter",
                    x = "Document",
@@ -234,6 +239,8 @@ ggplotly(
 Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
 
 To compute similarities, we use three different measures namely the *Jaccard Index*, *Cosine Similarity* and *Euclidean Distance* all three using the term-frequency inverse-document frequency.
+
+For all the different clusters, we decided to cut tree at 6 clusters as there is 6 part in the book.
 
 ### Similarities between Documents {.tabset}
 
@@ -372,6 +379,7 @@ The inverted Jaccard dissimilarity matrix shows that there are two main clusters
 data.hc_jac <- hclust(as.dist(1 - data.jac)) # inverted similarity matrix
 
 plot(data.hc_jac)
+abline(h=0.84, lty = 2)
 
 ```
 
