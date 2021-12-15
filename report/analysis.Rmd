@@ -77,7 +77,7 @@ ggplotly(ggplot(data.sent,
                     fill = term, 
                     text = paste('</br><b>Chapter:</b> ', document,
                                  '</br><b>Count:</b> ', count))) + 
-         geom_bar(stat = "identity", alpha = 0.5) + 
+         geom_bar(stat = "identity", position = "fill", alpha = 0.5) + 
          coord_flip() + 
          theme_minimal() +
          scale_fill_manual(values = c("firebrick3", "forestgreen")) +
@@ -85,6 +85,32 @@ ggplotly(ggplot(data.sent,
               x = "Chapter",
               y = "Count",
               fill = "Sentiment"),
+         tooltip = "text") 
+
+
+data.sent <- tokens_lookup(data.tk4, 
+                           dictionary = data_dictionary_LSD2015) %>% 
+  dfm() %>%     # creates a dtm matrix
+  tidy() %>%
+  filter(term != "neg_positive" & term != "neg_negative") %>% group_by(document) %>%summarise (relfreq = count/sum(count), term=term)%>%ungroup()
+
+
+
+# Plots the above tibble
+ggplotly(ggplot(data.sent,
+                aes(x = reorder(document, term), 
+                    y = relfreq, 
+                    fill = term, 
+                    text = paste('</br><b>Chapter:</b> ', document,
+                                 '</br><b>Relative Frequency:</b> ', relfreq))) + 
+           geom_bar(stat = "identity", alpha = 0.5) + 
+           coord_flip() + 
+           theme_minimal() +
+           scale_fill_manual(values = c("firebrick3", "forestgreen")) +
+           labs(title = "Dictionary-Based Sentiment Analysis",
+                x = "Chapter",
+                y = "Count",
+                fill = "Sentiment"),
          tooltip = "text") 
 
 neg <- data.sent %>%
