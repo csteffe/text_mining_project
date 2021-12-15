@@ -48,9 +48,8 @@ The upcoming analysis is a comprehensive text mining exploration of *Invisible W
   
 Our research questions are the following: [TO UPDATE]
 
-- 
--
--
+* To which extent can we extract the sentiment related to the co-occurrence of two opposite terms ?
+* To which extent someone who hasn’t read the book can understand it compared to someone who has read it // [What are the conclusions someone who has not read the book can draw through our analysis compared to someone who has read it ? Are they complete ? At least aligned ? ]
 
 # Related Work
 
