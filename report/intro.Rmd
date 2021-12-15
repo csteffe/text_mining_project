@@ -6,7 +6,7 @@ output:
 
 # Executive Summary
 
-This report outlines the results of a text mining analysis of the best-seller non-fiction book *Invisible Women*. Its exploration is meant to better understand some textual characteristics of feminist texts. Our text mining analysis shows that [ADD RESULTS HERE]. 
+This report outlines the results of a text mining analysis of the best-seller non-fiction book *Invisible Women*. Its exploration is meant to better understand some textual characteristics of feminist texts from Caroline Criado Perez. Our text mining analysis shows that [ADD RESULTS HERE]. 
 
 # Introduction
 
@@ -14,18 +14,38 @@ The goal of the text mining analysis is to study textual data and extract some s
 
 The upcoming analysis is a comprehensive text mining exploration of *Invisible Women* following a four-part structure: [TO UPDATE]
 
-- Data gathering 
-- Cleaning and exploratory data analysis 
-  - Tokenization
-  - Stop Words
-  - Lemmatization 
-  - Stemming
-  - Document-Term Matrix (DTM)
-  - Term Frequency and Inverse Document Matrix (TF-IDF)
-  - Zipf's Law
-- Unsupervised analysis [ADD SUBSECTIONS]
-- Supervised learning [ADD SUBSECTIONS]
+1. Data gathering 
 
+2. Data Structuring and Cleaning
+  * Corpus
+  * Tokenization
+  * Stop Words
+  * Lemmatization 
+  * Stemming
+  * Document-Term Matrix (DTM)
+  
+3. Exploratory Data Analysis
+  * Cloud of Words
+  * Global Frequency
+  * Term-Frequency versus Document-Frequency 
+  * Term-Frequency by Document 
+  * Zipf's Law
+  * Term-Frequency and Inverse-Document Matrix (TF-IDF)
+  * TF-IDF by Document
+  * Keyness
+  * Link between words
+  * Dispersion Plot 
+  * Lexical Diversity
+  
+4. Analysis
+  * Sentiment Analysis
+  * Similarities and Clustering
+  * Topic Modeling
+  * Unsupervised Learning (Embedding)
+  * Supervised learning (Classification)
+  
+6. Conclusion
+  
 Our research questions are the following: [TO UPDATE]
 
 - 
@@ -34,15 +54,7 @@ Our research questions are the following: [TO UPDATE]
 
 # Related Work
 
-To our knowledge, there is no already existing text mining analysis of *Invisible Women* available to the online or offline public. However, text analyses of feminist texts such as speeches, books, articles are part of Gender Studies.
-
-[I'll read these sources and complete this part]
-https://dhdebates.gc.cuny.edu/read/untitled/section/508c8664-15c8-4262-a72a-e49299873d11
-https://www.hastac.org/blogs/pirzadaahmad/2017/02/08/feminist-text-mining-and-big-data
-https://www.tandfonline.com/doi/full/10.1080/03906701.2020.1724365
-https://www.researchgate.net/publication/342870976_Exploration_of_the_Waves_of_Feminism_Using_Sentiment_Based_Text_Mining_Techniques
-https://iris.uniroma1.it/retrieve/handle/11573/1451192/1585420/Deriu_introduction-analytics_2020.pdf
-https://nsuworks.nova.edu/cgi/viewcontent.cgi?article=1952&context=tqr
+To our knowledge, there is no already existing text mining analysis of *Invisible Women* available to the online or offline public. However, text analyses of feminist texts such as speeches, books, articles are part a common practice in Gender Studies.
 
 # The Author
 

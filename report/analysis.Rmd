@@ -203,7 +203,7 @@ ggplotly(
 
 ```
 
-## Unsupervised Learning: Similarities and Clustering
+## Similarities and Clustering
 
 Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
 
@@ -1538,6 +1538,3 @@ confusionMatrix(data = svm.pred,
                 reference = df.te$Class)
 
 ```
-
-
-

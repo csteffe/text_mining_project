@@ -262,22 +262,22 @@ print(textplot_keyness(data.keyness))
 
 Then, we compute for each chapter of the book the keyness of terms in order to better understand what each chapter is about. The following visualization is an animated illustration (in a gif format). Each chapter is then at some point the target and the reference. 
 
-Chapter 1 *Can Snow-Clearing be Sexist?* displays terms related to public transportation and cities' infrastructure.
-Chapter 2 *Gender Neutral With Urinals* mentions terms in connection with public spaces and dangerous behaviors.
-Chapter 3 *The Long Friday* seem to be about parental benefits in the workplace.
-Chapter 4 *The Myth of Meritocracy* elaborates on success.
-Chapter 5 *The Henry Higgins Effect* is a bit more difficult to grasp but uses terms related to chemicals and effect on health such as cancer.
-Chapter 6 *Being Worth Less Than a Shoe* is also less specific to one vocabulary type but seems to be about profession and precariousness.
-Chapter 7 *The Plough Hypothesis* uses terms related to agriculture.
-Chapter 8 *One-Size-Fits-Men* seems to be about technologies like smartphones and data science.
-Chapter 9 *A Sea of Dudes* uses vocabulary connected to automobiles.
-Chapter 10 *The Drugs Don’t Work* is about clinical trials.
-Chapter 11 *Yentl Syndrome* uses a medical vocabulary
-Chapter 12 *A Costless Resource to Exploit* seems to be about economics.
-Chapter 13 *From Purse to Wallet* is connected to household consumption.
-Chapter 14 *Women’s Rights are Human Rights* is about politics.
-Chapter 15 *Who Will Rebuild?* implies a topic surrounding rebuilding a more peaceful world.
-Chapter 16 *It’s Not the Disaster that Kills You* evolves around extreme poverty in the world.  
+* Chapter 1 *Can Snow-Clearing be Sexist?* displays terms related to public transportation and cities' infrastructure.
+* Chapter 2 *Gender Neutral With Urinals* mentions terms in connection with public spaces and dangerous behaviors.
+* Chapter 3 *The Long Friday* seem to be about parental benefits in the workplace.
+* Chapter 4 *The Myth of Meritocracy* elaborates on success.
+* Chapter 5 *The Henry Higgins Effect* is a bit more difficult to grasp but uses terms related to chemicals and effect on health such as cancer.
+* Chapter 6 *Being Worth Less Than a Shoe* is also less specific to one vocabulary type but seems to be about profession and precariousness.
+* Chapter 7 *The Plough Hypothesis* uses terms related to agriculture.
+* Chapter 8 *One-Size-Fits-Men* seems to be about technologies like smartphones and data science.
+* Chapter 9 *A Sea of Dudes* uses vocabulary connected to automobiles.
+* Chapter 10 *The Drugs Don’t Work* is about clinical trials.
+* Chapter 11 *Yentl Syndrome* uses a medical vocabulary
+* Chapter 12 *A Costless Resource to Exploit* seems to be about economics.
+* Chapter 13 *From Purse to Wallet* is connected to household consumption.
+* Chapter 14 *Women’s Rights are Human Rights* is about politics.
+* Chapter 15 *Who Will Rebuild?* implies a topic surrounding rebuilding a more peaceful world.
+* Chapter 16 *It’s Not the Disaster that Kills You* evolves around extreme poverty in the world.  
 
 ```{r keyness2, echo=F, message=F, warning=F, animation.hook = "gifski", , interval = 15}
 
