@@ -701,11 +701,8 @@ plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Document Embeddi
 text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 
 ```
-The weighted centroid method uses TF-IDF
+Similarly to the previous centroïd method, chapter 10 is by far the least similar chapter in comparison to the other ones. Due to the fact that we use the TF-IDF, the chapters are a bit more spread. Indeed, by definition terms are more specific to each chapter. However, chapters 5 and 8 are particularly similar which was not the case previously.
 
-
-
-[ADD INTERPRETATION]
 #### Relaxed Word Mover’s Distance (RWMD) {.tabset}
 
 The document embedding can be used for clustering (using K-Means) or for computing the similarity/dissimilarity (Jaccard, Cosine, Euclidean) matrices before clustering (hierarchical). An alternative approach is to use the Relaxed Word Mover’s Distance to compute document similarity using word embedding. RWMD can use DTM or TF-IDF. 
@@ -743,8 +740,7 @@ plot(data.hc, cex = 0.8)
 ##### Document Embedding using RWMD
 
 Since RWMD generates dissimilarities between documents, we can easily obtain a clustering of the RWMD document embedding. The positions of vectors here mirror the Relaxed Word Mover’s Distances. 
-
-[ADD INTERPRETAION]
+Interestingly, chapter 10 is now at the center and very close to many chapters which indicates that according to the RWMD measure the cost of transforming words from chapter 10 to words of other chapters is quite low. This finding is in opposition with results from Centroïd methods.
 
 ```{r clustering from RWMD, echo=F, message=F, warning=F}
 
