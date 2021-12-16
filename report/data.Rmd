@@ -1,5 +1,5 @@
 
-```{r setup, echo = FALSE, message = FALSE}
+```{r setup, echo = FALSE, message = FALSE, warning=FALSE}
 source(here::here("scripts/setup.R"))
 ```
 
@@ -13,7 +13,7 @@ Here are the book's characteristics:
 
 The book *Invisible Women* under study is directly downloaded from an online source https://yes-pdf.com/book/113#google_vignette in its PDF version. To upload it in *Rstudio*, we use the `pdf_text` utility from the **pdftools** package that extracts texts from PDF files. The advantage of uploading the book from a website link is that it is easy to obtain but on the other side, it requires a tedious preparation in order to be able to get started with the cleaning. Here, we first need to manipulate the PDF version to keep only the chapters of the book and remove other useless parts for our analysis such as blank pages, the title page etc.. 
 
-```{r load data, echo = FALSE, message = FALSE, warning=FALSE}
+```{r load data, echo = FALSE, message = FALSE}
 #load the data
 text <- pdf_text("https://yes-pdf.com/electronic-book/33")
 ```
