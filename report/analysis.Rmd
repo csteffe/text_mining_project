@@ -68,11 +68,12 @@ data.sent <- tokens_lookup(data.tk4,
                            dictionary = data_dictionary_LSD2015) %>% 
              dfm() %>%     # creates a dtm matrix
              tidy() %>%
-             filter(term != "neg_positive" & term != "neg_negative")
+             filter(term != "neg_positive" & term != "neg_negative") %>%
+            mutate(document = as.factor(document))
 
 # Plots the above tibble
-ggplotly(ggplot(data.sent,
-                aes(x = reorder(document, count), 
+ggplotly(ggplot(data.sent[order(data.sent$term),],
+                aes(x = document, 
                     y = count, 
                     fill = term, 
                     text = paste('</br><b>Chapter:</b> ', document,
@@ -231,504 +232,6 @@ ggplotly(
   theme_minimal(),
   tooltip = "text"
 )
-
-```
-
-## Similarities and Clustering
-
-Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
-
-To compute similarities, we use three different measures namely the *Jaccard Index*, *Cosine Similarity* and *Euclidean Distance* all three using the term-frequency inverse-document frequency.
-
-For all the different clusters, we decided to cut tree at 6 clusters as there is 6 part in the book.
-
-### Similarities between Documents {.tabset}
-
-We first compute the similarity between chapters of the book to investigate whether they use the same token types. 
-
-#### Jaccard Index
-
-We first compute the Jaccard index matrix displaying the relative number of common words using the TF-IDF matrix. Note that the Jaccard coefficient considers only once each token type (i.e. set model). 
-
-From the Jaccard similarity matrix, where similarities are based on the Jaccard coefficient (i.e. relative number of common words) by document, we get the below heatmap in which chapters are likely to use similar terms. A red square indicates a strong similarity (e.g. 1) whereas a dark blue square indicates no similarity. Therefore, the heatmap shows that chapter 15 *Who Will Rebuild* is the text with the least similarity with other chapters (score closer to 0). Also, we observe that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrome* seem to use a bit more similar terms.  
-
-```{r Jaccard, echo=F, message=F, warning=F}
-
-# Computes similarities and distances between documents
-data.jac <- textstat_simil(data.tfidf,                  # uses the frequencies
-                           method = "jaccard", 
-                           margin = "documents")        # between documents
-
-# Converts the object to matrix then to data frame
-data.jac.mat <- melt(as.matrix(data.jac)) 
-
-# Plots
-ggplot(data = data.jac.mat, 
-       aes(x = Var1, 
-           y = Var2, 
-           fill = value)) +
-  scale_fill_gradient2(low = "blue", 
-                       high = "red", 
-                       mid = "white",
-                       midpoint = 0.5, 
-                       limit = c(0,1), 
-                       name="Jaccard") +
-  geom_tile() +
-  labs(title = "Heatmap Representation Of Similarities Between Documents",
-       x = "Chapter",
-       y = "Chapter")+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 22))
-
-```
-
-#### Cosine Similarity
-
-Then, we compute the cosine similarity matrix which computes the similarity between two vectors of an inner product space. Note here that the similarity is independent of the vector length and that only the cosine angle between two weighted term-frequency vectors is determinant.
-
-Compared to the heat map generated using the Jaccard index, the next heatmap displays
-much more no similarity (darker blue squares) between terms used in different chapters than the previous one. However, chapter 10 and 11 are still shown as sharing less similarity.
-
-```{r Cosine, echo=F, message=F, warning=F}
-
-# Cosine
-data.cos <- textstat_simil(data.tfidf,                  # uses frequencies
-                           method = "cosine",           # cosine
-                           margin = "documents")   
-
-# Converts the object to matrix then to data frame
-data.cos.mat <- melt(as.matrix(data.cos))
-
-# Plot
-ggplot(data = data.cos.mat, 
-       aes(x = Var1, 
-           y = Var2, 
-           fill = value)) +
-  scale_fill_gradient2(low = "blue", 
-                       high = "red", 
-                       mid = "white",
-                       midpoint = 0.5, 
-                       limit = c(0,1), 
-                       name="Cosine") +
-  geom_tile() +
-  labs(title = "Heatmap Representation Of Similarities Between Documents",
-       x = "Chapter",
-       y = "Chapter")+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 22))
-
-```
-
-#### Euclidean Distance
-
-Finally, we compute the Euclidean-based similarity matrix using the Euclidean distance. The below heatmap shows again a different output. Indeed, less documents are shown as having no similarity and more chapter similarities stand in a middle in which we cannot infere on similarity. For example, chapter 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* do not seem to either show similarity or dissimilarity. On the contrary, chapters 12 *A Costless Resource To Exploit* and 15 *Who Will Rebuild* are slightly more using similar terms.
-
-```{r Euclidean, echo=F, message=F, warning=F}
-
-# Euclidean
-data.euc <- textstat_dist(data.tfidf,                   # uses the frequencies
-                          method = "euclidean",         # Euclidean distances
-                          margin = "documents")
-
-# Converts the object to matrix then to data frame
-data.euc.mat <- melt(as.matrix(data.euc))
-
-# Maximum distance
-M <- max(data.euc.mat$value) 
-
-# Converts from distance to similarity in [0,1]
-data.euc.mat$value.std <- (M - data.euc.mat$value)/M 
-
-# Plots
-ggplot(data = data.euc.mat, 
-       aes(x = Var1, 
-           y = Var2, 
-           fill = value.std)) +
-  scale_fill_gradient2(low = "blue", 
-                       high = "red", 
-                       mid = "white",
-                       midpoint = 0.5, 
-                       limit = c(0,1), 
-                       name = "Euclidean") +
-  geom_tile() +
-  labs(title = "Heatmap Representation Of Similarities Between Documents",
-       x = "Chapter",
-       y = "Chapter")+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 22))
-
-```
-
-### Clustering of Documents {.tabset}
-
-To proceed to clustering documents, we need to build the dissimilarities and/or Vector Space Model (VSM) on which we can apply the clustering methods, hierarchical clustering based on distances and K-mean partitioning based on features. 
-
-Clusters are difficult to interpret. This is why we will look at the largest term frequencies of clusters to better understand what is the common denominator for the grouping.
-
-#### Hierarchical Clustering {.tabset}
-
-Hierarchical clustering is based on distances and applied on the dissimilarities using the function **hclust()**. The hierarchical approach assigns each document to its own cluster and then at each iteration the two most similar chapters are grouped together in one cluster. The iteration continues until all chapters belong to a cluster. 
-
-##### Inverted Jaccard Dissimilarity Matrix
-
-The inverted Jaccard dissimilarity matrix shows that there are two main clusters. One cluster groups chapters 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* and the other one groups the rest of the book. Moreover, inside the second larger cluster, we see that there are two sub-clusters. From the dendogram, we understand that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.76). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
-
-```{r Jaccard inverted, echo=F, message=F, warning=F}
-
-# Hierarchical clustering
-data.hc_jac <- hclust(as.dist(1 - data.jac)) # inverted similarity matrix
-
-plot(data.hc_jac)
-abline(h=0.84, lty = 2)
-
-```
-
-The following table indicates to which cluster a chapter belongs.
-
-```{r Jaccard cutree, echo=F, message=F, warning=F}
-
-# Creates three clusters
-data.clust_jac <- cutree(data.hc_jac, 
-                         k = 6)
-data.clust_jac %>% 
-  as.tibble() %>% 
-  mutate(document = names(data.clust_jac), 
-         cluster = value) %>% 
-  select(!(value)) %>% 
-  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
-  kbl(caption = "Clusters using Jaccard") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) 
-
-```
-
-For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 groups terms about public transports or spaces, cluster 2 about medical or technological trials and clusters three to six are composed of only one chapter and therefore group terms according to their respective chapters' vocabulary. 
-
-```{r Jaccard clust words, echo=F, message=F, warning=F}
-
-# Extract most frequent terms from clusters
-clust_jac <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_jac == 1,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.2 = names(sort(apply(data.tfidf[data.clust_jac == 2,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.3 = names(sort(apply(data.tfidf[data.clust_jac == 3,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.4 = names(sort(apply(data.tfidf[data.clust_jac == 4,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.5 = names(sort(apply(data.tfidf[data.clust_jac == 5,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.6 = names(sort(apply(data.tfidf[data.clust_jac == 6,], 2, sum), 
-                                            decreasing = TRUE)[1:10]))
-
-kbl(clust_jac, 
-    caption = "Ten Most Frequent Terms By Cluster") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>%
-  scroll_box(height = "300px")
-
-```
-
-##### Inverted Cosine Dissimilarity Matrix
-
-The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each we observe two smaller sub-clusters. One main cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14. The dendogram generated from the inverted cosine dissimilarity matrix indicates that again chapter 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.70). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
-
-```{r cosine inverted, echo=F, message=F, warning=F}
-
-# Hierarchical clustering
-data.hc_cos <- hclust(as.dist(1 - data.cos)) # inverted similarity matrix
-
-plot(data.hc_cos)
-
-```
-
-```{r cosine cutree, echo=F, message=F, warning=F}
-
-# Creates three clusters
-data.clust_cos <- cutree(data.hc_cos, 
-                         k = 6)
-data.clust_cos %>% 
-  as.tibble() %>% 
-  mutate(document = names(data.clust_cos), 
-         cluster = value) %>% 
-  select(!(value)) %>% 
-  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
-  kbl(caption = "Clusters using Cosine") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) #%>% 
-  #scroll_box(height = "300px")
-
-```
-
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1's chapters share terms specific to public transport or spaces and violence, cluster 2's chapters use terms regarding households, families and economics, cluster 3 reveals a political vocabulary, cluster 4 shows terms related to technology, cluster 6 displays terms about agriculture and finally, cluster 6 indicates a medical vocabulary.
-
-```{r cosine clust words, echo=F, message=F, warning=F}
-
-# Extract most frequent terms from clusters
-clust_cos <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_cos == 1,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.2 = names(sort(apply(data.tfidf[data.clust_cos == 2,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.3 = names(sort(apply(data.tfidf[data.clust_cos == 3,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.4 = names(sort(apply(data.tfidf[data.clust_cos == 4,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.5 = names(sort(apply(data.tfidf[data.clust_cos == 5,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.6 = names(sort(apply(data.tfidf[data.clust_cos == 6,], 2, sum), 
-                                            decreasing = TRUE)[1:10]))
-kbl(clust_cos, 
-    caption = "Ten Most Frequent Terms By Cluster") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>% 
-  scroll_box(height = "300px")  
-
-```
-
-##### Euclidean-based Dissimilarity Matrix
-
-The Euclidean dissimilarity matrix seems to show that there is sequence of clusters which is a completely different clustering pattern compared to the other two distance measures. This pattern seems to indicate that each chapter is rather independent from the others and do not share a lot of similarities across chapters of the book. According to Euclidean-based dissimilarity matrix, we see that chapters 12 *A Costless Resource to Exploit* and 15 *Who Will Rebuild?* share the smallest distance indicating that they are the most similar. This finding is different than the ones using the two other distance measures. On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
-
-```{r Euclidean-based, echo=F, message=F, warning=F}
-
-# Hierarchical clustering
-data.hc_eu <- hclust(as.dist(data.euc))
-
-plot(data.hc_eu)
-
-```
-
-
-```{r Euclidean-based cutree, echo=F, message=F, warning=F}
-
-# Creates three clusters
-data.clust_eu <- cutree(data.hc_eu, 
-                        k = 6)
-data.clust_eu %>% 
-  as.tibble() %>% 
-  mutate(document = names(data.clust_eu), 
-         cluster = value) %>% 
-  select(!(value)) %>% 
-  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
-  kbl(caption = "Clusters using Euclidiean distance") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) 
-
-```
-
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally and finally, cluster 6 shows politics-related terms. 
-
-```{r Euclidean-based clust words, echo=F, message=F, warning=F}
-
-# Extract most frequent terms from clusters
-clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.2 = names(sort(apply(data.tfidf[data.clust_eu == 2,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.3 = names(sort(apply(data.tfidf[data.clust_eu == 3,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.4 = names(sort(apply(data.tfidf[data.clust_eu == 4,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.5 = names(sort(apply(data.tfidf[data.clust_eu == 5,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                       Clust.6 = names(sort(apply(data.tfidf[data.clust_eu == 6,], 2, sum), 
-                                            decreasing = TRUE)[1:10]))
-
-kbl(clust_eu, 
-    caption = "Ten Most Frequent Terms By Cluster") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>% 
-  scroll_box(height = "300px") 
-
-```
-
-#### K-Means Clustering 
-
-K-means is a non-hierarchical partitioning method for clustering. In text analysis, K-means is based on feature frequencies. Here, we set the pre-defined number of clusters (i.e. respectively number of centroids) to six since there are six parts in the book. By doing so, we expect to see chapters being grouped following the parts division logic of the author. 
-
-```{r K-means, echo=F, message=F, warning=F}
-
-set.seed(253)
-
-# Creates six clusters
-data.km <- kmeans(data.tfidf,
-                  centers = 6)
-
-data.km$cluster %>% 
-  as.tibble() %>% 
-  mutate(document = names(data.km$cluster), 
-         cluster = value) %>% 
-  select(!(value)) %>% 
-  arrange(cluster) %>% 
-  pivot_wider(names_from = cluster, 
-              names_prefix = "cluster", 
-              values_from = document) %>% 
-  kbl(caption = "Clusters using Euclidiean distance") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL)
-
-```
-
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to politics, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to transportation and travel, cluster 4 reveals terms about public spaces and violence, cluster 5 displays terms related to technology and finally, cluster 6 indicates a medical vocabulary. 
-
-```{r km clust words, echo=F, message=F, warning=F}
-
-# Extract most frequent terms from clusters
-clust_km <- data.frame(   Clust.1 = names(sort(apply(data.tfidf[data.km$cluster == 1,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                          Clust.2 = names(sort(apply(data.tfidf[data.km$cluster == 2,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                          Clust.3 = names(sort(apply(data.tfidf[data.km$cluster == 3,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                          Clust.4 = names(sort(apply(data.tfidf[data.km$cluster == 4,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                          Clust.5 = names(sort(apply(data.tfidf[data.km$cluster == 5,], 2, sum), 
-                                            decreasing = TRUE)[1:10]),
-                          Clust.6 = names(sort(apply(data.tfidf[data.km$cluster == 6,], 2, sum), 
-                                            decreasing = TRUE)[1:10]))
-
-kbl(clust_km, 
-    caption = "Ten Most Frequent Terms By Cluster") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = NULL) %>% 
-  scroll_box(height = "300px")
-
-```
-
-### Similarities Between Words {.tabset}
-
-Now, we analyze similarities between words through chapters (i.e. documents). A word is embedded in a Vector Space Model using its document frequencies (or weighted frequencies) this is why, we proceed to computing similarities between terms using the DTM matrix. To compute the similarities between words, we use the same three different measures as when computing the similarities between documents. Note that because of the large number of tokens, we focus on the highest word-frequencies respectively, the lowest word ranks (i.e. smaller or equal to 40). 
-
-```{r smaller ranks, echo=F, message=F, warning=F}
-
-# Extracts the features in the DTM
-data.feat <- textstat_frequency(data.dfm) %>% 
-             filter(rank <= 40)
-
-```
-
-#### Jaccard Index
-
-The below heatmap shows that according to the Jaccard index most words among the 40 most frequent ones are very similar or identical. Although, the Jaccard similarity indices of *tax* and all other 39 words are represented by a dark blue squares, indicating that the these words in each pair with *tax* are not used in similar proportion through documents and consequently are not considered similar through documents. Moreover, *worker* and *pay* are not considered similar nor dissimilar according to the Jaccard index since their indices are represented by white squares (similarity of 0.5).
-
-```{r Jaccard index similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
-
-data.jac2 <- textstat_simil(data.dfm[, data.feat$feature], 
-                            method = "jaccard", 
-                            margin = "feature")
-
-# Converts the object to matrix then to data frame
-data.jac.mat2 <- melt(as.matrix(data.jac2)) 
-
-# Plots
-ggplot(data = data.jac.mat2, 
-       aes(x = Var1, 
-           y = Var2,  
-           fill = value)) +
-  scale_fill_gradient2(low = "blue", 
-                       high = "red", 
-                       mid = "white",
-                       midpoint = 0.5, 
-                       limit = c(0,1), 
-                       name = "Cosine") +
-  geom_tile() + 
-  theme(axis.text.x = element_text(angle = 90, 
-                                   hjust = 1))
-
-```
-
-#### Cosine Distance
-
-The below heatmap shows that according to the Cosine similarity measure some words are very similar (but not exactly identical). For example, the Cosine similarity estimate of *explain* and *mean* or *find* and *study* are represented by a dark orange square, indicating that the two words in each pair are used in similar proportion through documents. On the contrary, *design* and *tax* are found to not be used in similar proportion through documents (dark blue square) which indicates that these two terms are not considered similar through documents.
-
-```{r cosine similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
-
-data.cos2 <- textstat_simil(data.dfm[, data.feat$feature], 
-                            method = "cosine", 
-                            margin = "feature")
-
-# Converts the object to matrix then to data frame
-data.cos.mat2 <- melt(as.matrix(data.cos2)) 
-
-# Plots
-ggplot(data = data.cos.mat2, 
-       aes(x = Var1, 
-           y = Var2,  
-           fill = value)) +
-  scale_fill_gradient2(low = "blue", 
-                       high = "red", 
-                       mid = "white",
-                       midpoint = 0.5, 
-                       limit = c(0,1), 
-                       name = "Cosine") +
-  geom_tile() + 
-  theme(axis.text.x = element_text(angle = 90, 
-                                   hjust = 1))
-
-```
-
-#### Euclidean Distance 
-
-[TO DO !!]
-
-### Clustering of Words {.tabset}
-
-To avoid redundancy, we decide not to use the same similarity measures for the clustering methods (Jaccard index, Cosine distance, Euclidean distance) as in the *Clustering of Documents* and to use instead the co-occurrence similarity measure to cluster the 40 most frequent terms in the corpus that we studied above in **Similarities Between Words**. 
-
-#### Clustering With Co-occurrence (Hierarchical Clustering)
-
-Co-occurrence is also a similarity measure for which two words are considered similar if they are often used closely in a similar context, in any part of the corpus. Therefore, co-occurrence similarity is dependent on the token's context (i.e. document or window). Here, we consider the context as being a window of terms around a target (i.e. central word or center). The subtlety of the co-occurrence clustering is that by considering the context of a word, we are computing similarities beyond literal resemblance and, consider as well the meaning of words. Thus, this measure is different than the Jaccard, Cosine or Euclidean similarity measures which do not depend on the context of a word. Note that since the context is important, the tokens ordered must kept when computing the co-occurrence matrix (i.e. Bag of Word object cannot be used here). 
-
-To proceed to the clustering, we first compute a symmetrical co-occurrence matrix on a window of 30 terms around a target used as a similarity matrix. The below heatmap shows the similarities of the most frequent terms.  
-
-```{r clustering with co-occurrences, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
-
-# Makes a co-occurrence on a window of 30
-data.fcm <- fcm(data.tk2, 
-                window = 30, 
-                tri = FALSE)
-
-# Makes the co-occurrence matrix symmetrical
-data.fcm <- (data.fcm + t(data.fcm))/2
-
-# Makes a matrix
-data.fcm.mat <- melt(as.matrix(data.fcm[data.feat$feature, 
-                                        data.feat$feature]), 
-                     varnames = c("Var1","Var2"))
-
-#remove women
-data.fcm.mat <- data.fcm.mat%>% filter(Var1 != "woman" & Var2 != "woman")
-
-# Makes a heatmap with most frequent features
-ggplot(data = data.fcm.mat, 
-       aes(x = Var1, 
-           y = Var2, 
-           fill = value)) +
-  scale_fill_gradient2(low = "blue", 
-                       high = "red", 
-                       mid = "white",
-                       midpoint = 6000, 
-                       limit = c(0,12000), 
-                       name = "Co-occurrence") +
-  geom_tile() + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-Then, we transform the co-occurrence matrix into a dissimilarity matrix (*maximum co-occurrence - similarity matrix*) from which we derive the co-occurrence distance-based clustering (i.e. hierarchical clustering). 
-
-[ADD INTERPRETAION: KEEP IN MIND THAT THE CO-OCCURRENCE MATRIX IS TURNED INTO A DISSIMILARITY MATRIX -> PROVIDE EXAMPLE WITH FEMAL-WOMAN]
-
-```{r clustering analysis, echo=F, message=F, warning=F}
-
-# Dissimilarity matrix 
-data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature, 
-                                         data.feat$feature]) # 280 is the max co-occurrence here
-
-
-
-# Cluster removing women ( first row and first column)
-data.hc <- hclust(as.dist(data.inv_occ[-1,-1]))
-
-plot(data.hc)
 
 ```
 
@@ -1055,11 +558,511 @@ excl
 
 ```
 
-## Unsupervised Learning: Embedding {.tabset}
+## Unsupervised Learning {.tabset}
+
+### Similarities and Clustering
+
+Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
+
+To compute similarities, we use three different measures namely the *Jaccard Index*, *Cosine Similarity* and *Euclidean Distance* all three using the term-frequency inverse-document frequency.
+
+For all the different clusters, we decided to cut tree at 6 clusters as there is 6 part in the book.
+
+#### Similarities between Documents {.tabset}
+
+We first compute the similarity between chapters of the book to investigate whether they use the same token types. 
+
+##### Jaccard Index
+
+We first compute the Jaccard index matrix displaying the relative number of common words using the TF-IDF matrix. Note that the Jaccard coefficient considers only once each token type (i.e. set model). 
+
+From the Jaccard similarity matrix, where similarities are based on the Jaccard coefficient (i.e. relative number of common words) by document, we get the below heatmap in which chapters are likely to use similar terms. A red square indicates a strong similarity (e.g. 1) whereas a dark blue square indicates no similarity. Therefore, the heatmap shows that chapter 15 *Who Will Rebuild* is the text with the least similarity with other chapters (score closer to 0). Also, we observe that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrome* seem to use a bit more similar terms.  
+
+```{r Jaccard, echo=F, message=F, warning=F}
+
+# Computes similarities and distances between documents
+data.jac <- textstat_simil(data.tfidf,                  # uses the frequencies
+                           method = "jaccard", 
+                           margin = "documents")        # between documents
+
+# Converts the object to matrix then to data frame
+data.jac.mat <- melt(as.matrix(data.jac)) 
+
+# Plots
+ggplot(data = data.jac.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name="Jaccard") +
+  geom_tile() +
+  labs(title = "Heatmap Representation Of Similarities Between Documents",
+       x = "Chapter",
+       y = "Chapter")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 22))
+
+```
+
+##### Cosine Similarity
+
+Then, we compute the cosine similarity matrix which computes the similarity between two vectors of an inner product space. Note here that the similarity is independent of the vector length and that only the cosine angle between two weighted term-frequency vectors is determinant.
+
+Compared to the heat map generated using the Jaccard index, the next heatmap displays
+much more no similarity (darker blue squares) between terms used in different chapters than the previous one. However, chapter 10 and 11 are still shown as sharing less similarity.
+
+```{r Cosine, echo=F, message=F, warning=F}
+
+# Cosine
+data.cos <- textstat_simil(data.tfidf,                  # uses frequencies
+                           method = "cosine",           # cosine
+                           margin = "documents")   
+
+# Converts the object to matrix then to data frame
+data.cos.mat <- melt(as.matrix(data.cos))
+
+# Plot
+ggplot(data = data.cos.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name="Cosine") +
+  geom_tile() +
+  labs(title = "Heatmap Representation Of Similarities Between Documents",
+       x = "Chapter",
+       y = "Chapter")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 22))
+
+```
+
+##### Euclidean Distance
+
+Finally, we compute the Euclidean-based similarity matrix using the Euclidean distance. The below heatmap shows again a different output. Indeed, less documents are shown as having no similarity and more chapter similarities stand in a middle in which we cannot infere on similarity. For example, chapter 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* do not seem to either show similarity or dissimilarity. On the contrary, chapters 12 *A Costless Resource To Exploit* and 15 *Who Will Rebuild* are slightly more using similar terms.
+
+```{r Euclidean, echo=F, message=F, warning=F}
+
+# Euclidean
+data.euc <- textstat_dist(data.tfidf,                   # uses the frequencies
+                          method = "euclidean",         # Euclidean distances
+                          margin = "documents")
+
+# Converts the object to matrix then to data frame
+data.euc.mat <- melt(as.matrix(data.euc))
+
+# Maximum distance
+M <- max(data.euc.mat$value) 
+
+# Converts from distance to similarity in [0,1]
+data.euc.mat$value.std <- (M - data.euc.mat$value)/M 
+
+# Plots
+ggplot(data = data.euc.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value.std)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name = "Euclidean") +
+  geom_tile() +
+  labs(title = "Heatmap Representation Of Similarities Between Documents",
+       x = "Chapter",
+       y = "Chapter")+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 22))
+
+```
+
+#### Clustering of Documents {.tabset}
+
+To proceed to clustering documents, we need to build the dissimilarities and/or Vector Space Model (VSM) on which we can apply the clustering methods, hierarchical clustering based on distances and K-mean partitioning based on features. 
+
+Clusters are difficult to interpret. This is why we will look at the largest term frequencies of clusters to better understand what is the common denominator for the grouping.
+
+##### Hierarchical Clustering {.tabset}
+
+Hierarchical clustering is based on distances and applied on the dissimilarities using the function **hclust()**. The hierarchical approach assigns each document to its own cluster and then at each iteration the two most similar chapters are grouped together in one cluster. The iteration continues until all chapters belong to a cluster. 
+
+###### Inverted Jaccard Dissimilarity Matrix
+
+The inverted Jaccard dissimilarity matrix shows that there are two main clusters. One cluster groups chapters 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* and the other one groups the rest of the book. Moreover, inside the second larger cluster, we see that there are two sub-clusters. From the dendogram, we understand that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.76). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
+
+```{r Jaccard inverted, echo=F, message=F, warning=F}
+
+# Hierarchical clustering
+data.hc_jac <- hclust(as.dist(1 - data.jac)) # inverted similarity matrix
+
+plot(data.hc_jac)
+abline(h=0.84, lty = 2)
+
+```
+
+The following table indicates to which cluster a chapter belongs.
+
+```{r Jaccard cutree, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.clust_jac <- cutree(data.hc_jac, 
+                         k = 6)
+data.clust_jac %>% 
+  as.tibble() %>% 
+  mutate(document = names(data.clust_jac), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  kbl(caption = "Clusters using Jaccard") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) 
+
+```
+
+For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 groups terms about public transports or spaces, cluster 2 about medical or technological trials and clusters three to six are composed of only one chapter and therefore group terms according to their respective chapters' vocabulary. 
+
+```{r Jaccard clust words, echo=F, message=F, warning=F}
+
+# Extract most frequent terms from clusters
+clust_jac <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_jac == 1,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.2 = names(sort(apply(data.tfidf[data.clust_jac == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.3 = names(sort(apply(data.tfidf[data.clust_jac == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.4 = names(sort(apply(data.tfidf[data.clust_jac == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.5 = names(sort(apply(data.tfidf[data.clust_jac == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.6 = names(sort(apply(data.tfidf[data.clust_jac == 6,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+
+kbl(clust_jac, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>%
+  scroll_box(height = "300px")
+
+```
+
+###### Inverted Cosine Dissimilarity Matrix
+
+The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each we observe two smaller sub-clusters. One main cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14. The dendogram generated from the inverted cosine dissimilarity matrix indicates that again chapter 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.70). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
+
+```{r cosine inverted, echo=F, message=F, warning=F}
+
+# Hierarchical clustering
+data.hc_cos <- hclust(as.dist(1 - data.cos)) # inverted similarity matrix
+
+plot(data.hc_cos)
+
+```
+
+```{r cosine cutree, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.clust_cos <- cutree(data.hc_cos, 
+                         k = 6)
+data.clust_cos %>% 
+  as.tibble() %>% 
+  mutate(document = names(data.clust_cos), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  kbl(caption = "Clusters using Cosine") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) #%>% 
+  #scroll_box(height = "300px")
+
+```
+
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1's chapters share terms specific to public transport or spaces and violence, cluster 2's chapters use terms regarding households, families and economics, cluster 3 reveals a political vocabulary, cluster 4 shows terms related to technology, cluster 6 displays terms about agriculture and finally, cluster 6 indicates a medical vocabulary.
+
+```{r cosine clust words, echo=F, message=F, warning=F}
+
+# Extract most frequent terms from clusters
+clust_cos <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_cos == 1,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.2 = names(sort(apply(data.tfidf[data.clust_cos == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.3 = names(sort(apply(data.tfidf[data.clust_cos == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.4 = names(sort(apply(data.tfidf[data.clust_cos == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.5 = names(sort(apply(data.tfidf[data.clust_cos == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.6 = names(sort(apply(data.tfidf[data.clust_cos == 6,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+kbl(clust_cos, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>% 
+  scroll_box(height = "300px")  
+
+```
+
+###### Euclidean-based Dissimilarity Matrix
+
+The Euclidean dissimilarity matrix seems to show that there is sequence of clusters which is a completely different clustering pattern compared to the other two distance measures. This pattern seems to indicate that each chapter is rather independent from the others and do not share a lot of similarities across chapters of the book. According to Euclidean-based dissimilarity matrix, we see that chapters 12 *A Costless Resource to Exploit* and 15 *Who Will Rebuild?* share the smallest distance indicating that they are the most similar. This finding is different than the ones using the two other distance measures. On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
+
+```{r Euclidean-based, echo=F, message=F, warning=F}
+
+# Hierarchical clustering
+data.hc_eu <- hclust(as.dist(data.euc))
+
+plot(data.hc_eu)
+
+```
+
+
+```{r Euclidean-based cutree, echo=F, message=F, warning=F}
+
+# Creates three clusters
+data.clust_eu <- cutree(data.hc_eu, 
+                        k = 6)
+data.clust_eu %>% 
+  as.tibble() %>% 
+  mutate(document = names(data.clust_eu), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  pivot_wider(names_from = cluster, names_prefix = "cluster", values_from = document) %>% 
+  kbl(caption = "Clusters using Euclidiean distance") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) 
+
+```
+
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to transport and travel, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to technology, cluster 4 indicates a medical vocabulary, cluster 5 displays terms related to households and economics and finally and finally, cluster 6 shows politics-related terms. 
+
+```{r Euclidean-based clust words, echo=F, message=F, warning=F}
+
+# Extract most frequent terms from clusters
+clust_eu <- data.frame(Clust.1 = names(sort(apply(data.tfidf[data.clust_eu == 1,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.2 = names(sort(apply(data.tfidf[data.clust_eu == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.3 = names(sort(apply(data.tfidf[data.clust_eu == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.4 = names(sort(apply(data.tfidf[data.clust_eu == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.5 = names(sort(apply(data.tfidf[data.clust_eu == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                       Clust.6 = names(sort(apply(data.tfidf[data.clust_eu == 6,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+
+kbl(clust_eu, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>% 
+  scroll_box(height = "300px") 
+
+```
+
+##### K-Means Clustering 
+
+K-means is a non-hierarchical partitioning method for clustering. In text analysis, K-means is based on feature frequencies. Here, we set the pre-defined number of clusters (i.e. respectively number of centroids) to six since there are six parts in the book. By doing so, we expect to see chapters being grouped following the parts division logic of the author. 
+
+```{r K-means, echo=F, message=F, warning=F}
+
+set.seed(253)
+
+# Creates six clusters
+data.km <- kmeans(data.tfidf,
+                  centers = 6)
+
+data.km$cluster %>% 
+  as.tibble() %>% 
+  mutate(document = names(data.km$cluster), 
+         cluster = value) %>% 
+  select(!(value)) %>% 
+  arrange(cluster) %>% 
+  pivot_wider(names_from = cluster, 
+              names_prefix = "cluster", 
+              values_from = document) %>% 
+  kbl(caption = "Clusters using Euclidiean distance") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL)
+
+```
+
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 shows terms specific to politics, cluster 2's chapters use terms that are not necessarily specific to one topic, cluster 3 reveals terms related to transportation and travel, cluster 4 reveals terms about public spaces and violence, cluster 5 displays terms related to technology and finally, cluster 6 indicates a medical vocabulary. 
+
+```{r km clust words, echo=F, message=F, warning=F}
+
+# Extract most frequent terms from clusters
+clust_km <- data.frame(   Clust.1 = names(sort(apply(data.tfidf[data.km$cluster == 1,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.2 = names(sort(apply(data.tfidf[data.km$cluster == 2,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.3 = names(sort(apply(data.tfidf[data.km$cluster == 3,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.4 = names(sort(apply(data.tfidf[data.km$cluster == 4,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.5 = names(sort(apply(data.tfidf[data.km$cluster == 5,], 2, sum), 
+                                            decreasing = TRUE)[1:10]),
+                          Clust.6 = names(sort(apply(data.tfidf[data.km$cluster == 6,], 2, sum), 
+                                            decreasing = TRUE)[1:10]))
+
+kbl(clust_km, 
+    caption = "Ten Most Frequent Terms By Cluster") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = NULL) %>% 
+  scroll_box(height = "300px")
+
+```
+
+#### Similarities Between Words {.tabset}
+
+Now, we analyze similarities between words through chapters (i.e. documents). A word is embedded in a Vector Space Model using its document frequencies (or weighted frequencies) this is why, we proceed to computing similarities between terms using the DTM matrix. To compute the similarities between words, we use the same three different measures as when computing the similarities between documents. Note that because of the large number of tokens, we focus on the highest word-frequencies respectively, the lowest word ranks (i.e. smaller or equal to 40). 
+
+```{r smaller ranks, echo=F, message=F, warning=F}
+
+# Extracts the features in the DTM
+data.feat <- textstat_frequency(data.dfm) %>% 
+             filter(rank <= 40)
+
+```
+
+##### Jaccard Index
+
+The below heatmap shows that according to the Jaccard index most words among the 40 most frequent ones are very similar or identical. Although, the Jaccard similarity indices of *tax* and all other 39 words are represented by a dark blue squares, indicating that the these words in each pair with *tax* are not used in similar proportion through documents and consequently are not considered similar through documents. Moreover, *worker* and *pay* are not considered similar nor dissimilar according to the Jaccard index since their indices are represented by white squares (similarity of 0.5).
+
+```{r Jaccard index similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
+
+data.jac2 <- textstat_simil(data.dfm[, data.feat$feature], 
+                            method = "jaccard", 
+                            margin = "feature")
+
+# Converts the object to matrix then to data frame
+data.jac.mat2 <- melt(as.matrix(data.jac2)) 
+
+# Plots
+ggplot(data = data.jac.mat2, 
+       aes(x = Var1, 
+           y = Var2,  
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name = "Cosine") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1))
+
+```
+
+##### Cosine Distance
+
+The below heatmap shows that according to the Cosine similarity measure some words are very similar (but not exactly identical). For example, the Cosine similarity estimate of *explain* and *mean* or *find* and *study* are represented by a dark orange square, indicating that the two words in each pair are used in similar proportion through documents. On the contrary, *design* and *tax* are found to not be used in similar proportion through documents (dark blue square) which indicates that these two terms are not considered similar through documents.
+
+```{r cosine similarities btwn words, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
+
+data.cos2 <- textstat_simil(data.dfm[, data.feat$feature], 
+                            method = "cosine", 
+                            margin = "feature")
+
+# Converts the object to matrix then to data frame
+data.cos.mat2 <- melt(as.matrix(data.cos2)) 
+
+# Plots
+ggplot(data = data.cos.mat2, 
+       aes(x = Var1, 
+           y = Var2,  
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 0.5, 
+                       limit = c(0,1), 
+                       name = "Cosine") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1))
+
+```
+
+##### Euclidean Distance 
+
+[TO DO !!]
+
+#### Clustering of Words {.tabset}
+
+To avoid redundancy, we decide not to use the same similarity measures for the clustering methods (Jaccard index, Cosine distance, Euclidean distance) as in the *Clustering of Documents* and to use instead the co-occurrence similarity measure to cluster the 40 most frequent terms in the corpus that we studied above in **Similarities Between Words**. 
+
+##### Clustering With Co-occurrence (Hierarchical Clustering)
+
+Co-occurrence is also a similarity measure for which two words are considered similar if they are often used closely in a similar context, in any part of the corpus. Therefore, co-occurrence similarity is dependent on the token's context (i.e. document or window). Here, we consider the context as being a window of terms around a target (i.e. central word or center). The subtlety of the co-occurrence clustering is that by considering the context of a word, we are computing similarities beyond literal resemblance and, consider as well the meaning of words. Thus, this measure is different than the Jaccard, Cosine or Euclidean similarity measures which do not depend on the context of a word. Note that since the context is important, the tokens ordered must kept when computing the co-occurrence matrix (i.e. Bag of Word object cannot be used here). 
+
+To proceed to the clustering, we first compute a symmetrical co-occurrence matrix on a window of 30 terms around a target used as a similarity matrix. The below heatmap shows the similarities of the most frequent terms.  
+
+```{r clustering with co-occurrences, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
+
+# Makes a co-occurrence on a window of 30
+data.fcm <- fcm(data.tk2, 
+                window = 30, 
+                tri = FALSE)
+
+# Makes the co-occurrence matrix symmetrical
+data.fcm <- (data.fcm + t(data.fcm))/2
+
+# Makes a matrix
+data.fcm.mat <- melt(as.matrix(data.fcm[data.feat$feature, 
+                                        data.feat$feature]), 
+                     varnames = c("Var1","Var2"))
+
+#remove women
+data.fcm.mat <- data.fcm.mat%>% filter(Var1 != "woman" & Var2 != "woman")
+
+# Makes a heatmap with most frequent features
+ggplot(data = data.fcm.mat, 
+       aes(x = Var1, 
+           y = Var2, 
+           fill = value)) +
+  scale_fill_gradient2(low = "blue", 
+                       high = "red", 
+                       mid = "white",
+                       midpoint = 6000, 
+                       limit = c(0,12000), 
+                       name = "Co-occurrence") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+Then, we transform the co-occurrence matrix into a dissimilarity matrix (*maximum co-occurrence - similarity matrix*) from which we derive the co-occurrence distance-based clustering (i.e. hierarchical clustering). 
+
+[ADD INTERPRETAION: KEEP IN MIND THAT THE CO-OCCURRENCE MATRIX IS TURNED INTO A DISSIMILARITY MATRIX -> PROVIDE EXAMPLE WITH FEMAL-WOMAN]
+
+```{r clustering analysis, echo=F, message=F, warning=F}
+
+# Dissimilarity matrix 
+data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature, 
+                                         data.feat$feature]) # 280 is the max co-occurrence here
+
+
+
+# Cluster removing women ( first row and first column)
+data.hc <- hclust(as.dist(data.inv_occ[-1,-1]))
+
+plot(data.hc)
+
+```
+
+### Embedding 
 
 Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM). From previous sections, we saw that tokens and documents are embedded in DT and TF-IDF matrices. The difference here is that we aim at representing document and term embedding and apply it to non-BoW models and instead use terms co-occurrences (i.e. order is important).
 
-### Word Embedding (GloVe)
+#### Word Embedding (GloVe)
 
 This section proceed to embed words based on co-occurrences using the GloVe model. The idea is to reflect co-occurrences and not only documents (BoW). Here, each term is assigned to a vector and we look if the word-vectors similarity matches their words co-occurrence. Two terms are considered close if their co-occurrence is large. 
 
@@ -1142,7 +1145,7 @@ title(main = "Word Embedding: GloVe model",
 
 ```
 
-### Document Embedding {.tabset}
+#### Document Embedding {.tabset}
 
 Document embedding uses word embedding by translating the word representations into document representations. To build the document embedding, we compute the centroids of the documents. To do so, we use two methods, the centroids from averaging using DTM and weighted centroids using TF-IDF.
 
@@ -1196,7 +1199,7 @@ head(data.de) ## document vectors
 
 ```
 
-#### Centroids (DTM)
+##### Centroids (DTM)
 
 The centroid method averages the word representations over the number of documents:
 
@@ -1213,7 +1216,7 @@ title(sub = "source: Invisible Women.pdf")
 
 ```
 
-#### Weighted Centroids (TF-IDF) 
+##### Weighted Centroids (TF-IDF) 
 
 The weighted centroid method uses TF-IDF: 
 
@@ -1245,11 +1248,11 @@ text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 
 ```
 
-### Relaxed Word Mover’s Distance (RWMD) {.tabset}
+#### Relaxed Word Mover’s Distance (RWMD) {.tabset}
 
 The document embedding can be used for clustering (using K-Means) or for computing the similarity/dissimilarity (Jaccard, Cosine, Euclidean) matrices before clustering (hierarchical). An alternative approach is to use the Relaxed Word Mover’s Distance to compute document similarity using word embedding. RWMD can use DTM or TF-IDF. 
 
-#### Distances
+##### Distances
 
 Distances (i.e. similarities) between documents in the RWMD approach estimate how hard it is to transform words from one document into words from another document and vice versa. 
 
@@ -1278,7 +1281,7 @@ plot(data.hc, cex = 0.8)
 
 ```
 
-#### Document Embedding using RWMD
+##### Document Embedding using RWMD
 
 Since RWMD generates dissimilarities between documents, we can easily obtain a clustering of the RWMD document embedding. The positions of vectors here mirror the Relaxed Word Mover’s Distances. 
 
