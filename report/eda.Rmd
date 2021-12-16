@@ -154,7 +154,7 @@ The Zipf's Law shows the distribution of words used in a corpus compared to his 
 
 This plot shows that *female*, *datum*, *male*, *find* and *time* are the most frequent terms of the corpus probably indicating that they are not chapter-specific but are frequent in all chapters. Indeed, although Zipf's Law do not state about the specificity, there is a very low probability that those words are specific to a chapter that is sufficiently lengthy to make it as frequent. Therefore, according to the Zipf's Law, these terms are very frequent in the overall corpus and consequently could hide some meaningful information as they are not considered stop words. The Zipf's law now leads us to move to look at weighted frequencies. 
 
-```{r Zipf law plot, echo = FALSE, message = FALSE}
+```{r Zipf law plot, echo = FALSE, message = FALSE, warning=FALSE}
 
 # Illustration of the Zipf's law 
 ggplot(data.freq2, 
