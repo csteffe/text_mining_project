@@ -1533,7 +1533,7 @@ confusionMatrix(data = pred.te$predictions,
 
 ### Classification with SVM 
 
-The SVM method is a machine learning method, that is very different compared random forest. SVM tries to classified classes by separating data points, by a vector that we want to be as large as possible, in our class the SVM is used to predict multiple classes and not only two.   
+The SVM method is a machine learning method, that is very different compared random forest. SVM tries to classify classes by separating data points by the largest vector as possible, in our class the SVM is used to predict multiple classes and not only two.   
 
 To assess the prediction quality of the random forest model, we proceed to the classification of the pages into parts of the book using the Support Vector Machine learner. To do so, we use the **svm** function of the **e1071** package with radial kernel and default parameter. 
 
