@@ -678,13 +678,13 @@ To avoid redundancy, we decide not to use the same similarity measures for the c
 
 Co-occurrence is also a similarity measure for which two words are considered similar if they are often used closely in a similar context, in any part of the corpus. Therefore, co-occurrence similarity is dependent on the token's context (i.e. document or window). Here, we consider the context as being a window of terms around a target (i.e. central word or center). The subtlety of the co-occurrence clustering is that by considering the context of a word, we are computing similarities beyond literal resemblance and, consider as well the meaning of words. Thus, this measure is different than the Jaccard, Cosine or Euclidean similarity measures which do not depend on the context of a word. Note that since the context is important, the tokens ordered must kept when computing the co-occurrence matrix (i.e. Bag of Word object cannot be used here). 
 
-To proceed to the clustering, we first compute a symmetrical co-occurrence matrix on a window of 80 terms around a target used as a similarity matrix. The below heatmap shows the similarities of the most frequent terms [ASK PROFESSOR BOLDI WHY WE HAVE GREY SQUARES: IS IT BECAUSE TERMS DON'T CO OCCUR ?]
+To proceed to the clustering, we first compute a symmetrical co-occurrence matrix on a window of 80 terms around a target used as a similarity matrix. The below heatmap shows the similarities of the most frequent terms.  
 
 ```{r clustering with co-occurrences, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
 
-# Makes a co-occurrence on a window of 80
+# Makes a co-occurrence on a window of 30
 data.fcm <- fcm(data.tk2, 
-                window = 80, 
+                window = 30, 
                 tri = FALSE)
 
 # Makes the co-occurrence matrix symmetrical
@@ -695,6 +695,9 @@ data.fcm.mat <- melt(as.matrix(data.fcm[data.feat$feature,
                                         data.feat$feature]), 
                      varnames = c("Var1","Var2"))
 
+#remove women
+data.fcm.mat <- data.fcm.mat%>% filter(Var1 != "woman" & Var2 != "woman")
+
 # Makes a heatmap with most frequent features
 ggplot(data = data.fcm.mat, 
        aes(x = Var1, 
@@ -703,8 +706,8 @@ ggplot(data = data.fcm.mat,
   scale_fill_gradient2(low = "blue", 
                        high = "red", 
                        mid = "white",
-                       midpoint = 140, 
-                       limit = c(0,280), 
+                       midpoint = 6000, 
+                       limit = c(0,12000), 
                        name = "Co-occurrence") +
   geom_tile() + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -1418,7 +1421,7 @@ df <- data.frame(Class = y,
 
 
 # Split training set 40% and test set 60%
-index.tr <- sample(size = round(0.4*length(y)), 
+index.tr <- sample(size = round(0.8*length(y)), 
                    x = c(1:length(y)), 
                    replace = FALSE)
 
