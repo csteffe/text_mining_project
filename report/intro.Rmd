@@ -39,13 +39,12 @@ The upcoming analysis is a comprehensive text mining exploration of *Invisible W
   
 4. Analysis
   * Sentiment Analysis
-  * Similarities and Clustering
   * Topic Modeling
-  * Unsupervised Learning (Embedding)
+  * Unsupervised Learning (Embedding, Similarities and Clustering)
   * Supervised learning (Classification)
   
 6. Conclusion
-  
+
 Our research question is the following: 
 
 What are the conclusions someone who has not read the book can draw through our analysis compared to someone who has read it ? 

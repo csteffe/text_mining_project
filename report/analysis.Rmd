@@ -4,10 +4,7 @@ This section dives deeper into the analysis of the content of the corpus in whic
 
 The previous exploratory data analysis sheds light on overall and document-specific findings related to terms and vocabulary used throughout the book. Indeed, following a top-down approach, we examine terms specific to the general corpus which unsurprisingly reveal a gender-centric vocabulary and then look more closely at the focus of each chapter on the gender discrimination issue on which *Invisible Women* devotes all its attention. 
 
-Looking at the complexity of the book, *Invisible Women* is built of 16 chapters divided in six parts and tells its story over 280 pages. For the purpose of the following analysis, we take care of talk about the complexity of the book: [not sure about the point of this sentence??] The lenght of the document without any cleaning is 97'382. With the cleaning process we keep less than 40% of the tokens present in the document with a lenght of 36'160. The vast majority of the words bringing little to no information, we can consider that the the book is not so complex [can we really say that ??] [DO YOU HAVE ANY OTHER IDEAS THAT COULD ASSESS THE COMPLEXITY OF THE TEXT ?]
--> talk about the uniqueness of the data : [NOT SURE WHAT TO MENTION HERE BUT MUST BE MENTIONNED]
-
-The subsequent analysis is as follows. We first study the sentiment of the corpus by extracting for each chapter its average sentiment using a qualitative and a quantitative approach. Then, we focus our attention on the similarity between terms to study their context and between chapters to better understand their associated topics of interest. From clustering of term similarities, we continue through topic modelling using two approaches. Finally, we end with an unsupervised and supervised learning methods to represent terms and documents in dimensions. 
+Looking at the complexity of the book, *Invisible Women* is built of 16 chapters divided in six parts and tells its story over 280 pages. The length of the document without any cleaning is 97'382. With the cleaning process we keep less than 40% of the tokens present in the document which represents a length of 36'160. 
 
 ## Sentiment Analysis 
 
@@ -560,6 +557,253 @@ excl
 
 ## Unsupervised Learning {.tabset}
 
+### Embedding 
+
+Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM). From previous sections, we saw that tokens and documents are embedded in DT and TF-IDF matrices. The difference here is that we aim at representing document and term embedding and apply it to non-BoW models and instead use terms co-occurrences (i.e. order is important).
+
+#### Word Embedding (GloVe)
+
+This section proceed to embed words based on co-occurrences using the GloVe model. The idea is to reflect co-occurrences and not only documents (BoW). Here, each term is assigned to a vector and we look if the word-vectors similarity matches their words co-occurrence. Two terms are considered close if their co-occurrence is large. 
+
+The GloVe model defines two vectorial representation for one word. One representation is for the contextualized word and the other one for the centralized term. Then, the representations are combined to form only one. To build the GloVe model, we use the **GlobalVectors** function of the **text2vec** package.
+
+To start with, we compute a feature co-occurrence symmetric matrix with a window of five (i.e. context window). The matrix is very large (8,640x8,640) and displays the terms co-occurrences in the pre-specified window. 
+
+```{r fcm 5, echo= FALSE, message=FALSE, warning=FALSE}
+
+# Makes a co-occurrence on a (half-)window of 5
+data.tk5 <- tokens(data.cp,
+                   remove_punct = TRUE,
+                   remove_symbols = TRUE,
+                   remove_numbers = TRUE,
+                   split_hyphens = TRUE) %>%
+                   tokens_tolower() %>%
+                   tokens_remove(stop_words$word) %>%
+                   tokens_remove("chapter") %>% 
+                   tokens_remove(min_nchar = 3) %>%
+                   tokens_replace(pattern=hash_lemmas$token, 
+                   replacement = hash_lemmas$lemma)
+
+data.coo <- fcm(data.tk5, 
+                context = "window", 
+                window = 5, 
+                tri=FALSE)
+
+
+```
+
+From the feature co-occurrences matrix we compute two vector representations for a given word, one being for the central term and the other one for its contextualization. To then have a unique representation for a given word, we compute the average of the two representations. Here we set a two-dimensional representation (rank=2) for readability and we plot the vectors of the 20 most frequent terms. The plot shows that dimension 2 is strongly associated to *woman* and anti-associated to *include* and dimension 1 associated to *pay*, *increase*, *design*, *country* and anti-associated to *datum*.
+
+```{r two representations, message=FALSE, warning=FALSE, include=FALSE}
+
+# Sets a seed for reproducibility 
+set.seed(123)
+
+# Word embedding dimension
+p <- 2 
+
+# x_max is a needed technical option
+data.glove <- GlobalVectors$new(rank = p,    # dimension of the vector space model
+                                x_max = 10) 
+
+# central vectors; speech.glove$components contains the context vectors
+data.weC <- data.glove$fit_transform(data.coo) 
+
+```
+
+```{r vectors, message=FALSE, warning=FALSE, include=FALSE}
+
+# unique representation
+data.we <- t(data.glove$components) + data.weC 
+
+head(data.we, 10)
+
+```
+
+```{r unique reprensentaion, message=FALSE, warning=FALSE, include=FALSE}
+
+# Words with the 50 largest frequencies
+index2 <- textstat_frequency(dfm(data.tk5))[1:20,]$feature
+
+index2 
+
+```
+
+```{r plot, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
+
+# Plots
+plot(data.we[index2, ], 
+     type = 'n',  
+     xlab = "Dim 1", 
+     ylab = "Dim 2")
+
+text(x = data.we[index2, ], 
+     labels = rownames(data.we[index2, ]))
+title(main = "Word Embedding: GloVe model", 
+      sub = "source: Invisible Women.pdf")
+
+```
+
+#### Document Embedding {.tabset}
+
+Document embedding uses word embedding by translating the word representations into document representations. To build the document embedding, we compute the centroids of the documents. To do so, we use two methods, the centroids from averaging using DTM and weighted centroids using TF-IDF.
+
+Before generating the centroids, we extract words in each document and for these words, we extract the word vectors and make a matrix. Then, we average all these vectors.
+
+```{r words extraction, message=FALSE, warning=FALSE, include=FALSE}
+
+# Words in Document 1
+head(data.tk5[[1]]) 
+
+```
+
+```{r word vectors, message=FALSE, warning=FALSE, include=FALSE}
+
+# Word vectors
+head(data.we[data.tk5[[1]],])
+
+```
+
+```{r average, message=FALSE, warning=FALSE, include=FALSE}
+
+# Averages all these vectors => Document 1 vector
+apply(data.we[data.tk5[[1]],], 2, mean) 
+
+#POtentiellement faire un élément pour mettre ça et le truc précédent dans un kable 
+
+```
+
+```{r loop over documents, message=FALSE, warning=FALSE, include=FALSE}
+
+# Number of documents
+nd <- length(data.tk5) 
+
+# Document embedding matrix (1 document per row)
+data.de <- matrix(nr = nd, 
+                  nc = p) 
+
+# Loop over documents
+for (i in 1:nd){
+  
+  # drop=FALSE is needed in case there is only one token
+  words_in_i <- data.we[data.tk5[[i]], , drop = FALSE] 
+  
+  data.de[i,] <- apply(words_in_i, 2, mean)
+  
+}
+
+row.names(data.de) <- names(data.tk5)
+
+head(data.de) ## document vectors
+
+```
+
+##### Centroids (DTM)
+
+The centroid method averages the word representations over the number of documents:
+
+
+
+[INTERPRET]
+
+```{r plot-texts, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
+
+# Plots
+plot(data.de, type='n',  xlab="Dim 1", ylab="Dim 2", main="Document Embedding: Centroids (averaging using DTM)")
+text(x=data.de, labels=rownames(data.de))
+title(sub = "source: Invisible Women.pdf")
+
+```
+
+##### Weighted Centroids (TF-IDF) 
+
+The weighted centroid method uses TF-IDF: 
+
+
+
+[ADD INTERPRETATION]
+
+```{r centroid plot tfidf, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
+
+data_tfidf <- dfm_tfidf(dfm(data.tk5))
+
+data.detfidf <- matrix(nr=nd, nc=p) # document embedding matrix (1 document per row)
+
+for (i in 1:nd){
+  
+  words_in_i <- data.we[data.tk5[[i]],,drop=FALSE]
+  
+  weights.tfidf <- as.numeric(data_tfidf[i, data.tk5[[i]]])
+  
+  weights.tfidf <- weights.tfidf / sum(weights.tfidf)
+  
+  data.detfidf[i,] <- apply(weights.tfidf * words_in_i,2,sum)
+  
+}
+
+plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids - TFIDF")
+
+text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
+
+```
+
+#### Relaxed Word Mover’s Distance (RWMD) {.tabset}
+
+The document embedding can be used for clustering (using K-Means) or for computing the similarity/dissimilarity (Jaccard, Cosine, Euclidean) matrices before clustering (hierarchical). An alternative approach is to use the Relaxed Word Mover’s Distance to compute document similarity using word embedding. RWMD can use DTM or TF-IDF. 
+
+##### Distances
+
+Distances (i.e. similarities) between documents in the RWMD approach estimate how hard it is to transform words from one document into words from another document and vice versa. 
+
+To compute the RWMD, we use the **RelaxedWordMoversDistance** function from the **text2vec** package using DTM (word and document embedding). Note that the function provides similarities and distances which allows us to plot a dendogram displaying the clustering of chapters. 
+
+The following dendogram shows that chapter 10 *The Drugs Don’t Work* and chapter 11 *Yentl Syndrome* from part IV *Going to the Doctor* are the most similar since the height at which they are joined (~0.14) is the smallest. Considering the RWMD, this means that the cost from converting the words of chapter 10 into the words of chapter 11 is the smallest because the distance of their word embeddings distances is the smallest. 
+```{r RWMD distances, echo=F, message=F, warning=F}
+set.seed(432)
+# Preparation
+data.glove <- GlobalVectors$new(rank = 30, x_max = 10)
+
+data.weC <- data.glove$fit_transform(data.coo)
+
+data.we <- t(data.glove$components) + data.weC
+
+data.dtm <- dfm(data.tk5)
+
+# Build the model
+data.rwmd.model <- RelaxedWordMoversDistance$new(data.dtm, data.we)
+data.rwms <- data.rwmd.model$sim2(data.dtm)
+data.rwmd <- data.rwmd.model$dist2(data.dtm)
+
+# Plot the dendogram
+data.hc <- hclust(as.dist(data.rwmd))
+plot(data.hc, cex = 0.8)
+
+```
+
+##### Document Embedding using RWMD
+
+Since RWMD generates dissimilarities between documents, we can easily obtain a clustering of the RWMD document embedding. The positions of vectors here mirror the Relaxed Word Mover’s Distances. 
+
+[ADD INTERPRETAION]
+
+```{r clustering from RWMD, echo=F, message=F, warning=F}
+
+# Preparation
+data.glove <- GlobalVectors$new(rank = 2, x_max = 10)
+data.deC <- data.glove$fit_transform(data.rwms)
+data.derwms <- t(data.glove$components) + data.deC
+
+# Plot clustering
+plot(data.derwms, 
+     type = 'n',  
+     xlab = "Dim 1", 
+     ylab = "Dim 2", 
+     main = "Document embedding (RWMD)")
+
+text(x = data.derwms, labels = rownames(data.derwms))
+
+```
+
 ### Similarities and Clustering
 
 Similarity is a numerical value used to measure proximity between terms, to see if they are used in the same context or between documents, to see if they use the same terms. Note that similarity is dependent on the types of tokens found in the corpus. If it uses mostly one vocabulary, it might be possible that most terms are similar. 
@@ -1055,253 +1299,6 @@ data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature,
 data.hc <- hclust(as.dist(data.inv_occ[-1,-1]))
 
 plot(data.hc)
-
-```
-
-### Embedding 
-
-Embedding refers to the representation of elements (documents or tokens) in a Vector Space Model (VSM). From previous sections, we saw that tokens and documents are embedded in DT and TF-IDF matrices. The difference here is that we aim at representing document and term embedding and apply it to non-BoW models and instead use terms co-occurrences (i.e. order is important).
-
-#### Word Embedding (GloVe)
-
-This section proceed to embed words based on co-occurrences using the GloVe model. The idea is to reflect co-occurrences and not only documents (BoW). Here, each term is assigned to a vector and we look if the word-vectors similarity matches their words co-occurrence. Two terms are considered close if their co-occurrence is large. 
-
-The GloVe model defines two vectorial representation for one word. One representation is for the contextualized word and the other one for the centralized term. Then, the representations are combined to form only one. To build the GloVe model, we use the **GlobalVectors** function of the **text2vec** package.
-
-To start with, we compute a feature co-occurrence symmetric matrix with a window of five (i.e. context window). The matrix is very large (8,640x8,640) and displays the terms co-occurrences in the pre-specified window. 
-
-```{r fcm 5, echo= FALSE, message=FALSE, warning=FALSE}
-
-# Makes a co-occurrence on a (half-)window of 5
-data.tk5 <- tokens(data.cp,
-                   remove_punct = TRUE,
-                   remove_symbols = TRUE,
-                   remove_numbers = TRUE,
-                   split_hyphens = TRUE) %>%
-                   tokens_tolower() %>%
-                   tokens_remove(stop_words$word) %>%
-                   tokens_remove("chapter") %>% 
-                   tokens_remove(min_nchar = 3) %>%
-                   tokens_replace(pattern=hash_lemmas$token, 
-                   replacement = hash_lemmas$lemma)
-
-data.coo <- fcm(data.tk5, 
-                context = "window", 
-                window = 5, 
-                tri=FALSE)
-
-
-```
-
-From the feature co-occurrences matrix we compute two vector representations for a given word, one being for the central term and the other one for its contextualization. To then have a unique representation for a given word, we compute the average of the two representations. Here we set a two-dimensional representation (rank=2) for readability and we plot the vectors of the 20 most frequent terms. The plot shows that dimension 2 is strongly associated to *woman* and anti-associated to *include* and dimension 1 associated to *pay*, *increase*, *design*, *country* and anti-associated to *datum*.
-
-```{r two representations, message=FALSE, warning=FALSE, include=FALSE}
-
-# Sets a seed for reproducibility 
-set.seed(123)
-
-# Word embedding dimension
-p <- 2 
-
-# x_max is a needed technical option
-data.glove <- GlobalVectors$new(rank = p,    # dimension of the vector space model
-                                x_max = 10) 
-
-# central vectors; speech.glove$components contains the context vectors
-data.weC <- data.glove$fit_transform(data.coo) 
-
-```
-
-```{r vectors, message=FALSE, warning=FALSE, include=FALSE}
-
-# unique representation
-data.we <- t(data.glove$components) + data.weC 
-
-head(data.we, 10)
-
-```
-
-```{r unique reprensentaion, message=FALSE, warning=FALSE, include=FALSE}
-
-# Words with the 50 largest frequencies
-index2 <- textstat_frequency(dfm(data.tk5))[1:20,]$feature
-
-index2 
-
-```
-
-```{r plot, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
-
-# Plots
-plot(data.we[index2, ], 
-     type = 'n',  
-     xlab = "Dim 1", 
-     ylab = "Dim 2")
-
-text(x = data.we[index2, ], 
-     labels = rownames(data.we[index2, ]))
-title(main = "Word Embedding: GloVe model", 
-      sub = "source: Invisible Women.pdf")
-
-```
-
-#### Document Embedding {.tabset}
-
-Document embedding uses word embedding by translating the word representations into document representations. To build the document embedding, we compute the centroids of the documents. To do so, we use two methods, the centroids from averaging using DTM and weighted centroids using TF-IDF.
-
-Before generating the centroids, we extract words in each document and for these words, we extract the word vectors and make a matrix. Then, we average all these vectors.
-
-```{r words extraction, message=FALSE, warning=FALSE, include=FALSE}
-
-# Words in Document 1
-head(data.tk5[[1]]) 
-
-```
-
-```{r word vectors, message=FALSE, warning=FALSE, include=FALSE}
-
-# Word vectors
-head(data.we[data.tk5[[1]],])
-
-```
-
-```{r average, message=FALSE, warning=FALSE, include=FALSE}
-
-# Averages all these vectors => Document 1 vector
-apply(data.we[data.tk5[[1]],], 2, mean) 
-
-#POtentiellement faire un élément pour mettre ça et le truc précédent dans un kable 
-
-```
-
-```{r loop over documents, message=FALSE, warning=FALSE, include=FALSE}
-
-# Number of documents
-nd <- length(data.tk5) 
-
-# Document embedding matrix (1 document per row)
-data.de <- matrix(nr = nd, 
-                  nc = p) 
-
-# Loop over documents
-for (i in 1:nd){
-  
-  # drop=FALSE is needed in case there is only one token
-  words_in_i <- data.we[data.tk5[[i]], , drop = FALSE] 
-  
-  data.de[i,] <- apply(words_in_i, 2, mean)
-  
-}
-
-row.names(data.de) <- names(data.tk5)
-
-head(data.de) ## document vectors
-
-```
-
-##### Centroids (DTM)
-
-The centroid method averages the word representations over the number of documents:
-
-$vec(d) = \frac{1}{|d|} \Sigma vec(w)$
-
-[INTERPRET]
-
-```{r plot-texts, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
-
-# Plots
-plot(data.de, type='n',  xlab="Dim 1", ylab="Dim 2", main="Document Embedding: Centroids (averaging using DTM)")
-text(x=data.de, labels=rownames(data.de))
-title(sub = "source: Invisible Women.pdf")
-
-```
-
-##### Weighted Centroids (TF-IDF) 
-
-The weighted centroid method uses TF-IDF: 
-
-$vec(d) = \frac{\Sigma_{w \in d}tfidf(w,d)vec}{\Sigma_{w \in d}tfidf(w,d)}$
-
-[ADD INTERPRETATION]
-
-```{r centroid plot tfidf, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
-
-data_tfidf <- dfm_tfidf(dfm(data.tk5))
-
-data.detfidf <- matrix(nr=nd, nc=p) # document embedding matrix (1 document per row)
-
-for (i in 1:nd){
-  
-  words_in_i <- data.we[data.tk5[[i]],,drop=FALSE]
-  
-  weights.tfidf <- as.numeric(data_tfidf[i, data.tk5[[i]]])
-  
-  weights.tfidf <- weights.tfidf / sum(weights.tfidf)
-  
-  data.detfidf[i,] <- apply(weights.tfidf * words_in_i,2,sum)
-  
-}
-
-plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids - TFIDF")
-
-text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
-
-```
-
-#### Relaxed Word Mover’s Distance (RWMD) {.tabset}
-
-The document embedding can be used for clustering (using K-Means) or for computing the similarity/dissimilarity (Jaccard, Cosine, Euclidean) matrices before clustering (hierarchical). An alternative approach is to use the Relaxed Word Mover’s Distance to compute document similarity using word embedding. RWMD can use DTM or TF-IDF. 
-
-##### Distances
-
-Distances (i.e. similarities) between documents in the RWMD approach estimate how hard it is to transform words from one document into words from another document and vice versa. 
-
-To compute the RWMD, we use the **RelaxedWordMoversDistance** function from the **text2vec** package using DTM (word and document embedding). Note that the function provides similarities and distances which allows us to plot a dendogram displaying the clustering of chapters. 
-
-The following dendogram shows that chapter 10 *The Drugs Don’t Work* and chapter 11 *Yentl Syndrome* from part IV *Going to the Doctor* are the most similar since the height at which they are joined (~0.14) is the smallest. Considering the RWMD, this means that the cost from converting the words of chapter 10 into the words of chapter 11 is the smallest because the distance of their word embeddings distances is the smallest. 
-```{r RWMD distances, echo=F, message=F, warning=F}
-set.seed(432)
-# Preparation
-data.glove <- GlobalVectors$new(rank = 30, x_max = 10)
-
-data.weC <- data.glove$fit_transform(data.coo)
-
-data.we <- t(data.glove$components) + data.weC
-
-data.dtm <- dfm(data.tk5)
-
-# Build the model
-data.rwmd.model <- RelaxedWordMoversDistance$new(data.dtm, data.we)
-data.rwms <- data.rwmd.model$sim2(data.dtm)
-data.rwmd <- data.rwmd.model$dist2(data.dtm)
-
-# Plot the dendogram
-data.hc <- hclust(as.dist(data.rwmd))
-plot(data.hc, cex = 0.8)
-
-```
-
-##### Document Embedding using RWMD
-
-Since RWMD generates dissimilarities between documents, we can easily obtain a clustering of the RWMD document embedding. The positions of vectors here mirror the Relaxed Word Mover’s Distances. 
-
-[ADD INTERPRETAION]
-
-```{r clustering from RWMD, echo=F, message=F, warning=F}
-
-# Preparation
-data.glove <- GlobalVectors$new(rank = 2, x_max = 10)
-data.deC <- data.glove$fit_transform(data.rwms)
-data.derwms <- t(data.glove$components) + data.deC
-
-# Plot clustering
-plot(data.derwms, 
-     type = 'n',  
-     xlab = "Dim 1", 
-     ylab = "Dim 2", 
-     main = "Document embedding (RWMD)")
-
-text(x = data.derwms, labels = rownames(data.derwms))
 
 ```
 
