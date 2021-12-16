@@ -12,40 +12,7 @@ This report outlines the results of a text mining analysis of the best-seller no
 
 The goal of the text mining analysis is to study textual data and extract some specific characteristics of feminist texts on gender bias in data by transforming unstructured texts into a set of structured features. 
 
-The upcoming analysis is a comprehensive text mining exploration of *Invisible Women* following a four-part structure: 
-
-1. Data gathering 
-
-2. Data Structuring and Cleaning
-  * Corpus
-  * Tokenization
-  * Stop Words
-  * Lemmatization 
-  * Stemming
-  * Document-Term Matrix (DTM)
-  
-3. Exploratory Data Analysis
-  * Cloud of Words
-  * Global Frequency
-  * Term-Frequency versus Document-Frequency 
-  * Term-Frequency by Document 
-  * Zipf's Law
-  * Term-Frequency and Inverse-Document Matrix (TF-IDF)
-  * TF-IDF by Document
-  * Keyness
-  * Link between words
-  * Dispersion Plot 
-  * Lexical Diversity
-  
-4. Analysis
-  * Sentiment Analysis
-  * Topic Modeling
-  * Unsupervised Learning (Embedding, Similarities and Clustering)
-  * Supervised learning (Classification)
-  
-6. Conclusion
-
-Our research question is the following: 
+The upcoming analysis is a comprehensive text mining exploration of *Invisible Women* in order to answer the following research question:
 
 What are the conclusions someone who has not read the book can draw from our analysis compared to someone who has read it ? 
 

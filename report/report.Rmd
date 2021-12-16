@@ -5,8 +5,8 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document: 
     toc: TRUE
-    toc_flot: TRUE
+    toc_float: TRUE
 ---
 
-```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd','analysis.Rmd', 'concl.Rmd', 'Appendix.Rmd')}
+```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd','analysis.Rmd', 'concl.Rmd')}
 ```
