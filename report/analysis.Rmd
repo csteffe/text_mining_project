@@ -441,9 +441,7 @@ theta.long %>%
 
 ##### Prevalence
 
-The prevalence is the the topic distribution (proportion) in a corpus: 
-
-$Prev(topic\ k) =  (\frac{1}{M})\Sigma_{m=1}^M \theta (k,m)$
+The prevalence is the the topic distribution (proportion) in a corpus.
 
 The following output displays the prevalence scores for each topic. We see that topic 10 is the most prevalent topic in the corpus (6.264) and that topic 8 is the least prevalent (0.616).
 
@@ -462,8 +460,6 @@ colSums(data.lda$theta)/sum(data.lda$theta) %>% table()
 Topic modeling allows to organize, understand and summarize large corpora. Yet, topic modeling has limitations especially regarding the interpretation of its outcomes. In fact, other measures provide a way to extract further insight. 
 
 The measure of coherence allows to assess the quality of a topic (i.e. good versus bad):
-
-$C = \Sigma_{t=2}^t \Sigma_{t'=1}^{t-1}log(\frac{D(v_t,v'_t) + 1}{D(v'_t)})$
 
 The below output gives the coherence for each ten topic. We see that the most coherent topic is topic 10 (0.557) and the least coherent topic is topic 8 (-9.174). Therefore, the words associated with topic 10 (large $\theta$) are used in the same documents.
 
@@ -526,9 +522,7 @@ as.matrix(data.codo[term.mat[,10],
 
 ##### Exclusivity 
 
-A topic is considered exclusive if it is associated with terms that are not associated to another topic:
-
-$Excl(topic\ k) = \Sigma_{t=1}^T(\frac{\theta(v,k)}{\Sigma_{k'=1}^K \theta(v,k')})$
+A topic is considered exclusive if it is associated with terms that are not associated to another topic.
 
 The next output shows that the most exclusive topic, which has the more terms not associated with another topic, is topic 10 (0.693663) meaning that its five top terms are more specific to it. The least exclusive topic is topic 1 (0.000309). 
 
