@@ -1378,7 +1378,8 @@ supervised_tk <- supervised_cp %>%
 
 ### Classification with Random Forest {.tabset}
 
-Random Forest is a supervised leanring algorithm used in regression and classification problem. It consists of building many decisions trees that will be averaged to make a final prediction. Here we will do classification for the 6 parts of the book :  
+Random Forest is a supervised learning algorithm used in regression and classification problem. It consists of building many decisions trees that will be averaged to make a final prediction. Here we will do classification for the 6 parts of the book :  
+
 Part I: *Daily Life*  
 Part II: *The Workplace*  
 Part III: *Design*  
