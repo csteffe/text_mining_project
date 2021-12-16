@@ -723,8 +723,10 @@ Then, we transform the co-occurrence matrix into a dissimilarity matrix (*maximu
 data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature, 
                                          data.feat$feature]) # 280 is the max co-occurrence here
 
+
+
 # Cluster
-data.hc <- hclust(as.dist(data.inv_occ))
+data.hc <- hclust(as.dist(data.inv_occ[-1,-1]))
 
 plot(data.hc)
 
@@ -1429,17 +1431,28 @@ index.tr <- sample(size = round(0.8*length(y)),
 df.tr <- df[index.tr,] 
 df.te <- df[-index.tr,]
 
-# Fit on the training set using random forest
-data.fit <- ranger(Class ~ ., data = df.tr)
 
-# Make predictions on the test set
-pred.te <- predict(data.fit, df.te)
 
-# Prediction results in confusion matrix
-confusionMatrix(data = pred.te$predictions, 
-                reference = df.te$Class) 
+### Random Forest with bootstraping
+set.seed(235)
+
+trctrl <- trainControl(method = "boot")
+# trctrl <- trainControl(method = "cv", number = 20)
+
+rf.model <- train(Class~., 
+      data=df.tr, 
+      method = 'ranger', 
+      trControl=trctrl, 
+      preProcess = c("center","scale"), 
+      tuneLength = 10)
+
+rf.pred <- predict(rf.model, df.te)
+
+confusionMatrix(rf.pred, df.te$Class)
+ 
 
 ```
+
 
 #### Improving the features
 
@@ -1491,10 +1504,27 @@ data.lsa <- textmodel_lsa(data.tfidf, nd = 25)
 df <- data.frame(Class = y, X = data.lsa$docs)
 df.tr <- df[index.tr,]
 df.te <- df[-index.tr,]
-data.fit <- ranger(Class ~ .,
-                     data = df.tr)
-pred.te <- predict(data.fit, df.te)
-confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+
+
+
+### Random Forest with bootstraping
+set.seed(235)
+
+trctrl <- trainControl(method = "boot")
+# trctrl <- trainControl(method = "cv", number = 20)
+
+rf.model <- train(Class~., 
+      data=df.tr, 
+      method = 'ranger', 
+      trControl=trctrl, 
+      preProcess = c("center","scale"), 
+      tuneLength = 10)
+
+rf.pred <- predict(rf.model, df.te)
+
+confusionMatrix(rf.pred, df.te$Class)
+ 
+
 ```
 
 As expected using the TF-IDF and an optimized number of dimension, we increase the accuracy from 81.2% to 83.1%. Additionally, the balance accuracy also increase from 76.7% to 79.1% so the tuning slightly improved the classification.
@@ -1520,17 +1550,23 @@ df <- cbind(df,
 df.tr <- df[index.tr,]
 df.te <- df[-index.tr,]
 
-# Random forest when adding more features
-data.fit <- ranger(Class ~ .,
-                   data = df.tr, 
-                   importance = "impurity")
+### Random Forest with bootstraping
+set.seed(235)
 
-# Make predictions
-pred.te <- predict(data.fit, df.te)
+trctrl <- trainControl(method = "boot")
+# trctrl <- trainControl(method = "cv", number = 20)
 
-# Confusion matrix
-confusionMatrix(data = pred.te$predictions, 
-                reference = df.te$Class)
+rf.model <- train(Class~., 
+      data=df.tr, 
+      method = 'ranger', 
+      trControl=trctrl, 
+      preProcess = c("center","scale"), 
+      tuneLength = 10)
+
+rf.pred <- predict(rf.model, df.te)
+
+confusionMatrix(rf.pred, df.te$Class)
+ 
 
 ```
 
@@ -1560,6 +1596,24 @@ svm.model <- svm(Class ~ ., data = df.tr,
 svm.pred  <- predict(svm.model, df.te)
 
 # Results
+confusionMatrix(data = svm.pred, 
+                reference = df.te$Class)
+
+
+set.seed(235)
+
+trctrl <- trainControl(method = "boot")
+# trctrl <- trainControl(method = "cv", number = 20)
+
+svm.model <- train(Class~., 
+      data=df.tr, 
+      method = "svmRadial", 
+      trControl=trctrl, 
+      preProcess = c("center","scale"), 
+      tuneLength = 10)
+
+svm.pred  <- predict(svm.model, df.te)
+
 confusionMatrix(data = svm.pred, 
                 reference = df.te$Class)
 
