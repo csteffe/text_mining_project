@@ -613,8 +613,6 @@ title(main = "Word Embedding: GloVe model",
 
 Document embedding uses word embedding by translating the word representations into document representations. To build the document embedding, we compute the centroids of the documents. To do so, we use two methods, the centroids from averaging using DTM and weighted centroids using TF-IDF.
 
-Before generating the centroids, we extract words in each document and for these words, we extract the word vectors and make a matrix. Then, we average all these vectors.
-
 ```{r words extraction, message=FALSE, warning=FALSE, include=FALSE}
 
 # Words in Document 1
@@ -665,11 +663,9 @@ head(data.de) ## document vectors
 
 ##### Centroids (DTM)
 
-The centroid method averages the word representations over the number of documents:
+Before generating the centroids, we extract words in each document and for these words, we extract the word vectors and make a matrix. Then, we average all these vectors. The centroid method averages the word representations over the number of documents.
 
-
-
-[INTERPRET]
+In the below plot, we can see that the chapters 2&13, 1&6 and 8&14 are very close. It means that they look similar because they used terms that are similar and cooccur. In addition, chapter 3, 10 and 12 are less similar to the rest of the corpus for these reasons.
 
 ```{r plot-texts, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
@@ -681,12 +677,6 @@ title(sub = "source: Invisible Women.pdf")
 ```
 
 ##### Weighted Centroids (TF-IDF) 
-
-The weighted centroid method uses TF-IDF: 
-
-
-
-[ADD INTERPRETATION]
 
 ```{r centroid plot tfidf, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
@@ -711,7 +701,11 @@ plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids - TFID
 text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 
 ```
+The weighted centroid method uses TF-IDF
 
+
+
+[ADD INTERPRETATION]
 #### Relaxed Word Mover’s Distance (RWMD) {.tabset}
 
 The document embedding can be used for clustering (using K-Means) or for computing the similarity/dissimilarity (Jaccard, Cosine, Euclidean) matrices before clustering (hierarchical). An alternative approach is to use the Relaxed Word Mover’s Distance to compute document similarity using word embedding. RWMD can use DTM or TF-IDF. 
@@ -937,7 +931,10 @@ data.clust_jac %>%
 
 ```
 
-For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1 groups terms about public transports or spaces, cluster 2 about medical or technological trials and clusters three to six are composed of only one chapter and therefore group terms according to their respective chapters' vocabulary. 
+For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster :
+* Cluster 1 groups terms about public transports or spaces
+* Cluster 2 about medical or technological trials 
+* Clusters 3 to 6 are composed of only one chapter and therefore group terms according to their respective chapters' vocabulary.
 
 ```{r Jaccard clust words, echo=F, message=F, warning=F}
 
@@ -965,7 +962,7 @@ kbl(clust_jac,
 
 ###### Inverted Cosine Dissimilarity Matrix
 
-The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each we observe two smaller sub-clusters. One main cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14. The dendogram generated from the inverted cosine dissimilarity matrix indicates that again chapter 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.70). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
+The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each we observe two smaller sub-clusters. One main cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14. The dendogram generated from the inverted cosine dissimilarity matrix indicates that again chapter 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.70). On the contrary, chapters 4 and 14, respectively *The Myth of Meritocracy* and *Women’s Rights are Human Rights*, are the furthest apart. When questioning ourselves, we note that chapter 10 and 11 are pretty far apart from the others. When observing the title chapters, we observed that it is, along with chapter 5 *The Henri Higgins Effect*, the only chapters to touch on very particular subjects.
 
 ```{r cosine inverted, echo=F, message=F, warning=F}
 
@@ -994,7 +991,14 @@ data.clust_cos %>%
 
 ```
 
-For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster, cluster 1's chapters share terms specific to public transport or spaces and violence, cluster 2's chapters use terms regarding households, families and economics, cluster 3 reveals a political vocabulary, cluster 4 shows terms related to technology, cluster 6 displays terms about agriculture and finally, cluster 6 indicates a medical vocabulary.
+For interpretation purposes, we extract the ten most frequent terms of each cluster to identify a common denominator between chapters. According to the most used terms in each cluster:
+
+* Cluster 1's chapters share terms specific to public transport or spaces and violence
+* Cluster 2's chapters use terms regarding households, families and economics
+* Cluster 3 reveals a political vocabulary
+* Cluster 4 shows terms related to technology
+* Cluster 6 displays terms about agriculture and finally 
+* Cluster 6 indicates a medical vocabulary
 
 ```{r cosine clust words, echo=F, message=F, warning=F}
 
