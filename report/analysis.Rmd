@@ -1496,13 +1496,9 @@ confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 
 As expected using the TF-IDF and an optimized number of dimension, we increase the accuracy from 81.2% to 83.1%. Additionally, the balance accuracy also increase from 76.7% to 79.1% so the tuning slightly improved the classification.
 
-#### Adding Variable [ à enlever a nos avis ]
+#### Adding Variable
 
-Here, we try to improve the classification of the model by adding more features [USUALLY THEY ARE DOCUMENT VARIABLES BUT HERE WE CLASSIFY PARTS SO DIFFERENT] to the [DTM OR TFIDF DEPENDING ON THE COMPARISON BETWEEN ACCURACY WITH DTM AND TFIDF ABOVE. IF BETTER ACCURACY WITH DTM THEN HERE WE USE DTM, IF OTHERWISE WE USE TFIDF HERE] DTM-LSA feature matrix or TF-IDF-LSA feature matrix [TO CHOOSE].
-
-[STILL THINKING OF FEATURES TO ADD: THEORY SLIDE 5 FOR IDEAS]
-
-[ADD COMMENT ON ACCURACY RESULT: IS THERE IMPORVMENT ? IF YES, THIS MEANS THERE WAS ROOM FOR IMPROVEMENT AND THAT ADDING X FEATURES REGARDING Y INCREASE ACCURACY BY ? + IF YES DO: sort(importance(data.fit), decreasing = TRUE) in a following chunk to see which of the features added are the most important = crucial in predicting in which part is a page, IF NOT THEN NO]
+Here, we try to improve the classification of the model by adding a feature that are the lengths of the tokens, however the accuracy didn't improve, therefore as we have two model with same accuracy, the previous one with less variable is preferred.  
 
 ```{r classification improvement, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 set.seed(245) # for reproducibility of the results
@@ -1537,7 +1533,7 @@ confusionMatrix(data = pred.te$predictions,
 
 ### Classification with SVM 
 
-[ADD FEW LINES ON WHAT SVM DOES COMPARED TO RANDOM FOREST]
+The SVM method is a machine learning method, that is very different compared random forest. SVM tries to classified classes by separating data points, by a vector that we want to be as large as possible, in our class the SVM is used to predict multiple classes and not only two.   
 
 To assess the prediction quality of the random forest model, we proceed to the classification of the pages into parts of the book using the Support Vector Machine learner. To do so, we use the **svm** function of the **e1071** package with radial kernel and default parameter. 
 
