@@ -678,7 +678,7 @@ To avoid redundancy, we decide not to use the same similarity measures for the c
 
 Co-occurrence is also a similarity measure for which two words are considered similar if they are often used closely in a similar context, in any part of the corpus. Therefore, co-occurrence similarity is dependent on the token's context (i.e. document or window). Here, we consider the context as being a window of terms around a target (i.e. central word or center). The subtlety of the co-occurrence clustering is that by considering the context of a word, we are computing similarities beyond literal resemblance and, consider as well the meaning of words. Thus, this measure is different than the Jaccard, Cosine or Euclidean similarity measures which do not depend on the context of a word. Note that since the context is important, the tokens ordered must kept when computing the co-occurrence matrix (i.e. Bag of Word object cannot be used here). 
 
-To proceed to the clustering, we first compute a symmetrical co-occurrence matrix on a window of 80 terms around a target used as a similarity matrix. The below heatmap shows the similarities of the most frequent terms.  
+To proceed to the clustering, we first compute a symmetrical co-occurrence matrix on a window of 30 terms around a target used as a similarity matrix. The below heatmap shows the similarities of the most frequent terms.  
 
 ```{r clustering with co-occurrences, echo=F, message=F, warning=F, out.height=  "70%", out.width = "80%", fig.align = "center"}
 
@@ -725,7 +725,7 @@ data.inv_occ <- 280 - as.matrix(data.fcm[data.feat$feature,
 
 
 
-# Cluster
+# Cluster removing women ( first row and first column)
 data.hc <- hclust(as.dist(data.inv_occ[-1,-1]))
 
 plot(data.hc)
@@ -1304,7 +1304,7 @@ text(x = data.derwms, labels = rownames(data.derwms))
 
 ## Supervised Learning {.tabset}
 
-The goal of the supervised analysis here is to re-classify the 256 pages of the book in the six parts. To do so, we proceed to a machine learning approach consisting of splitting the corpus into a training (40%) and a test (60%) sets. Then, we train the classifiers on the training set and finally, we select the best classifiers from the results on the test set.
+The goal of the supervised analysis here is to re-classify the 256 pages of the book in the six parts. To do so, as our data set is small, we proceed to a machine learning approach consisting of splitting the corpus into a training (80%) and a test (20%) sets, and a bootstrap cross validation, to avoid a bias due to splitting. Then, we train the classifiers on the training set and finally, we select the best classifiers from the results on the test set.
 
 To be able to proceed to the classification method, the corpus must be cleaned in order for the features (i.e. terms) to be usable. Note that since terms must be usable (i.e. meaningful), we do not apply stemming on features. The appropriate cleaning process consists in sequential steps from the tokenization to removing useless words (i.e. stop words) and lemmatization.
 
@@ -1375,13 +1375,13 @@ supervised_tk <- supervised_cp %>%
 
 ### Classification with Random Forest {.tabset}
 
-Random Forest is a supervised leanring algorithm used in regression and classification problem. It consists of building many decisions trees that will be averaged to make a final prediction. Here we will do classification for the 6 parts of the book.
-Part I: *Daily Life*
-Part II: *The Workplace*
-Part III: *Design*
-Part IV: *Going to the Doctor*
-Part V: *Public Life*
-Part VI: *When it Goes Wrong*
+Random Forest is a supervised leanring algorithm used in regression and classification problem. It consists of building many decisions trees that will be averaged to make a final prediction. Here we will do classification for the 6 parts of the book :  
+Part I: *Daily Life*  
+Part II: *The Workplace*  
+Part III: *Design*  
+Part IV: *Going to the Doctor*  
+Part V: *Public Life*  
+Part VI: *When it Goes Wrong*  
 
 #### Features: DTM and LSA
 
@@ -1405,11 +1405,11 @@ data.lsa <- textmodel_lsa(supervised_dfm, nd = 30) # reduce feature to 30 dimens
 
 ```
 
-From the results of LSA, we proceed to fir the classifiers on the training set and predict the results on the test set. The below results show first the overall quality of the predictions (on the test set) of the random forest classifier on the confusion matrix. 
+From the results of LSA, we proceed to fit the classifiers on the training set and predict the results on the test set. The below results show first the overall quality of the predictions (on the test set) of the random forest classifier on the confusion matrix. 
 
-The diagonal indicates the correct predictions of pages in their actual parts of the book and around it we see the false predictions. For example, for part IV *Going to the Doctor*, 21 pages are correctly classified and 3 pages are incorrectly predicted.
+The diagonal indicates the correct predictions of pages in their actual parts of the book and around it we see the false predictions. For example, for part II *The worplace* which have the most missclassifed pages, 13 pages are correctly classified and 5 pages are incorrectly predicted.
 
-The overall statistics demonstrates an overall accuracy (i.e. proportion of correct predictions) of 83.1% and balanced accuracy (i.e. average between sensitivity and specificity) for the classes over 76.7% as well, indicating that our model is good. The interesting fact here is that even after reducing the dimension to 30 of the DTM, we still obtain a high accuracy. 
+The overall statistics demonstrates an overall accuracy (i.e. proportion of correct predictions) of 83.7%, indicating that our model is good. The interesting fact here is that even after reducing the dimension to 30 of the DTM, we still obtain a high accuracy. 
 
 ```{r random forest, echo=F, message=F, warning=F}
 set.seed(235) # for reproducibility of the results
@@ -1457,11 +1457,11 @@ confusionMatrix(rf.pred, df.te$Class)
 #### Improving the features
 
 Now, we can consider to tune the elements that compose the features. For this propose we reconsider the previous LSA dimensions and select this number based on the best accuracy.
-[revoir]
+
 
 ```{r feature improvement,echo=F, message=F, warning=F}
 
-set.seed(2345) # for reproducibility of the results
+set.seed(235) # for reproducibility of the results
 
 ## May take a long time
 nd.vec <- c(2, 5, 25, 30, 50, 100, 1000)
@@ -1497,7 +1497,7 @@ Another method to verify whether the accuracy can be improved is to fit the mode
 
 
 ```{r random forest using TF-IDF, echo=F, message=F, warning=F}
-set.seed(255) # for reproducibility of the results
+set.seed(235) # for reproducibility of the results
 # Random forest using TF-IDF
 data.tfidf <- dfm_tfidf(supervised_dfm)
 data.lsa <- textmodel_lsa(data.tfidf, nd = 25)
@@ -1527,14 +1527,14 @@ confusionMatrix(rf.pred, df.te$Class)
 
 ```
 
-As expected using the TF-IDF and an optimized number of dimension, we increase the accuracy from 81.2% to 83.1%. Additionally, the balance accuracy also increase from 76.7% to 79.1% so the tuning slightly improved the classification.
+As expected using the TF-IDF and an optimized number of dimension, we increase the accuracy from 83.7% to 0.918%. So the tuning improved significantly the classification.
 
 #### Adding Variable
 
-Here, we try to improve the classification of the model by adding a feature that are the lengths of the tokens, however the accuracy didn't improve, therefore as we have two model with same accuracy, the previous one with less variable is preferred.  
+Here, we try to improve the classification of the model by adding a feature that are the lengths of the tokens, which improved the accuracy up to 93.9% which is really precise.  
 
-```{r classification improvement, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-set.seed(245) # for reproducibility of the results
+```{r classification improvement, eval=FALSE, message=FALSE, warning=FALSE}
+set.seed(235) # for reproducibility of the results
 # Transform dtm into tfidf
 data.tfidf <- dfm_tfidf(supervised_dfm)
 
@@ -1576,10 +1576,10 @@ The SVM method is a machine learning method, that is very different compared ran
 
 To assess the prediction quality of the random forest model, we proceed to the classification of the pages into parts of the book using the Support Vector Machine learner. To do so, we use the **svm** function of the **e1071** package with radial kernel and default parameter. 
 
-The following results show that the SVM model has a much worse overall accuracy and so does not improve our classification of the pages into the six parts. We are better off with the random forest model. 
+The following results show that the SVM model with 25 dimension for LSA and TF-IDF has an accuracy of 87.8% which is lower than the random forest model with similar parameters (91.8%). Therefore we won't continue further with this model and keep the random forest.  
 
 ```{r svm classifier, echo=F, message=F, warning=F}
-#set.seed(245) # for reproducibility of the results
+set.seed(235) # for reproducibility of the results
 data.tfidf <- dfm_tfidf(supervised_dfm)
 data.lsa <- textmodel_lsa(data.tfidf, nd = 25)
 
@@ -1588,19 +1588,7 @@ df <- data.frame(Class = y, X = data.lsa$docs)
 df.tr <- df[index.tr,]
 df.te <- df[-index.tr,]
 
-# SVM model
-svm.model <- svm(Class ~ ., data = df.tr, 
-                 kernel = "radial")
 
-# SVM predictions
-svm.pred  <- predict(svm.model, df.te)
-
-# Results
-confusionMatrix(data = svm.pred, 
-                reference = df.te$Class)
-
-
-set.seed(235)
 
 trctrl <- trainControl(method = "boot")
 # trctrl <- trainControl(method = "cv", number = 20)
