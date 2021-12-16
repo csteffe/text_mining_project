@@ -66,19 +66,19 @@ data.sent <- tokens_lookup(data.tk4,
              dfm() %>%     # creates a dtm matrix
              tidy() %>%
              filter(term != "neg_positive" & term != "neg_negative") %>%
-            mutate(document = as.factor(document))
+             mutate(ord = as.numeric(str_sub(document, start = 5L)))
 
 # Plots the above tibble
-ggplotly(ggplot(data.sent[order(data.sent$term),],
-                aes(x = document, 
-                    y = count, 
-                    fill = term, 
-                    text = paste('</br><b>Chapter:</b> ', document,
+ggplotly(ggplot(data.sent,
+                aes( x = reorder(document, -ord), 
+                     y = count, 
+                     fill = term, 
+                     text = paste('</br><b>Chapter:</b> ', document,
                                  '</br><b>Count:</b> ', count))) + 
          geom_bar(stat = "identity", position = "fill", alpha = 0.5) + 
          coord_flip() + 
          theme_minimal() +
-         scale_fill_manual(values = c("firebrick3", "forestgreen")) +
+         scale_fill_manual(values = c("dodgerblue","darkseagreen3")) +
          labs(title = "Dictionary-Based Sentiment Analysis",
               x = "Chapter",
               y = "Count",
@@ -91,35 +91,6 @@ data.sent <- tokens_lookup(data.tk4,
   dfm() %>%     # creates a dtm matrix
   tidy() %>%
   filter(term != "neg_positive" & term != "neg_negative") %>% group_by(document) %>%summarise (relfreq = count/sum(count), term=term)%>%ungroup()
-
-
-
-# Plots the above tibble
-ggplotly(ggplot(data.sent,
-                aes(x = reorder(document, term), 
-                    y = relfreq, 
-                    fill = term, 
-                    text = paste('</br><b>Chapter:</b> ', document,
-                                 '</br><b>Relative Frequency:</b> ', relfreq))) + 
-           geom_bar(stat = "identity", alpha = 0.5) + 
-           coord_flip() + 
-           theme_minimal() +
-           scale_fill_manual(values = c("firebrick3", "forestgreen")) +
-           labs(title = "Dictionary-Based Sentiment Analysis",
-                x = "Chapter",
-                y = "Count",
-                fill = "Sentiment"),
-         tooltip = "text") 
-
-neg <- data.sent %>%
-       filter(term == "negative")
-
-neg_count <- sum(neg$count) # 3,596
-
-pos <- data.sent %>%
-       filter(term == "positive")
-
-pos_count <- sum(pos$count) # 2,661
 
 ```
 

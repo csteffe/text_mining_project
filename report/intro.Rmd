@@ -6,7 +6,7 @@ output:
 
 # Executive Summary
 
-This report outlines the results of a text mining analysis of the best-seller non-fiction book *Invisible Women*. Its exploration is meant to better understand some textual characteristics of feminist texts from Caroline Criado Perez. Our text mining analysis shows that [ADD RESULTS HERE]. 
+This report outlines the results of a text mining analysis of the best-seller non-fiction book *Invisible Women*. Its exploration is meant to better understand some textual characteristics of feminist texts from Caroline Criado Perez. Our text mining analysis shows that the analysis of the book allows team members who have not read the book to grasp a really good idea of what Invisible Women is about and what general sentiment that emerges from the text. 
 
 # Introduction
 
