@@ -1,15 +1,9 @@
 # 6. Conclusion
 
-From our exploratory data analysis, ...
+What are the conclusions someone who has not read the book can draw through our analysis compared to someone who has read it ? 
 
-The sentiment analysis shows that ...
+From the perspective of someone who has read *Invisible Women*, the analysis clarifies the understanding of the structure intended by the author. Indeed, each chapter is very well focused on the gender issue in one specific context and each part groups the contexts in specific domains (medical, technological, political...). Before the analysis, the evolution of the story seemed a bit disjointed in the sense that we jump from one context to the other without necessarily seeing a smooth transition. After the analysis, one realizes 
 
-The topic modeling shows that ...
 
-To perform the unsupervised learning analysis (embedding), we represent documents and words in a vector space model VSM. -> add results: + est-ce que similarities et clustering results ca nirait pas la aussi ? 
 
-To perform the supervised learning analysis (classification task here), we split the corpus into a training and a test set and explore two classification models: random forest and support vector machine (SVM). We find that random forest model provides a much higher overall accuracy [ADD HERE THE HIGHEST OVERALL ACCURACY ONCE WE KNOW IT FOR SURE IN THE ANALYSIS] when classifying the pages of the book in their respective parts than the SVM. [ADD HERE IF WE OBSERVE IMPORVEMENT WHEN ADDING FEATURES].
 
-Thus, our final random forest model using [TFIDF OR DTM: WE FIRST NEED TO FINISH THIS PART IN ANALYSIS] is capable of identifying to which part of *Invisible Women*a page belongs using features with ?% of accuracy.
-
-To conclude, we find that chapters of the book can share a similar vocabulary and that chapters approach very different topics from medical to technological... + sentiment of the book ...
