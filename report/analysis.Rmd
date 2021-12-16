@@ -324,7 +324,7 @@ data.lda <- textmodel_lda(data.dfm,
 
 ```
 
-After building the LDA object, we look at the top three terms per topic and the top three topics per document. The following output shows that *public*, *sexual* and *toilet* are the top three words of topic 1 and that [CAN YOU HELP ME INTERPRET ???]. 
+After building the LDA object, we look at the top three terms per topic and the top three topics per document. The following output shows that *public*, *sexual* and *toilet* are the top three words of topic 1 and that topic 6 is the most frequent topic. 
 
 ```{r top terms and topics, message=FALSE, warning=FALSE}
 
@@ -665,7 +665,7 @@ head(data.de) ## document vectors
 
 Before generating the centroids, we extract words in each document and for these words, we extract the word vectors and make a matrix. Then, we average all these vectors. The centroid method averages the word representations over the number of documents.
 
-In the below plot, we can see that the chapters 2&13, 1&6 and 8&14 are very close. It means that they look similar because they used terms that are similar and cooccur. In addition, chapter 3, 10 and 12 are less similar to the rest of the corpus for these reasons.
+In the below plot, we can see that the chapters 2-13, 1-6 and 8-14 are very close. It means that they look similar because they use terms that are similar and co-occur. In addition, chapters 3, 10 and 12 are less similar to the rest of the corpus for these reasons.
 
 ```{r plot-texts, echo=F, message=F, warning=F, fig.height = 12, fig.width = 12, fig.align = "center"}
 
@@ -696,7 +696,7 @@ for (i in 1:nd){
   
 }
 
-plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Centroids - TFIDF")
+plot(data.detfidf, type='n',  xlab="Dim 1", ylab="Dim 2", main="Document Embedding: Centroids (TFIDF)")
 
 text(x=data.detfidf[,1], y=data.detfidf[,2], labels=rownames(data_tfidf))
 
@@ -717,6 +717,7 @@ Distances (i.e. similarities) between documents in the RWMD approach estimate ho
 To compute the RWMD, we use the **RelaxedWordMoversDistance** function from the **text2vec** package using DTM (word and document embedding). Note that the function provides similarities and distances which allows us to plot a dendogram displaying the clustering of chapters. 
 
 The following dendogram shows that chapter 10 *The Drugs Don’t Work* and chapter 11 *Yentl Syndrome* from part IV *Going to the Doctor* are the most similar since the height at which they are joined (~0.14) is the smallest. Considering the RWMD, this means that the cost from converting the words of chapter 10 into the words of chapter 11 is the smallest because the distance of their word embeddings distances is the smallest. 
+
 ```{r RWMD distances, echo=F, message=F, warning=F}
 set.seed(432)
 # Preparation
@@ -900,7 +901,9 @@ Hierarchical clustering is based on distances and applied on the dissimilarities
 
 ###### Inverted Jaccard Dissimilarity Matrix
 
-The inverted Jaccard dissimilarity matrix shows that there are two main clusters. One cluster groups chapters 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* and the other one groups the rest of the book. Moreover, inside the second larger cluster, we see that there are two sub-clusters. From the dendogram, we understand that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.76). On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
+The inverted Jaccard dissimilarity matrix shows that there are two main clusters. One cluster groups chapters 15 *Who Will Rebuild* and 16 *It's Not The Disaster That Kills You* and the other one groups the rest of the book. Moreover, inside the second larger cluster, we see that there are two sub-clusters. From the dendogram, we understand that chapters 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.76).
+
+On the contrary, chapters 4 and 14, respectively *The Myth of Meritocracy* and *Women’s Rights are Human Rights*, are the furthest apart. When questioning ourselves, we note that chapter 10 and 11 are pretty far apart from the others. When observing the title chapters, we observed that it is, along with chapter 5 *The Henri Higgins Effect*, the only chapters to touch on very particular subjects.
 
 ```{r Jaccard inverted, echo=F, message=F, warning=F}
 
@@ -932,6 +935,7 @@ data.clust_jac %>%
 ```
 
 For interpretation purposes, we extract the ten words that are the most frequent in each cluster to identify a common denominator between chapters. According to the most used terms in each cluster :
+
 * Cluster 1 groups terms about public transports or spaces
 * Cluster 2 about medical or technological trials 
 * Clusters 3 to 6 are composed of only one chapter and therefore group terms according to their respective chapters' vocabulary.
@@ -962,7 +966,7 @@ kbl(clust_jac,
 
 ###### Inverted Cosine Dissimilarity Matrix
 
-The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each we observe two smaller sub-clusters. One main cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14. The dendogram generated from the inverted cosine dissimilarity matrix indicates that again chapter 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.70). On the contrary, chapters 4 and 14, respectively *The Myth of Meritocracy* and *Women’s Rights are Human Rights*, are the furthest apart. When questioning ourselves, we note that chapter 10 and 11 are pretty far apart from the others. When observing the title chapters, we observed that it is, along with chapter 5 *The Henri Higgins Effect*, the only chapters to touch on very particular subjects.
+The inverted cosine dissimilarity matrix seems to show that there are again two main clusters and for each we observe two smaller sub-clusters. One main cluster groups chapters 10, 11, 5, 6, 8 and 9 and the other one groups chapters 7, 11, 12, 15, 16, 13, 3, 2, 4 and 14. The dendogram generated from the inverted cosine dissimilarity matrix indicates that again chapter 10 *The Drugs Don't Work* and 11 *Yentl Syndrom* are the most similar ones as their distance is the smallest (~0.70). 
 
 ```{r cosine inverted, echo=F, message=F, warning=F}
 
@@ -1025,7 +1029,7 @@ kbl(clust_cos,
 
 ###### Euclidean-based Dissimilarity Matrix
 
-The Euclidean dissimilarity matrix seems to show that there is sequence of clusters which is a completely different clustering pattern compared to the other two distance measures. This pattern seems to indicate that each chapter is rather independent from the others and do not share a lot of similarities across chapters of the book. According to Euclidean-based dissimilarity matrix, we see that chapters 12 *A Costless Resource to Exploit* and 15 *Who Will Rebuild?* share the smallest distance indicating that they are the most similar. This finding is different than the ones using the two other distance measures. On the contrary, chapters [CAN WE ADD WHICH CHAPTERS ARE THE MOST DISSIMILAR?]
+The Euclidean dissimilarity matrix seems to show that there is sequence of clusters which is a completely different clustering pattern compared to the other two distance measures. This pattern seems to indicate that each chapter is rather independent from the others and do not share a lot of similarities across chapters of the book. According to Euclidean-based dissimilarity matrix, we see that chapters 12 *A Costless Resource to Exploit* and 15 *Who Will Rebuild?* share the smallest distance indicating that they are the most similar. This finding is different than the ones using the two other distance measures. 
 
 ```{r Euclidean-based, echo=F, message=F, warning=F}
 
@@ -1205,10 +1209,6 @@ ggplot(data = data.cos.mat2,
 
 ```
 
-##### Euclidean Distance 
-
-[TO DO !!]
-
 #### Clustering of Words {.tabset}
 
 To avoid redundancy, we decide not to use the same similarity measures for the clustering methods (Jaccard index, Cosine distance, Euclidean distance) as in the *Clustering of Documents* and to use instead the co-occurrence similarity measure to cluster the 40 most frequent terms in the corpus that we studied above in **Similarities Between Words**. 
@@ -1252,9 +1252,10 @@ ggplot(data = data.fcm.mat,
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
+
 Then, we transform the co-occurrence matrix into a dissimilarity matrix (*maximum co-occurrence - similarity matrix*) from which we derive the co-occurrence distance-based clustering (i.e. hierarchical clustering). 
 
-[ADD INTERPRETAION: KEEP IN MIND THAT THE CO-OCCURRENCE MATRIX IS TURNED INTO A DISSIMILARITY MATRIX -> PROVIDE EXAMPLE WITH FEMAL-WOMAN]
+For example *female* and *male* are the most similar according to the co-occurrence dissimilarity matrix.
 
 ```{r clustering analysis, echo=F, message=F, warning=F}
 

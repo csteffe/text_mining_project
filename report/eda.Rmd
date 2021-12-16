@@ -217,11 +217,7 @@ data.tfidf2 %>%
 
 ## TF-IDF by Document
 
-The following plot shows the 10 highest TF-IDF associated with their chapter. 
-Chapter 10, *The Drugs Don't Work*, is now associated with *trial* and *drug*
-To avoid redundancy, we will not comment each of the term-document. But for chapter 10, *The Drugs Don't Work*, we can see it is now associated with *trial* and *drug*. The term *tax* is still really frequent and we can now definitely state that it is specific to chapter 13, *From Purse to Wallet*. Chapter 14, *Women's Rights are Human Rights*, is in fact more specifically associated with the term *interrupt* than with the term *female* as shown in the *Term-Frequency by Document* section. 
-
-[what's the firm term ? vr ? ]
+The following plot shows the 10 highest TF-IDF associated with their chapter. Chapter 10 *The Drugs Don't Work* is now associated with *trial* and *drug*. To avoid redundancy, we will not comment each of the term-document. But for chapter 10, we can see it is now associated with *trial* and *drug*. The term *tax* is still really frequent and we can now definitely state that it is specific to chapter 13 *From Purse to Wallet*. Chapter 14 *Women's Rights are Human Rights* is in fact more specifically associated with the term *interrupt* than with the term *female* as shown in the *Term-Frequency by Document* section. 
 
 ```{r tfidf by document plot, echo=F, message=F, warning=F}
 
